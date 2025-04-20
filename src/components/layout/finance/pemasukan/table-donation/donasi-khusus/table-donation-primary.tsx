@@ -23,7 +23,6 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { z } from "zod";
 
 import { formatCurrency } from "../utils";
 
@@ -37,7 +36,6 @@ import {
 } from "@/components/ui/table";
 import { DraggableRow } from "../draggable-row";
 import { donasiKhususSchema, type DonasiKhususData } from "../schema";
-
 import { IconDotsVertical } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,88 +45,73 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { TableActions } from "./table-actions";
+import { columns } from "./columns";
+import { EditDonasiKhusus } from "./edit-donasi-khusus";
+import { DetailDonasiKhusus } from "./detail-donasi-khusus";
+import { DeleteDonasiKhususDialog } from "./delete-donasi-khusus";
 
 export type DonationData = DonasiKhususData;
-
-export const columns: ColumnDef<DonationData>[] = [
-  {
-    accessorKey: "no",
-    header: () => <div className="text-center">No</div>,
-    cell: ({ row }) => <div className="text-center">{row.getValue("no")}</div>,
-  },
-  {
-    accessorKey: "nama",
-    header: () => <div className="text-center">Nama Donatur</div>,
-    cell: ({ row }) => (
-      <div className="text-center">{row.getValue("nama")}</div>
-    ),
-  },
-  {
-    accessorKey: "tanggal",
-    header: () => <div className="text-center">Tanggal</div>,
-    cell: ({ row }) => (
-      <div className="text-center">{row.getValue("tanggal")}</div>
-    ),
-  },
-  {
-    accessorKey: "jumlah",
-    header: () => <div className="text-center">Jumlah</div>,
-    cell: ({ row }) => (
-      <div className="text-center font-medium">
-        {formatCurrency(row.getValue("jumlah"))}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "keterangan",
-    header: () => <div className="text-center">Keterangan</div>,
-    cell: ({ row }) => (
-      <div className="text-center">{row.getValue("keterangan")}</div>
-    ),
-  },
-  {
-    id: "actions",
-    cell: () => (
-      <div className="flex justify-end">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-              size="icon"
-            >
-              <IconDotsVertical />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Lihat Detail</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">Hapus</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    ),
-  },
-];
 
 interface DataTableProps {
   data: DonationData[];
   year: string;
 }
-
 export function DataTable({ data, year }: DataTableProps) {
-  const [items, setItems] = React.useState(data);
+  const formattedData = React.useMemo(() => {
+    return data.map(item => ({
+      ...item,
+      tanggal: new Date(item.tanggal)
+    }));
+  }, [data]);
+
+  const [items, setItems] = React.useState(formattedData);
+  const [selectedDonasi, setSelectedDonasi] = React.useState<DonasiKhususData | null>(null);
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [isDetailOpen, setIsDetailOpen] = React.useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
+
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
     useSensor(KeyboardSensor, {})
   );
 
+  const handleEdit = React.useCallback((donasi: DonasiKhususData) => {
+    setSelectedDonasi(donasi);
+    setIsEditOpen(true);
+  }, []);
+
+  const handleViewDetail = React.useCallback((donasi: DonasiKhususData) => {
+    setSelectedDonasi(donasi);
+    setIsDetailOpen(true);
+  }, []);
+
+  const handleDelete = React.useCallback((id: number) => {
+    const donasi = items.find(item => item.id === id);
+    if (donasi) {
+      setSelectedDonasi(donasi);
+      setIsDeleteOpen(true);
+    }
+  }, [items]);
+
+  const handleSave = React.useCallback((updatedDonasi: DonasiKhususData) => {
+    setItems(prev => prev.map(item => 
+      item.id === updatedDonasi.id ? updatedDonasi : item
+    ));
+  }, []);
+
+  const handleDeleteConfirm = React.useCallback(async (id: number) => {
+    setItems(prev => prev.filter(item => item.id !== id));
+  }, []);
+
   const table = useReactTable({
     data: items,
-    columns,
+    columns: columns({
+      onEdit: handleEdit,
+      onViewDetail: handleViewDetail,
+      onDelete: handleDelete,
+    }),
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -154,72 +137,95 @@ export function DataTable({ data, year }: DataTableProps) {
   }, [items]);
 
   return (
-    <div className="overflow-x-auto rounded-lg border">
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        modifiers={[restrictToVerticalAxis]}
-        onDragEnd={handleDragEnd}
-      >
-        <Table>
-          <TableHeader className="bg-muted sticky top-0 z-10">
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              <SortableContext
-                items={dataIds}
-                strategy={verticalListSortingStrategy}
-              >
-                {table.getRowModel().rows.map((row) => (
-                  <DraggableRow key={row.id} row={row} />
-                ))}
-              </SortableContext>
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
+    <>
+      <div className="overflow-x-auto rounded-lg border">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          modifiers={[restrictToVerticalAxis]}
+          onDragEnd={handleDragEnd}
+        >
+          <Table>
+            <TableHeader className="bg-muted sticky top-0 z-10">
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                <SortableContext
+                  items={dataIds}
+                  strategy={verticalListSortingStrategy}
                 >
-                  Tidak ada data donasi.
-                </TableCell>
-              </TableRow>
-            )}
+                  {table.getRowModel().rows.map((row) => (
+                    <DraggableRow key={row.id} row={row} />
+                  ))}
+                </SortableContext>
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    Tidak ada data donasi.
+                  </TableCell>
+                </TableRow>
+              )}
 
-            {/* Summary row */}
-            {table.getRowModel().rows?.length > 0 && (
-              <TableRow>
-                <TableCell
-                  colSpan={3}
-                  className="text-right border-t bg-muted/50 font-medium"
-                >
-                  Total:
-                </TableCell>
-                <TableCell className="text-center border-t bg-muted/50 font-medium">
-                  {formatCurrency(totalDonations)}
-                </TableCell>
-                <TableCell
-                  colSpan={2}
-                  className="border-t bg-muted/50"
-                ></TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </DndContext>
-    </div>
+              {/* Summary row */}
+              {table.getRowModel().rows?.length > 0 && (
+                <TableRow>
+                  <TableCell
+                    colSpan={3}
+                    className="text-left border-t bg-muted/50 font-medium"
+                  >
+                    Total:
+                  </TableCell>
+                  <TableCell className="text-center border-t bg-muted/50 font-medium">
+                    {formatCurrency(totalDonations)}
+                  </TableCell>
+                  <TableCell
+                    colSpan={2}
+                    className="border-t bg-muted/50"
+                  ></TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </DndContext>
+      </div>
+
+      <EditDonasiKhusus
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        donasi={selectedDonasi}
+        onSave={handleSave}
+      />
+
+      <DetailDonasiKhusus
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        donasi={selectedDonasi}
+      />
+
+      <DeleteDonasiKhususDialog
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        donasiName={selectedDonasi?.nama ?? ""}
+        donasiId={selectedDonasi?.id ?? 0}
+      />
+    </>
   );
 }

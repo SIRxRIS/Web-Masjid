@@ -17,7 +17,6 @@ import {
   IconDownload,
   IconFileSpreadsheet,
   IconPrinter,
-  IconPlus,
 } from "@tabler/icons-react";
 import {
   DropdownMenu,
@@ -27,6 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { DonaturData } from "./schema";
+import AddDonation from "../add-donation";
 
 interface TableViewTabsProps {
   table?: Table<DonaturData>;
@@ -52,7 +52,6 @@ export function TableViewTabs({ table }: TableViewTabsProps) {
             <SelectItem value="riwayat-tahunan">Riwayat Tahunan</SelectItem>
             <SelectItem value="donasi-khusus">Donasi Khusus</SelectItem>
             <SelectItem value="kotak-amal">Kotak Amal</SelectItem>
-            <SelectItem value="rekap">Rekap Bulanan</SelectItem>
           </SelectContent>
         </Select>
 
@@ -75,12 +74,6 @@ export function TableViewTabs({ table }: TableViewTabsProps) {
             title="Catatan pemasukan dari kotak amal"
           >
             Kotak Amal
-          </TabsTrigger>
-          <TabsTrigger
-            value="rekap"
-            title="Ringkasan total donasi per kategori"
-          >
-            Rekap Bulanan
           </TabsTrigger>
         </TabsList>
       </div>
@@ -130,7 +123,9 @@ export function TableViewTabs({ table }: TableViewTabsProps) {
                     key={column.id}
                     className="capitalize"
                     checked={column.getIsVisible()}
-                    onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
                   >
                     {column.id === "aug"
                       ? "Agust"
@@ -142,11 +137,7 @@ export function TableViewTabs({ table }: TableViewTabsProps) {
             </DropdownMenuContent>
           </DropdownMenu>
         )}
-
-        <Button variant="outline" size="sm">
-          <IconPlus className="size-4 mr-1" />
-          <span>Tambah Donatur</span>
-        </Button>
+        <AddDonation />
       </div>
     </div>
   );

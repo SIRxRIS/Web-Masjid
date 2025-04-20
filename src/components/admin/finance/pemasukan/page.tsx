@@ -3,20 +3,23 @@ import { DataTable } from "@/components/layout/finance/pemasukan/table-donation"
 import { SiteHeader } from "@/components/layout/finance/pemasukan/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { getDonaturData } from "@/lib/services/donatur";
-import donasiKhususData from "@/components/admin/finance/pemasukan/donation-records.json";
-import kotakAmalData from "@/components/admin/finance/pemasukan/data-kotak-amal.json";
+import { getDonasiKhusus } from "@/lib/services/donasi-khusus";
+import { getKotakAmalData } from "@/lib/services/kotak-amal";
 
 export default async function Page() {
-  const donaturData = await getDonaturData();
+  // Fetch all data in parallel
+  const [donaturData, donasiKhususData, kotakAmalData] = await Promise.all([
+    getDonaturData(),
+    getDonasiKhusus(),
+    getKotakAmalData()
+  ]);
 
   return (
     <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
+      style={{
+        "--sidebar-width": "calc(var(--spacing) * 72)",
+        "--header-height": "calc(var(--spacing) * 12)",
+      } as React.CSSProperties}
     >
       <AppSidebar variant="inset" />
       <SidebarInset>

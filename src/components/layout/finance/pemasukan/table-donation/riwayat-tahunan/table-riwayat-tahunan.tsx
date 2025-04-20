@@ -9,7 +9,6 @@ import {
   useSensors,
   DndContext,
   type DragEndEvent,
-  type UniqueIdentifier,
   closestCenter,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
@@ -44,7 +43,8 @@ import { type DonaturData } from "../schema";
 import { TablePagination } from "./table-pagination";
 import { DraggableRow } from "../draggable-row";
 import { formatCurrency } from "../utils";
-import { DetailDonatur } from "../../detail-donatur";
+import { DetailDonatur } from "./detail-donatur";
+import { EditDonatur } from "./edit-donatur";
 
 interface TableRiwayatTahunanProps {
   data: DonaturData[];
@@ -79,30 +79,63 @@ export function TableRiwayatTahunan({
     useSensor(KeyboardSensor, {})
   );
 
-  const dataIds = React.useMemo<UniqueIdentifier[]>(
-    () => data?.map(({ id }) => id) || [],
-    [data]
-  );
+  const dataIds = React.useMemo(() => data?.map(({ id }) => id) || [], [data]);
 
-  // Add state for detail dialog
   const [isDetailOpen, setIsDetailOpen] = React.useState(false);
-  const [selectedDonatur, setSelectedDonatur] = React.useState<DonaturData | null>(null);
-  
-  // Add handler for viewing details
+  const [selectedDonatur, setSelectedDonatur] =
+    React.useState<DonaturData | null>(null);
+
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
+
   const handleViewDetail = (donatur: DonaturData) => {
     setSelectedDonatur(donatur);
     setIsDetailOpen(true);
   };
-  
+
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
     setSelectedDonatur(null);
   };
-  
-  // Update table configuration
+
+  const handleEdit = (donatur: DonaturData) => {
+    setSelectedDonatur(donatur);
+    setIsEditOpen(true);
+  };
+
+  const handleCloseEdit = () => {
+    setIsEditOpen(false);
+    setSelectedDonatur(null);
+  };
+
+  const handleSaveEdit = (updatedDonatur: DonaturData) => {
+    setData((prevData) => {
+      return prevData.map((item) => {
+        if (item.id === updatedDonatur.id) {
+          return updatedDonatur;
+        }
+        return item;
+      });
+    });
+  };
+
+  const handleDelete = (donaturId: number) => {
+    const filteredData = data.filter((item) => item.id !== donaturId);
+
+    const updatedData = filteredData.map((item, index) => ({
+      ...item,
+      no: index + 1,
+    }));
+
+    setData(updatedData);
+  };
+
   const table = useReactTable({
     data,
-    columns: columns({ onViewDetail: handleViewDetail }),
+    columns: columns({
+      onViewDetail: handleViewDetail,
+      onEdit: handleEdit,
+      onDelete: handleDelete,
+    }),
     state: {
       sorting,
       columnVisibility,
@@ -110,7 +143,7 @@ export function TableRiwayatTahunan({
       columnFilters,
       pagination,
     },
-    getRowId: (row) => row.id.toString(),
+    getRowId: (row) => row.id.toString(), 
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -129,9 +162,15 @@ export function TableRiwayatTahunan({
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
       setData((data) => {
-        const oldIndex = dataIds.indexOf(active.id);
-        const newIndex = dataIds.indexOf(over.id);
-        return arrayMove(data, oldIndex, newIndex);
+        const oldIndex = data.findIndex((item) => item.id === active.id);
+        const newIndex = data.findIndex((item) => item.id === over.id);
+
+        const reorderedData = arrayMove(data, oldIndex, newIndex);
+
+        return reorderedData.map((item, index) => ({
+          ...item,
+          no: index + 1,
+        }));
       });
     }
   }
@@ -208,52 +247,61 @@ export function TableRiwayatTahunan({
 
               {/* Summary row */}
               {table.getRowModel().rows?.length > 0 && (
-                <TableRow className="font-medium bg-muted/50">
-                  <TableCell colSpan={5} className="text-right">
+                <TableRow className="bg-muted font-medium sticky bottom-0 border-t-2 ">
+                  {/* Kolom No, Nama dan Alamat */}
+                  <TableCell className="text-right font-bold px-4 py-3">
                     Total:
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell />
+                  <TableCell />
+                  
+                  {/* Bulan Januari sampai Desember */}
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.jan)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.feb)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.mar)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.apr)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.mei)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.jun)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.jul)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.aug)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.sep)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.okt)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.nov)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.des)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  
+                  {/* Infaq dan Total */}
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(monthlyTotals.infaq)}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-center font-bold px-4 py-3">
                     {formatCurrency(totalDonations)}
                   </TableCell>
+                  
+                  {/* Kolom Aksi */}
                   <TableCell />
                 </TableRow>
               )}
@@ -264,10 +312,20 @@ export function TableRiwayatTahunan({
 
       <TablePagination table={table} />
 
-      <DetailDonatur 
+      {/* Detail Donatur Dialog */}
+      <DetailDonatur
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
         donatur={selectedDonatur}
+      />
+
+      {/* Edit Donatur Dialog */}
+      <EditDonatur
+        isOpen={isEditOpen}
+        onClose={handleCloseEdit}
+        donatur={selectedDonatur}
+        onSave={handleSaveEdit}
+        onDelete={handleDelete}
       />
     </div>
   );

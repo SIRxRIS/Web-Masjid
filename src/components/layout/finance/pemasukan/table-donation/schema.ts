@@ -24,7 +24,7 @@ export const donasiKhususSchema = z.object({
   id: z.number(),
   no: z.number(),
   nama: z.string(),
-  tanggal: z.string(),
+  tanggal: z.union([z.string(), z.date()]), // Accept both string and Date
   jumlah: z.number(),
   keterangan: z.string(),
 });

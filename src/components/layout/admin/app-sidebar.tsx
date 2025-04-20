@@ -94,7 +94,7 @@ const data = {
       icon: IconUsers,
     },
     {
-      title: "Laporan",
+      title: "Laporan Keuangan",
       url: "#",
       icon: IconReportAnalytics,
     },

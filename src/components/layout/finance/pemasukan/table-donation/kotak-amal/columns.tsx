@@ -1,22 +1,28 @@
-"use client";
-
-import * as React from "react";
-import { type ColumnDef } from "@tanstack/react-table";
-import { TableActions } from "./table-actions";
+import { ColumnDef } from "@tanstack/react-table";
+import { KotakAmalData } from "../schema";
 import { formatCurrency } from "../utils";
-import { type DonaturData } from "../schema";
+import { Button } from "@/components/ui/button";
+import { IconDotsVertical } from "@tabler/icons-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { TableActions } from "./table-actions";
 
 interface ColumnOptions {
-  onViewDetail?: (donatur: DonaturData) => void;
-  onEdit?: (donatur: DonaturData) => void;
-  onDelete?: (id: number) => void; 
+  onEdit?: (kotakAmal: KotakAmalData) => void;
+  onViewDetail?: (kotakAmal: KotakAmalData) => void;
+  onDelete?: (id: number) => void;
 }
 
 export const columns = ({
-  onViewDetail,
   onEdit,
+  onViewDetail,
   onDelete,
-}: ColumnOptions = {}): ColumnDef<DonaturData>[] => [
+}: ColumnOptions = {}): ColumnDef<KotakAmalData>[] => [
   {
     accessorKey: "no",
     header: () => <div className="text-center">No</div>,
@@ -24,13 +30,17 @@ export const columns = ({
   },
   {
     accessorKey: "nama",
-    header: () => <div className="text-left">Nama</div>,
-    cell: ({ row }) => <div className="text-left">{row.getValue("nama")}</div>,
+    header: () => <div className="text-center">Nama Kotak Amal</div>,
+    cell: ({ row }) => (
+      <div className="text-center">{row.getValue("nama")}</div>
+    ),
   },
   {
-    accessorKey: "alamat",
-    header: () => <div className="text-left">Alamat</div>,
-    cell: ({ row }) => <div className="text-left">{row.getValue("alamat")}</div>,
+    accessorKey: "lokasi",
+    header: () => <div className="text-center">Lokasi</div>,
+    cell: ({ row }) => (
+      <div className="text-center">{row.getValue("lokasi")}</div>
+    ),
   },
   {
     accessorKey: "jan",
@@ -83,14 +93,14 @@ export const columns = ({
   },
   {
     accessorKey: "aug",
-    header: () => <div className="text-center">Aug</div>,
+    header: () => <div className="text-center">Agust</div>,
     cell: ({ row }) => (
       <div className="text-center">{formatCurrency(row.getValue("aug"))}</div>
     ),
   },
   {
     accessorKey: "sep",
-    header: () => <div className="text-center">Sep</div>,
+    header: () => <div className="text-center">Sept</div>,
     cell: ({ row }) => (
       <div className="text-center">{formatCurrency(row.getValue("sep"))}</div>
     ),
@@ -117,50 +127,39 @@ export const columns = ({
     ),
   },
   {
-    accessorKey: "infaq",
-    header: () => <div className="text-center">Infaq</div>,
-    cell: ({ row }) => (
-      <div className="text-center">{formatCurrency(row.getValue("infaq"))}</div>
-    ),
-  },
-  {
-    accessorKey: "total",
-    header: () => <div className="text-center">Total</div>,
+    id: "jumlah",
+    header: () => <div className="text-center font-medium">Jumlah</div>,
     cell: ({ row }) => {
-      const donatur = row.original;
-      const total =
-        donatur.jan +
-        donatur.feb +
-        donatur.mar +
-        donatur.apr +
-        donatur.mei +
-        donatur.jun +
-        donatur.jul +
-        donatur.aug +
-        donatur.sep +
-        donatur.okt +
-        donatur.nov +
-        donatur.des +
-        donatur.infaq;
+      const rowSum =
+        (row.getValue("jan") as number) +
+        (row.getValue("feb") as number) +
+        (row.getValue("mar") as number) +
+        (row.getValue("apr") as number) +
+        (row.getValue("mei") as number) +
+        (row.getValue("jun") as number) +
+        (row.getValue("jul") as number) +
+        (row.getValue("aug") as number) +
+        (row.getValue("sep") as number) +
+        (row.getValue("okt") as number) +
+        (row.getValue("nov") as number) +
+        (row.getValue("des") as number);
+
       return (
-        <div className="text-center font-medium">
-          {formatCurrency(total)}
-        </div>
+        <div className="text-center font-medium">{formatCurrency(rowSum)}</div>
       );
     },
   },
   {
     id: "actions",
-    header: () => <div className="text-center">Aksi</div>,
     cell: ({ row }) => (
-      <div className="text-center">
-        <TableActions
-          donatur={row.original}
-          onViewDetail={onViewDetail}
-          onEdit={onEdit}
-          onDelete={onDelete}
-        />
-      </div>
+      <TableActions
+        kotakAmal={row.original}
+        onEdit={onEdit}
+        onViewDetail={onViewDetail}
+        onDelete={onDelete}
+      />
     ),
   },
 ];
+
+export default columns;

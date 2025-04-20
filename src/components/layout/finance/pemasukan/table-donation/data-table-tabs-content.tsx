@@ -81,10 +81,6 @@ export function DataTableTabsContent({
       <TabsContent value="kotak-amal" className="flex flex-col px-4 lg:px-6">
         <KotakAmalTable data={filteredKotakAmalData} year={year} />
       </TabsContent>
-
-      <TabsContent value="rekap" className="flex flex-col px-4 lg:px-6">
-        {renderPlaceholder("Fitur Rekap Bulanan dalam pengembangan")}
-      </TabsContent>
     </>
   );
 }

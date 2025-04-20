@@ -18,7 +18,6 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
@@ -33,187 +32,70 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DraggableRow } from "../draggable-row";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { IconDotsVertical } from "@tabler/icons-react";
-import { kotakAmalSchema, type KotakAmalData } from "../schema";
-
-export const columns: ColumnDef<KotakAmalData>[] = [
-  {
-    accessorKey: "no",
-    header: () => <div className="text-center">No</div>,
-    cell: ({ row }) => <div className="text-center">{row.getValue("no")}</div>,
-  },
-  {
-    accessorKey: "nama",
-    header: () => <div className="text-center">Nama Kotak Amal</div>,
-    cell: ({ row }) => (
-      <div className="text-center">{row.getValue("nama")}</div>
-    ),
-  },
-  {
-    accessorKey: "lokasi",
-    header: () => <div className="text-center">Lokasi</div>,
-    cell: ({ row }) => (
-      <div className="text-center">{row.getValue("lokasi")}</div>
-    ),
-  },
-  {
-    accessorKey: "jan",
-    header: () => <div className="text-center">Jan</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{formatCurrency(row.getValue("jan"))}</div>
-    ),
-  },
-  {
-    accessorKey: "feb",
-    header: () => <div className="text-center">Feb</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{formatCurrency(row.getValue("feb"))}</div>
-    ),
-  },
-  {
-    accessorKey: "mar",
-    header: () => <div className="text-center">Mar</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{formatCurrency(row.getValue("mar"))}</div>
-    ),
-  },
-  {
-    accessorKey: "apr",
-    header: () => <div className="text-center">Apr</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{formatCurrency(row.getValue("apr"))}</div>
-    ),
-  },
-  {
-    accessorKey: "mei",
-    header: () => <div className="text-center">Mei</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{formatCurrency(row.getValue("mei"))}</div>
-    ),
-  },
-  {
-    accessorKey: "jun",
-    header: () => <div className="text-center">Jun</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{formatCurrency(row.getValue("jun"))}</div>
-    ),
-  },
-  {
-    accessorKey: "jul",
-    header: () => <div className="text-center">Jul</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{formatCurrency(row.getValue("jul"))}</div>
-    ),
-  },
-  {
-    accessorKey: "aug",
-    header: () => <div className="text-center">Agust</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{formatCurrency(row.getValue("aug"))}</div>
-    ),
-  },
-  {
-    accessorKey: "sep",
-    header: () => <div className="text-center">Sept</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{formatCurrency(row.getValue("sep"))}</div>
-    ),
-  },
-  {
-    accessorKey: "okt",
-    header: () => <div className="text-center">Okt</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{formatCurrency(row.getValue("okt"))}</div>
-    ),
-  },
-  {
-    accessorKey: "nov",
-    header: () => <div className="text-center">Nov</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{formatCurrency(row.getValue("nov"))}</div>
-    ),
-  },
-  {
-    accessorKey: "des",
-    header: () => <div className="text-center">Des</div>,
-    cell: ({ row }) => (
-      <div className="text-right">{formatCurrency(row.getValue("des"))}</div>
-    ),
-  },
-  {
-    id: "jumlah",
-    header: () => <div className="text-center font-medium">Jumlah</div>,
-    cell: ({ row }) => {
-      const rowSum =
-        (row.getValue("jan") as number) +
-        (row.getValue("feb") as number) +
-        (row.getValue("mar") as number) +
-        (row.getValue("apr") as number) +
-        (row.getValue("mei") as number) +
-        (row.getValue("jun") as number) +
-        (row.getValue("jul") as number) +
-        (row.getValue("aug") as number) +
-        (row.getValue("sep") as number) +
-        (row.getValue("okt") as number) +
-        (row.getValue("nov") as number) +
-        (row.getValue("des") as number);
-
-      return (
-        <div className="text-right font-medium">{formatCurrency(rowSum)}</div>
-      );
-    },
-  },
-  {
-    id: "actions",
-    cell: () => (
-      <div className="flex justify-end">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-              size="icon"
-            >
-              <IconDotsVertical />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem>Edit</DropdownMenuItem>
-            <DropdownMenuItem>Lihat Detail</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem variant="destructive">Hapus</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    ),
-  },
-];
+import { type KotakAmalData } from "../schema";
+import { columns } from "./columns";
+import { EditKotakAmal } from "./edit-kotak-amal";
+import { DetailKotakAmal } from "./detail-kotak-amal";
+import { DeleteKotakAmalDialog } from "./delete-kotak-amal";
 
 interface DataTableProps {
   data: KotakAmalData[];
-  year: string;  // Add this prop
+  year: string;
 }
 
 export function DataTable({ data, year }: DataTableProps) {
   const [items, setItems] = React.useState(data);
+  const [selectedKotakAmal, setSelectedKotakAmal] = React.useState<KotakAmalData | null>(null);
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [isDetailOpen, setIsDetailOpen] = React.useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
+
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
     useSensor(TouchSensor, {}),
     useSensor(KeyboardSensor, {})
   );
 
+  const handleEdit = React.useCallback((kotakAmal: KotakAmalData) => {
+    setSelectedKotakAmal(kotakAmal);
+    setIsEditOpen(true);
+  }, []);
+
+  const handleViewDetail = React.useCallback((kotakAmal: KotakAmalData) => {
+    setSelectedKotakAmal(kotakAmal);
+    setIsDetailOpen(true);
+  }, []);
+
+  const handleDelete = React.useCallback((id: number) => {
+    const kotakAmal = items.find(item => item.id === id);
+    if (kotakAmal) {
+      setSelectedKotakAmal(kotakAmal);
+      setIsDeleteOpen(true);
+    }
+  }, [items]);
+
+  const handleSave = React.useCallback((updatedKotakAmal: KotakAmalData) => {
+    setItems(prev => 
+      prev.map(item => 
+        item.id === updatedKotakAmal.id ? updatedKotakAmal : item
+      )
+    );
+    setIsEditOpen(false);
+  }, []);
+
+  const handleDeleteConfirm = React.useCallback(async (id: number) => {
+    setItems(prev => prev.filter(item => item.id !== id));
+    setIsDeleteOpen(false);
+    return true;
+  }, []);
+
   const table = useReactTable({
     data: items,
-    columns,
+    columns: columns({
+      onEdit: handleEdit,
+      onViewDetail: handleViewDetail,
+      onDelete: handleDelete,
+    }),
     getCoreRowModel: getCoreRowModel(),
   });
 
@@ -320,47 +202,47 @@ export function DataTable({ data, year }: DataTableProps) {
               <TableRow>
                 <TableCell
                   colSpan={3}
-                  className="text-right border-t bg-muted/50 font-medium"
+                  className="text-left border-t bg-muted/50 font-medium"
                 >
                   Total:
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(monthlyTotals.jan)}
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(monthlyTotals.feb)}
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(monthlyTotals.mar)}
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(monthlyTotals.apr)}
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(monthlyTotals.mei)}
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(monthlyTotals.jun)}
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(monthlyTotals.jul)}
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(monthlyTotals.aug)}
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(monthlyTotals.sep)}
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(monthlyTotals.okt)}
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(monthlyTotals.nov)}
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(monthlyTotals.des)}
                 </TableCell>
-                <TableCell className="text-right border-t bg-muted/50 font-medium">
+                <TableCell className="text-center border-t bg-muted/50 font-medium">
                   {formatCurrency(totalDonations)}
                 </TableCell>
                 <TableCell className="border-t bg-muted/50"></TableCell>
@@ -369,6 +251,29 @@ export function DataTable({ data, year }: DataTableProps) {
           </TableBody>
         </Table>
       </DndContext>
+
+      <EditKotakAmal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        kotakAmal={selectedKotakAmal}
+        onSave={handleSave}
+        onDelete={handleDelete}
+      />
+
+      <DetailKotakAmal
+        isOpen={isDetailOpen}
+        onClose={() => setIsDetailOpen(false)}
+        kotakAmal={selectedKotakAmal}
+        year={year}  
+      />
+
+      <DeleteKotakAmalDialog
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleDeleteConfirm}
+        kotakAmalName={selectedKotakAmal?.nama || ""}
+        kotakAmalId={selectedKotakAmal?.id || 0}
+      />
     </div>
   );
 }

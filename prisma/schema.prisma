@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -16,23 +16,53 @@ model User {
 }
 
 model Donatur {
-  id      Int      @id @default(autoincrement())
-  no      Int
-  nama    String
-  alamat  String
-  jan     Int      @default(0)
-  feb     Int      @default(0)
-  mar     Int      @default(0)
-  apr     Int      @default(0)
-  mei     Int      @default(0)
-  jun     Int      @default(0)
-  jul     Int      @default(0)
-  aug     Int      @default(0)
-  sep     Int      @default(0)
-  okt     Int      @default(0)
-  nov     Int      @default(0)
-  des     Int      @default(0)
-  infaq   Int      @default(0)
+  id        Int      @id @default(autoincrement())
+  no        Int
+  nama      String
+  alamat    String
+  jan       Int      @default(0)
+  feb       Int      @default(0)
+  mar       Int      @default(0)
+  apr       Int      @default(0)
+  mei       Int      @default(0)
+  jun       Int      @default(0)
+  jul       Int      @default(0)
+  aug       Int      @default(0)
+  sep       Int      @default(0)
+  okt       Int      @default(0)
+  nov       Int      @default(0)
+  des       Int      @default(0)
+  infaq     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+model KotakAmal {
+  id       Int    @id @default(autoincrement())
+  no       Int
+  nama     String
+  lokasi   String
+  jan      Int    @default(0)
+  feb      Int    @default(0)
+  mar      Int    @default(0)
+  apr      Int    @default(0)
+  mei      Int    @default(0)
+  jun      Int    @default(0)
+  jul      Int    @default(0)
+  aug      Int    @default(0)
+  sep      Int    @default(0)
+  okt      Int    @default(0)
+  nov      Int    @default(0)
+  des      Int    @default(0)
+  createdAt DateTime @default(now())
+}
+
+model DonasiKhusus {
+  id         Int      @id @default(autoincrement())
+  no         Int
+  nama       String
+  tanggal    DateTime
+  jumlah     Int
+  keterangan String
+  createdAt  DateTime @default(now())
 }
