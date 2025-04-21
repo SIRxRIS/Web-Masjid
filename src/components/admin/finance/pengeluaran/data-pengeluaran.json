@@ -1,0 +1,84 @@
+[
+    {
+      "id": 1,
+      "no": 1,
+      "tanggal": "2025-01-05",
+      "nama": "ATK",
+      "kategori": "Operasional",
+      "jumlah": 37000,
+      "keterangan": "Pembelian alat tulis kantor"
+    },
+    {
+      "id": 2,
+      "no": 2,
+      "tanggal": "2025-01-10",
+      "nama": "Snack dan Konsumsi",
+      "kategori": "Konsumsi",
+      "jumlah": 1150000,
+      "keterangan": "Konsumsi acara pengajian"
+    },
+    {
+      "id": 3,
+      "no": 3,
+      "tanggal": "2025-02-03",
+      "nama": "Perlengkapan Kebersihan",
+      "kategori": "Operasional",
+      "jumlah": 147000,
+      "keterangan": "Sabun, sapu, pel, dll"
+    },
+    {
+      "id": 4,
+      "no": 4,
+      "tanggal": "2025-02-20",
+      "nama": "Pembayaran Listrik",
+      "kategori": "Tagihan",
+      "jumlah": 474992,
+      "keterangan": "Tagihan PLN bulan Februari"
+    },
+    {
+      "id": 5,
+      "no": 5,
+      "tanggal": "2025-03-12",
+      "nama": "Peralatan Sound System",
+      "kategori": "Perlengkapan",
+      "jumlah": 190000,
+      "keterangan": "Pengganti kabel dan speaker"
+    },
+    {
+      "id": 6,
+      "no": 6,
+      "tanggal": "2025-03-25",
+      "nama": "Insentif Imam",
+      "kategori": "SDM",
+      "jumlah": 350000,
+      "keterangan": "Gaji bulanan imam masjid"
+    },
+    {
+      "id": 7,
+      "no": 7,
+      "tanggal": "2025-04-02",
+      "nama": "Administrasi Bank",
+      "kategori": "Layanan",
+      "jumlah": 60000,
+      "keterangan": "Biaya admin bulanan rekening"
+    },
+    {
+      "id": 8,
+      "no": 8,
+      "tanggal": "2025-04-18",
+      "nama": "Dana Sosial",
+      "kategori": "Program Sosial",
+      "jumlah": 300000,
+      "keterangan": "Bantuan untuk warga sekitar"
+    },
+    {
+      "id": 9,
+      "no": 9,
+      "tanggal": "2025-04-30",
+      "nama": "Insentif Khotib Jumat",
+      "kategori": "SDM",
+      "jumlah": 600000,
+      "keterangan": "Honor khotib bulan April"
+    }
+  ]
+  

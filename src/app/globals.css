@@ -122,3 +122,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Pastikan popover selalu muncul di atas elemen lain */
+.rdp {
+  position: relative;
+  z-index: 100;
+}
+
+/* Pastikan tombol navigasi kalender terlihat dan dapat diklik */
+.rdp-nav {
+  position: relative;
+  z-index: 101;
+}
+
+.rdp-button {
+  cursor: pointer !important;
+}
+
+/* Panel kalender harus muncul di atas elemen UI lainnya */
+[data-radix-popper-content-wrapper] {
+  z-index: 9999 !important;
+}
