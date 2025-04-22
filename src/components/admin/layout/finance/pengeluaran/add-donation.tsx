@@ -11,8 +11,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusIcon } from "lucide-react";
 import { FormDonaturRutin } from "./table-donation/riwayat-tahunan/form-donatur";
-import { FormDonasiKhusus } from "./table-donation/donasi-khusus/form-donatur-khusus";
-import { FormKotakAmal } from "./table-donation/kotak-amal/form-kotak-amal";
+
 
 export default function AddDonation() {
   const [open, setOpen] = useState(false);
@@ -44,21 +43,6 @@ export default function AddDonation() {
             <TabsTrigger value="donasi-khusus">Donasi Khusus</TabsTrigger>
             <TabsTrigger value="kotak-amal">Kotak Amal</TabsTrigger>
           </TabsList>
-
-          {/* Form Donatur Rutin */}
-          <TabsContent value="donatur-rutin">
-            <FormDonaturRutin onSuccess={handleSuccess} />
-          </TabsContent>
-
-          {/* Form Donasi Khusus */}
-          <TabsContent value="donasi-khusus">
-            <FormDonasiKhusus onSuccess={handleSuccess} />
-          </TabsContent>
-
-          {/* Form Kotak Amal */}
-          <TabsContent value="kotak-amal">
-            <FormKotakAmal onSuccess={handleSuccess} />
-          </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>

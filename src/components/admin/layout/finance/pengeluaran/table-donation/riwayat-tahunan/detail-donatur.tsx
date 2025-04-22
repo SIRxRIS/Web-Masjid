@@ -18,13 +18,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DonaturData } from "../schema";
-import { type IntegratedData } from "@/lib/services/data-integration";
 import { formatCurrency } from "../../../pemasukan/table-donation/utils";
 
 interface DetailDonaturProps {
   isOpen: boolean;
   onClose: () => void;
-  data: IntegratedData | null;
+  data: DonaturData | null;
   year: string;
 }
 
@@ -44,7 +43,11 @@ export function DetailDonatur({
   if (!data) return null;
 
   const totalDonasi = React.useMemo(() => {
-    return data.total - data.infaq;
+    const totalWithoutInfaq = 
+      data.jan + data.feb + data.mar + data.apr +
+      data.mei + data.jun + data.jul + data.aug +
+      data.sep + data.okt + data.nov + data.des;
+    return totalWithoutInfaq;
   }, [data]);
 
   const monthlyDonations: MonthlyDonation[] = [
@@ -62,14 +65,21 @@ export function DetailDonatur({
     { no: 12, bulan: "Desember", donasi: formatCurrency(data.des), infaq: formatCurrency(data.infaq) },
   ];
 
+  // Determine source type based on data properties or ID patterns if available
+  const getSourceType = () => {
+    // Implement your logic to determine source type
+    // For example, if there's any property that can help identify the source:
+    return 'donatur'; // Default to 'donatur' for now
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl text-center font-bold">
-            {/* Update title based on source type */}
-            {data.sourceType === 'donatur' ? 'Kartu Donatur Tetap' : 
-             data.sourceType === 'kotakAmal' ? 'Detail Kotak Amal' : 
+            {/* Use a function to determine title based on data */}
+            {getSourceType() === 'donatur' ? 'Kartu Donatur Tetap' : 
+             getSourceType() === 'kotakAmal' ? 'Detail Kotak Amal' : 
              'Detail Donasi Khusus'} {year}
           </DialogTitle>
         </DialogHeader>

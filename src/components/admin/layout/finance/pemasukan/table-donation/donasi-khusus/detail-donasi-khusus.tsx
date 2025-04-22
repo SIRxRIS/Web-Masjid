@@ -18,12 +18,14 @@ interface DetailDonasiKhususProps {
   isOpen: boolean;
   onClose: () => void;
   donasi: DonasiKhususData | null;
+  year: string;  
 }
 
 export function DetailDonasiKhusus({
   isOpen,
   onClose,
   donasi,
+  year,  
 }: DetailDonasiKhususProps) {
   if (!donasi) return null;
 

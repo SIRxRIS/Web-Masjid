@@ -39,7 +39,7 @@ const monthNames: MonthName[] = [
 interface EditDonaturProps {
   isOpen: boolean;
   onClose: () => void;
-  data: IntegratedData | null;
+  data: IntegratedData | null;  // This should already be of type IntegratedData
   onSave: (updatedData: IntegratedData) => void;
   onDelete: (id: number) => void;
   year: string;
@@ -54,6 +54,7 @@ export function EditDonatur({
   year,
 }: EditDonaturProps) {
   const [formData, setFormData] = React.useState<IntegratedData | null>(null);
+
   React.useEffect(() => {
     if (data) {
       setFormData({ ...data });
@@ -121,7 +122,14 @@ export function EditDonatur({
           });
           return;
         }
-        onSave(formData);
+
+        // Calculate the new total before saving
+        const updatedData = {
+          ...formData,
+          total: calculateTotal(formData)
+        };
+        
+        onSave(updatedData);
         Swal.fire({
           title: "Berhasil!",
           text: "Data donatur berhasil diperbarui",
@@ -145,6 +153,7 @@ export function EditDonatur({
       }
     }
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">

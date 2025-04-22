@@ -2,6 +2,9 @@
 
 import * as React from "react";
 import { Table } from "@tanstack/react-table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -9,9 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import {
   IconLayoutColumns,
   IconDownload,
@@ -30,17 +30,59 @@ import AddDonation from "../add-donation";
 
 interface TableViewTabsProps {
   table?: Table<DonaturData>;
+  searchQuery: string;
+  setSearchQuery: (value: string) => void;
+  placeholder?: string;
+  year: string;
+  setYear: (value: string) => void;
+  availableYears?: string[];
 }
 
-export function TableViewTabs({ table }: TableViewTabsProps) {
+export function TableViewTabs({ 
+  table,
+  searchQuery,
+  setSearchQuery,
+  placeholder = "Cari pengeluaran...",    
+  year,
+  setYear,
+  availableYears = ["2023", "2024", "2025"],
+}: TableViewTabsProps) {
   return (
     <div className="flex items-center justify-between px-4 lg:px-6">
       <div className="flex items-center gap-4">
-        
-        
+        <div className="flex-1">
+          <Label htmlFor="search" className="sr-only">
+            Cari Pengeluaran
+          </Label>
+          <Input
+            id="search"
+            placeholder={placeholder}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-9 max-w-[320px]"
+          />
+        </div>
       </div>
 
       <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          <Label htmlFor="tahun" className="text-sm whitespace-nowrap">
+            Tahun:
+          </Label>
+          <Select value={year} onValueChange={setYear}>
+            <SelectTrigger id="tahun" className="w-24 h-9">
+              <SelectValue placeholder="Tahun" />
+            </SelectTrigger>
+            <SelectContent>
+              {availableYears.map((yearOption) => (
+                <SelectItem key={yearOption} value={yearOption}>
+                  {yearOption}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">

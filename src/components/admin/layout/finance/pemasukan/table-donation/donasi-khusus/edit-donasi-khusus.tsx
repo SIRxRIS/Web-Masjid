@@ -31,6 +31,8 @@ interface EditDonasiKhususProps {
   onClose: () => void;
   donasi: DonasiKhususData | null;
   onSave: (updatedDonasi: DonasiKhususData) => void;
+  onDelete: (id: number) => void;
+  year: string;  
 }
 
 export function EditDonasiKhusus({
@@ -38,6 +40,8 @@ export function EditDonasiKhusus({
   onClose,
   donasi,
   onSave,
+  onDelete,
+  year,  
 }: EditDonasiKhususProps) {
   const [formData, setFormData] = React.useState<DonasiKhususData | null>(null);
 

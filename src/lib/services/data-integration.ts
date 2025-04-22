@@ -125,6 +125,7 @@ export function integrateData(
     keterangan: string;
     byMonth: Record<string, number>;
     total: number;
+    id: number;  
   }> = {};
   
   filteredDonasiKhusus.forEach(donasi => {
@@ -146,7 +147,8 @@ export function integrateData(
           jan: 0, feb: 0, mar: 0, apr: 0, mei: 0, jun: 0,
           jul: 0, aug: 0, sep: 0, okt: 0, nov: 0, des: 0
         },
-        total: 0
+        total: 0,
+        id: donasi.id  // Simpan ID
       };
     }
     
@@ -177,7 +179,7 @@ export function integrateData(
       infaq: 0,
       total: donasi.total,
       sourceType: 'donasiKhusus',
-      sourceId: 0
+      sourceId: donasi.id  // Gunakan ID yang disimpan
     });
   });
   

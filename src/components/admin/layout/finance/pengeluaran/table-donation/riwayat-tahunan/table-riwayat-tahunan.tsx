@@ -39,34 +39,28 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { columns } from "./columns";
-import { type DonaturData, type KotakAmalData, type DonasiKhususData } from "../schema";
+import { type DonaturData } from "../schema";
 import { TablePagination } from "./table-pagination";
 import { DraggableRow } from "../draggable-row";
 import { formatCurrency } from "../../../pemasukan/table-donation/utils";
 import { DetailDonatur } from "./detail-donatur";
 import { EditDonatur } from "./edit-donatur";
-import { integrateData, type IntegratedData } from "@/lib/services/data-integration";
+import { type IntegratedData } from "@/lib/services/data-integration";
 
 interface TableRiwayatTahunanProps {
   donaturData: DonaturData[];
-  kotakAmalData: KotakAmalData[];
-  donasiKhususData: DonasiKhususData[];
   year: string;
 }
 
 export function TableRiwayatTahunan({
   donaturData,
-  kotakAmalData,
-  donasiKhususData,
   year,
 }: TableRiwayatTahunanProps) {
-  const [data, setData] = React.useState<IntegratedData[]>(() => 
-    integrateData(donaturData, kotakAmalData, donasiKhususData, year)
-  );
+  const [data, setData] = React.useState<DonaturData[]>(donaturData);
 
   React.useEffect(() => {
-    setData(integrateData(donaturData, kotakAmalData, donasiKhususData, year));
-  }, [donaturData, kotakAmalData, donasiKhususData, year]);
+    setData(donaturData);
+  }, [donaturData]);
 
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -90,13 +84,31 @@ export function TableRiwayatTahunan({
   const dataIds = React.useMemo(() => data?.map(({ id }) => id) || [], [data]);
 
   const [isDetailOpen, setIsDetailOpen] = React.useState(false);
-  const [selectedDonatur, setSelectedDonatur] =
+  const [selectedDonatur, setSelectedDonatur] = 
     React.useState<IntegratedData | null>(null);
 
   const [isEditOpen, setIsEditOpen] = React.useState(false);
 
-  const handleViewDetail = (data: IntegratedData) => {
-    setSelectedDonatur(data);
+  // Helper function to calculate total for a donatur
+  const calculateTotalForDonatur = (data: DonaturData) => {
+    return data.jan + data.feb + data.mar + data.apr + 
+           data.mei + data.jun + data.jul + data.aug + 
+           data.sep + data.okt + data.nov + data.des + 
+           data.infaq;
+  };
+
+  // Convert DonaturData to IntegratedData
+  const convertToIntegratedData = (data: DonaturData): IntegratedData => {
+    return {
+      ...data,
+      total: calculateTotalForDonatur(data),
+      sourceType: 'donatur', // or determine based on actual data
+      sourceId: data.id
+    };
+  };
+
+  const handleViewDetail = (data: DonaturData) => {
+    setSelectedDonatur(convertToIntegratedData(data));
     setIsDetailOpen(true);
   };
 
@@ -105,8 +117,8 @@ export function TableRiwayatTahunan({
     setSelectedDonatur(null);
   };
 
-  const handleEdit = (data: IntegratedData) => {
-    setSelectedDonatur(data);
+  const handleEdit = (data: DonaturData) => {
+    setSelectedDonatur(convertToIntegratedData(data));
     setIsEditOpen(true);
   };
 
@@ -118,8 +130,26 @@ export function TableRiwayatTahunan({
   const handleSaveEdit = (updatedData: IntegratedData) => {
     setData((prevData) => {
       return prevData.map((item) => {
-        if (item.id === updatedData.id) {
-          return updatedData;
+        if (item.id === updatedData.sourceId) {
+          // Convert back from IntegratedData to DonaturData
+          return {
+            ...item,
+            nama: updatedData.nama,
+            alamat: updatedData.alamat,
+            jan: updatedData.jan,
+            feb: updatedData.feb,
+            mar: updatedData.mar,
+            apr: updatedData.apr,
+            mei: updatedData.mei,
+            jun: updatedData.jun,
+            jul: updatedData.jul,
+            aug: updatedData.aug,
+            sep: updatedData.sep,
+            okt: updatedData.okt,
+            nov: updatedData.nov,
+            des: updatedData.des,
+            infaq: updatedData.infaq,
+          };
         }
         return item;
       });
@@ -248,7 +278,7 @@ export function TableRiwayatTahunan({
                     colSpan={columns.length}
                     className="h-24 text-center"
                   >
-                    Tidak ada data donatur.
+                    Tidak ada data pengeluaran.
                   </TableCell>
                 </TableRow>
               )}
@@ -320,7 +350,7 @@ export function TableRiwayatTahunan({
 
       <TablePagination table={table} />
 
-      {/* Detail Donatur Dialog */}
+      {/* Detail Dialog */}
       <DetailDonatur
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
@@ -328,7 +358,7 @@ export function TableRiwayatTahunan({
         year={year}  
       />
 
-      {/* Edit Donatur Dialog */}
+      {/* Edit Dialog */}
       <EditDonatur
         isOpen={isEditOpen}
         onClose={handleCloseEdit}

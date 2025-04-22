@@ -17,10 +17,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type IntegratedData } from "@/lib/services/data-integration";
+import { type DonaturData } from "../schema";
 
 interface TablePaginationProps {
-  table: Table<IntegratedData>;
+  table: Table<DonaturData>;
 }
 
 export function TablePagination({ table }: TablePaginationProps) {

@@ -4,11 +4,11 @@ import * as React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { TableActions } from "./table-actions";
 import { formatCurrency } from "../../../pemasukan/table-donation/utils";
-import { type IntegratedData } from "@/lib/services/data-integration";
+import { type DonaturData } from "../schema";
 
 interface ColumnOptions {
-  onViewDetail?: (data: IntegratedData) => void;
-  onEdit?: (data: IntegratedData) => void;
+  onViewDetail?: (data: DonaturData) => void;
+  onEdit?: (data: DonaturData) => void;
   onDelete?: (id: number) => void; 
 }
 
@@ -16,7 +16,7 @@ export const columns = ({
   onViewDetail,
   onEdit,
   onDelete,
-}: ColumnOptions = {}): ColumnDef<IntegratedData>[] => [
+}: ColumnOptions = {}): ColumnDef<DonaturData>[] => [
   {
     accessorKey: "no",
     header: () => <div className="text-center">No</div>,
@@ -24,12 +24,12 @@ export const columns = ({
   },
   {
     accessorKey: "nama",
-    header: () => <div className="text-left">Nama</div>,
+    header: () => <div className="text-left">Nama Pengeluaran</div>,
     cell: ({ row }) => <div className="text-left">{row.getValue("nama")}</div>,
   },
   {
     accessorKey: "alamat",
-    header: () => <div className="text-left">Alamat</div>,
+    header: () => <div className="text-left">Keterangan</div>,
     cell: ({ row }) => <div className="text-left">{row.getValue("alamat")}</div>,
   },
   {
