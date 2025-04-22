@@ -48,7 +48,6 @@ interface DataTableProps {
 }
 
 export function DataTable({ data, year }: DataTableProps) {
-  // Pastikan tanggal dikonversi dengan benar
   const formattedData = React.useMemo(() => {
     return data.map(item => ({
       ...item,

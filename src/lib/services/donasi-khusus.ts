@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { DonasiKhususData } from "@/components/layout/finance/pemasukan/table-donation/schema";
+import { DonasiKhususData } from "@/components/admin/layout/finance/pemasukan/table-donation/schema";
 
 export async function getDonasiKhusus(): Promise<DonasiKhususData[]> {
   const { data, error } = await supabase

@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DonaturData } from "./schema";
+import { DonaturData } from "../schema";
 import { DeleteDonaturDialog } from "./delete-donatur";
 
 interface TableActionsProps {

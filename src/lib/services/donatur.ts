@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabase";
-import { DonaturData } from "@/components/layout/finance/pemasukan/table-donation/schema";
+import { DonaturData } from "@/components/admin/layout/finance/pemasukan/table-donation/schema";
 
 export async function getDonaturData(): Promise<DonaturData[]> {
   const { data, error } = await supabase
