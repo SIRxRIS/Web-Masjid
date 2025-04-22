@@ -1,18 +1,24 @@
-import { AppSidebar } from "@/components/layout/admin/app-sidebar";
-import { DataTable } from "@/components/layout/finance/table-donation";
-import { SiteHeader } from "@/components/layout/finance/site-header";
+import { AppSidebar } from "@/components/admin/layout/app-sidebar";
+import { DataTable } from "@/components/admin/layout/finance/pemasukan/table-donation";
+import { SiteHeader } from "@/components/admin/layout/finance/pemasukan/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import data from "./data.json";
+import { getDonaturData } from "@/lib/services/donatur";
+import { getDonasiKhusus } from "@/lib/services/donasi-khusus";
+import { getKotakAmalData } from "@/lib/services/kotak-amal";
 
-export default function Page() {
+export default async function Page() {
+  const [donaturData, donasiKhususData, kotakAmalData] = await Promise.all([
+    getDonaturData(),
+    getDonasiKhusus(),
+    getKotakAmalData()
+  ]);
+
   return (
     <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
+      style={{
+        "--sidebar-width": "calc(var(--spacing) * 72)",
+        "--header-height": "calc(var(--spacing) * 12)",
+      } as React.CSSProperties}
     >
       <AppSidebar variant="inset" />
       <SidebarInset>
@@ -20,7 +26,11 @@ export default function Page() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <DataTable data={data} />
+              <DataTable
+                data={donaturData}
+                kotakAmalData={kotakAmalData}
+                donasiKhususData={donasiKhususData}
+              />
             </div>
           </div>
         </div>

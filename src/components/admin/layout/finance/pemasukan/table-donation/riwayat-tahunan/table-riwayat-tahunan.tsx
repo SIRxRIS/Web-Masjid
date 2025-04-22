@@ -45,6 +45,10 @@ import { DraggableRow } from "../draggable-row";
 import { formatCurrency } from "../../../pemasukan/table-donation/utils";
 import { DetailDonatur } from "./detail-donatur";
 import { EditDonatur } from "./edit-donatur";
+import { DetailKotakAmal } from "../kotak-amal/detail-kotak-amal";
+import { EditKotakAmal } from "../kotak-amal/edit-kotak-amal";
+import { DetailDonasiKhusus } from "../donasi-khusus/detail-donasi-khusus";
+import { EditDonasiKhusus } from "../donasi-khusus/edit-donasi-khusus";
 import { integrateData, type IntegratedData } from "@/lib/services/data-integration";
 
 interface TableRiwayatTahunanProps {
@@ -60,6 +64,13 @@ export function TableRiwayatTahunan({
   donasiKhususData,
   year,
 }: TableRiwayatTahunanProps) {
+  const [isKotakAmalDetailOpen, setIsKotakAmalDetailOpen] = React.useState(false);
+  const [isKotakAmalEditOpen, setIsKotakAmalEditOpen] = React.useState(false);
+  const [isDonasiKhususDetailOpen, setIsDonasiKhususDetailOpen] = React.useState(false);
+  const [isDonasiKhususEditOpen, setIsDonasiKhususEditOpen] = React.useState(false);
+  const [selectedKotakAmal, setSelectedKotakAmal] = React.useState<KotakAmalData | null>(null);
+  const [selectedDonasiKhusus, setSelectedDonasiKhusus] = React.useState<DonasiKhususData | null>(null);
+
   const [data, setData] = React.useState<IntegratedData[]>(() => 
     integrateData(donaturData, kotakAmalData, donasiKhususData, year)
   );
@@ -89,25 +100,54 @@ export function TableRiwayatTahunan({
 
   const dataIds = React.useMemo(() => data?.map(({ id }) => id) || [], [data]);
 
+  // Dialog states
   const [isDetailOpen, setIsDetailOpen] = React.useState(false);
-  const [selectedDonatur, setSelectedDonatur] =
-    React.useState<IntegratedData | null>(null);
-
   const [isEditOpen, setIsEditOpen] = React.useState(false);
+  
+  // Selected data states
+  const [selectedDonatur, setSelectedDonatur] = React.useState<IntegratedData | null>(null);
 
   const handleViewDetail = (data: IntegratedData) => {
-    setSelectedDonatur(data);
-    setIsDetailOpen(true);
+    if (data.sourceType === 'donatur') {
+      setSelectedDonatur(data);
+      setIsDetailOpen(true);
+    } else if (data.sourceType === 'kotakAmal') {
+      const kotakAmal = kotakAmalData.find(item => item.id === data.sourceId);
+      if (kotakAmal) {
+        setSelectedKotakAmal(kotakAmal);
+        setIsKotakAmalDetailOpen(true);
+      }
+    } else if (data.sourceType === 'donasiKhusus') {
+      const donasi = donasiKhususData.find(item => item.id === data.sourceId);
+      if (donasi) {
+        setSelectedDonasiKhusus(donasi);
+        setIsDonasiKhususDetailOpen(true);
+      }
+    }
+  };
+
+  const handleEdit = (data: IntegratedData) => {
+    if (data.sourceType === 'donatur') {
+      setSelectedDonatur(data);
+      setIsEditOpen(true);
+    } else if (data.sourceType === 'kotakAmal') {
+      const kotakAmal = kotakAmalData.find(item => item.id === data.sourceId);
+      if (kotakAmal) {
+        setSelectedKotakAmal(kotakAmal);
+        setIsKotakAmalEditOpen(true);
+      }
+    } else if (data.sourceType === 'donasiKhusus') {
+      const donasi = donasiKhususData.find(item => item.id === data.sourceId);
+      if (donasi) {
+        setSelectedDonasiKhusus(donasi);
+        setIsDonasiKhususEditOpen(true);
+      }
+    }
   };
 
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
     setSelectedDonatur(null);
-  };
-
-  const handleEdit = (data: IntegratedData) => {
-    setSelectedDonatur(data);
-    setIsEditOpen(true);
   };
 
   const handleCloseEdit = () => {
@@ -116,25 +156,91 @@ export function TableRiwayatTahunan({
   };
 
   const handleSaveEdit = (updatedData: IntegratedData) => {
-    setData((prevData) => {
-      return prevData.map((item) => {
-        if (item.id === updatedData.id) {
-          return updatedData;
-        }
-        return item;
-      });
-    });
+    setData(prevData => 
+      prevData.map(item => item.id === updatedData.id ? updatedData : item)
+    );
   };
 
-  const handleDelete = (donaturId: number) => {
-    const filteredData = data.filter((item) => item.id !== donaturId);
-
+  const handleDelete = (id: number) => {
+    const filteredData = data.filter(item => item.id !== id);
+    
     const updatedData = filteredData.map((item, index) => ({
       ...item,
       no: index + 1,
     }));
 
     setData(updatedData);
+  };
+
+  const handleSaveKotakAmal = (updatedKotakAmal: KotakAmalData) => {
+    const total = 
+      updatedKotakAmal.jan +
+      updatedKotakAmal.feb +
+      updatedKotakAmal.mar +
+      updatedKotakAmal.apr +
+      updatedKotakAmal.mei +
+      updatedKotakAmal.jun +
+      updatedKotakAmal.jul +
+      updatedKotakAmal.aug +
+      updatedKotakAmal.sep +
+      updatedKotakAmal.okt +
+      updatedKotakAmal.nov +
+      updatedKotakAmal.des;
+
+    const integratedData: IntegratedData = {
+      id: updatedKotakAmal.id,
+      no: data.find(item => item.id === updatedKotakAmal.id)?.no || 0,
+      nama: `Kotak Amal: ${updatedKotakAmal.nama}`,
+      alamat: updatedKotakAmal.lokasi || '',
+      jan: updatedKotakAmal.jan,
+      feb: updatedKotakAmal.feb,
+      mar: updatedKotakAmal.mar,
+      apr: updatedKotakAmal.apr,
+      mei: updatedKotakAmal.mei,
+      jun: updatedKotakAmal.jun,
+      jul: updatedKotakAmal.jul,
+      aug: updatedKotakAmal.aug,
+      sep: updatedKotakAmal.sep,
+      okt: updatedKotakAmal.okt,
+      nov: updatedKotakAmal.nov,
+      des: updatedKotakAmal.des,
+      infaq: 0,
+      total,
+      sourceType: 'kotakAmal',
+      sourceId: updatedKotakAmal.id
+    };
+    
+    handleSaveEdit(integratedData);
+    setIsKotakAmalEditOpen(false);
+    setSelectedKotakAmal(null);
+  };
+
+  const handleSaveDonasiKhusus = (updatedDonasi: DonasiKhususData) => {
+    const date = new Date(updatedDonasi.tanggal);
+    const monthNames = ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'] as const;
+    const monthKey = monthNames[date.getMonth()] as keyof typeof monthlyData;
+    
+    const monthlyData = {
+      jan: 0, feb: 0, mar: 0, apr: 0, mei: 0, jun: 0,
+      jul: 0, aug: 0, sep: 0, okt: 0, nov: 0, des: 0
+    };
+    monthlyData[monthKey] = updatedDonasi.jumlah;
+    
+    const integratedData: IntegratedData = {
+      id: updatedDonasi.id,
+      no: data.find(item => item.id === updatedDonasi.id)?.no || 0,
+      nama: `Donasi Khusus: ${updatedDonasi.nama}`,
+      alamat: updatedDonasi.keterangan || '',
+      ...monthlyData,
+      infaq: 0,
+      total: updatedDonasi.jumlah,
+      sourceType: 'donasiKhusus',
+      sourceId: updatedDonasi.id
+    };
+    
+    handleSaveEdit(integratedData);
+    setIsDonasiKhususEditOpen(false);
+    setSelectedDonasiKhusus(null);
   };
 
   const table = useReactTable({
@@ -320,15 +426,13 @@ export function TableRiwayatTahunan({
 
       <TablePagination table={table} />
 
-      {/* Detail Donatur Dialog */}
+      {/* Dialog Components */}
       <DetailDonatur
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
         data={selectedDonatur}
         year={year}  
       />
-
-      {/* Edit Donatur Dialog */}
       <EditDonatur
         isOpen={isEditOpen}
         onClose={handleCloseEdit}
@@ -336,6 +440,34 @@ export function TableRiwayatTahunan({
         onSave={handleSaveEdit}
         onDelete={handleDelete}  
         year={year}  
+      />
+
+      {/* Dialog untuk Kotak Amal */}
+      <DetailKotakAmal
+        isOpen={isKotakAmalDetailOpen}
+        onClose={() => setIsKotakAmalDetailOpen(false)}
+        kotakAmal={selectedKotakAmal}
+        year={year}
+      />
+      <EditKotakAmal
+        isOpen={isKotakAmalEditOpen}
+        onClose={() => setIsKotakAmalEditOpen(false)}
+        kotakAmal={selectedKotakAmal}
+        onSave={handleSaveKotakAmal}
+        onDelete={handleDelete}
+      />
+
+      {/* Dialog untuk Donasi Khusus */}
+      <DetailDonasiKhusus
+        isOpen={isDonasiKhususDetailOpen}
+        onClose={() => setIsDonasiKhususDetailOpen(false)}
+        donasi={selectedDonasiKhusus}
+      />
+      <EditDonasiKhusus
+        isOpen={isDonasiKhususEditOpen}
+        onClose={() => setIsDonasiKhususEditOpen(false)}
+        donasi={selectedDonasiKhusus}
+        onSave={handleSaveDonasiKhusus}
       />
     </div>
   );

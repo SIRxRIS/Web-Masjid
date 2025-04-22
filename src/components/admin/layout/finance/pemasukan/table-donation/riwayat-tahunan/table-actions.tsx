@@ -10,18 +10,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DonaturData } from "../schema";
+import { type IntegratedData } from "@/lib/services/data-integration";
 import { DeleteDonaturDialog } from "./delete-donatur";
 
 interface TableActionsProps {
-  donatur: DonaturData;
-  onViewDetail?: (donatur: DonaturData) => void;
-  onEdit?: (donatur: DonaturData) => void;
+  data: IntegratedData;
+  onViewDetail?: (data: IntegratedData) => void;
+  onEdit?: (data: IntegratedData) => void;
   onDelete?: (id: number) => void;
 }
 
 export function TableActions({
-  donatur,
+  data,
   onViewDetail,
   onEdit,
   onDelete,
@@ -30,7 +30,7 @@ export function TableActions({
 
   const handleDelete = async () => {
     if (onDelete) {
-      onDelete(donatur.id);
+      onDelete(data.id);
       return true;
     }
     return false;
@@ -50,10 +50,10 @@ export function TableActions({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem onClick={() => onEdit?.(donatur)}>
+          <DropdownMenuItem onClick={() => onEdit?.(data)}>
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onViewDetail?.(donatur)}>
+          <DropdownMenuItem onClick={() => onViewDetail?.(data)}>
             Lihat Detail
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -71,8 +71,8 @@ export function TableActions({
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={handleDelete}
-        donaturName={donatur.nama}
-        donaturId={donatur.id}
+        donaturName={data.nama}
+        donaturId={data.id}
       />
     </>
   );

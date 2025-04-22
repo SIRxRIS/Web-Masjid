@@ -155,7 +155,7 @@ export const columns = ({
     cell: ({ row }) => (
       <div className="text-center">
         <TableActions
-          donatur={row.original}
+          data={row.original}
           onViewDetail={onViewDetail}
           onEdit={onEdit}
           onDelete={onDelete}
@@ -164,3 +164,4 @@ export const columns = ({
     ),
   },
 ];
+
