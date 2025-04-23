@@ -3,34 +3,29 @@
 import * as React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { TableActions } from "./table-actions";
-import { formatCurrency } from "../../../pemasukan/table-donation/utils";
-import { type DonaturData } from "../schema";
+import { formatCurrency } from "../../../pengeluaran/table-pengeluaran/utils";
+import { type PengeluaranTahunanData } from "../schema";
 
 interface ColumnOptions {
-  onViewDetail?: (data: DonaturData) => void;
-  onEdit?: (data: DonaturData) => void;
-  onDelete?: (id: number) => void; 
+  onViewDetail?: (data: PengeluaranTahunanData) => void;
+  onEdit?: (data: PengeluaranTahunanData) => void;
+  onDelete?: (id: number) => void;
 }
 
 export const columns = ({
   onViewDetail,
   onEdit,
   onDelete,
-}: ColumnOptions = {}): ColumnDef<DonaturData>[] => [
+}: ColumnOptions = {}): ColumnDef<PengeluaranTahunanData>[] => [
   {
     accessorKey: "no",
     header: () => <div className="text-center">No</div>,
     cell: ({ row }) => <div className="text-center">{row.getValue("no")}</div>,
   },
   {
-    accessorKey: "nama",
+    accessorKey: "pengeluaran",
     header: () => <div className="text-left">Nama Pengeluaran</div>,
-    cell: ({ row }) => <div className="text-left">{row.getValue("nama")}</div>,
-  },
-  {
-    accessorKey: "alamat",
-    header: () => <div className="text-left">Keterangan</div>,
-    cell: ({ row }) => <div className="text-left">{row.getValue("alamat")}</div>,
+    cell: ({ row }) => <div className="text-left">{row.getValue("pengeluaran")}</div>,
   },
   {
     accessorKey: "jan",
@@ -117,31 +112,23 @@ export const columns = ({
     ),
   },
   {
-    accessorKey: "infaq",
-    header: () => <div className="text-center">Infaq</div>,
-    cell: ({ row }) => (
-      <div className="text-center">{formatCurrency(row.getValue("infaq"))}</div>
-    ),
-  },
-  {
-    accessorKey: "total",
+    id: "total",
     header: () => <div className="text-center">Total</div>,
     cell: ({ row }) => {
-      const donatur = row.original;
+      const pengeluaran = row.original;
       const total =
-        donatur.jan +
-        donatur.feb +
-        donatur.mar +
-        donatur.apr +
-        donatur.mei +
-        donatur.jun +
-        donatur.jul +
-        donatur.aug +
-        donatur.sep +
-        donatur.okt +
-        donatur.nov +
-        donatur.des +
-        donatur.infaq;
+        pengeluaran.jan +
+        pengeluaran.feb +
+        pengeluaran.mar +
+        pengeluaran.apr +
+        pengeluaran.mei +
+        pengeluaran.jun +
+        pengeluaran.jul +
+        pengeluaran.aug +
+        pengeluaran.sep +
+        pengeluaran.okt +
+        pengeluaran.nov +
+        pengeluaran.des;
       return (
         <div className="text-center font-medium">
           {formatCurrency(total)}

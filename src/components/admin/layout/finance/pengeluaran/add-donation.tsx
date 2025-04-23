@@ -8,14 +8,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusIcon } from "lucide-react";
-import { FormDonaturRutin } from "./table-donation/riwayat-tahunan/form-donatur";
-
+import { FormPengeluaran } from "./table-pengeluaran/table-pengeluaran-bulanan/form-pengeluaran";
 
 export default function AddDonation() {
   const [open, setOpen] = useState(false);
-  const [tabValue, setTabValue] = useState("donatur-rutin");
+  const [tabValue, setTabValue] = useState("pengeluaran");
 
   const handleSuccess = () => {
     setOpen(false);
@@ -31,19 +29,13 @@ export default function AddDonation() {
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Tambah Donasi Baru</DialogTitle>
+          <DialogTitle>Tambah Pengeluaran Baru</DialogTitle>
           <DialogDescription>
-            Pilih jenis donasi dan isi form yang sesuai.
+            Isi form pengeluaran dengan lengkap.
           </DialogDescription>
         </DialogHeader>
 
-        <Tabs value={tabValue} onValueChange={setTabValue}>
-          <TabsList className="grid grid-cols-3 mb-4">
-            <TabsTrigger value="donatur-rutin">Donasi Rutin</TabsTrigger>
-            <TabsTrigger value="donasi-khusus">Donasi Khusus</TabsTrigger>
-            <TabsTrigger value="kotak-amal">Kotak Amal</TabsTrigger>
-          </TabsList>
-        </Tabs>
+        <FormPengeluaran onSuccess={handleSuccess} />
       </DialogContent>
     </Dialog>
   );

@@ -66,3 +66,16 @@ model DonasiKhusus {
   keterangan String
   createdAt  DateTime @default(now())
 }
+
+model Pengeluaran {
+  id          Int      @id @default(autoincrement())
+  no          Int
+  tanggal     DateTime
+  nama        String
+  jumlah      Int
+  keterangan  String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) 
+}
+
+

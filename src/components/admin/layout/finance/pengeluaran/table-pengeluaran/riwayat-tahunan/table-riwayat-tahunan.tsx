@@ -39,28 +39,29 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { columns } from "./columns";
-import { type DonaturData } from "../schema";
+import { type PengeluaranTahunanData } from "../schema";
 import { TablePagination } from "./table-pagination";
 import { DraggableRow } from "../draggable-row";
 import { formatCurrency } from "../../../pemasukan/table-donation/utils";
-import { DetailDonatur } from "./detail-donatur";
-import { EditDonatur } from "./edit-donatur";
-import { type IntegratedData } from "@/lib/services/data-integration";
+import { DetailPengeluaran } from "./detail-pengeluaran";
+import { EditPengeluaran } from "./edit-pengeluaran";
 
 interface TableRiwayatTahunanProps {
-  donaturData: DonaturData[];
+  pengeluaranData: PengeluaranTahunanData[];
   year: string;
 }
 
 export function TableRiwayatTahunan({
-  donaturData,
+  pengeluaranData,
   year,
 }: TableRiwayatTahunanProps) {
-  const [data, setData] = React.useState<DonaturData[]>(donaturData);
+  const [data, setData] = React.useState<PengeluaranTahunanData[]>([]);
 
   React.useEffect(() => {
-    setData(donaturData);
-  }, [donaturData]);
+    if (pengeluaranData && Array.isArray(pengeluaranData)) {
+      setData(pengeluaranData);
+    }
+  }, [pengeluaranData]);
 
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -81,61 +82,44 @@ export function TableRiwayatTahunan({
     useSensor(KeyboardSensor, {})
   );
 
-  const dataIds = React.useMemo(() => data?.map(({ id }) => id) || [], [data]);
+  const dataIds = React.useMemo(() => 
+    data?.map((item) => item.id.toString()) || [], 
+    [data]
+  );
 
   const [isDetailOpen, setIsDetailOpen] = React.useState(false);
-  const [selectedDonatur, setSelectedDonatur] = 
-    React.useState<IntegratedData | null>(null);
+  const [selectedPengeluaran, setSelectedPengeluaran] = 
+    React.useState<PengeluaranTahunanData | null>(null);
 
   const [isEditOpen, setIsEditOpen] = React.useState(false);
 
-  // Helper function to calculate total for a donatur
-  const calculateTotalForDonatur = (data: DonaturData) => {
-    return data.jan + data.feb + data.mar + data.apr + 
-           data.mei + data.jun + data.jul + data.aug + 
-           data.sep + data.okt + data.nov + data.des + 
-           data.infaq;
-  };
-
-  // Convert DonaturData to IntegratedData
-  const convertToIntegratedData = (data: DonaturData): IntegratedData => {
-    return {
-      ...data,
-      total: calculateTotalForDonatur(data),
-      sourceType: 'donatur', // or determine based on actual data
-      sourceId: data.id
-    };
-  };
-
-  const handleViewDetail = (data: DonaturData) => {
-    setSelectedDonatur(convertToIntegratedData(data));
+  const handleViewDetail = (data: PengeluaranTahunanData) => {
+    setSelectedPengeluaran(data);
     setIsDetailOpen(true);
   };
 
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
-    setSelectedDonatur(null);
+    setSelectedPengeluaran(null);
   };
 
-  const handleEdit = (data: DonaturData) => {
-    setSelectedDonatur(convertToIntegratedData(data));
+  const handleEdit = (data: PengeluaranTahunanData) => {
+    setSelectedPengeluaran(data);
     setIsEditOpen(true);
   };
 
   const handleCloseEdit = () => {
     setIsEditOpen(false);
-    setSelectedDonatur(null);
+    setSelectedPengeluaran(null);
   };
 
-  const handleSaveEdit = (updatedData: IntegratedData) => {
+  const handleSaveEdit = (updatedData: PengeluaranTahunanData) => {
     setData((prevData) => {
       return prevData.map((item) => {
-        if (item.id === updatedData.sourceId) {
-          // Convert back from IntegratedData to DonaturData
+        if (item.id === updatedData.id) {
           return {
             ...item,
-            nama: updatedData.nama,
-            alamat: updatedData.alamat,
+            pengeluaran: updatedData.pengeluaran,
             jan: updatedData.jan,
             feb: updatedData.feb,
             mar: updatedData.mar,
@@ -148,7 +132,6 @@ export function TableRiwayatTahunan({
             okt: updatedData.okt,
             nov: updatedData.nov,
             des: updatedData.des,
-            infaq: updatedData.infaq,
           };
         }
         return item;
@@ -156,14 +139,19 @@ export function TableRiwayatTahunan({
     });
   };
 
-  const handleDelete = (donaturId: number) => {
-    const filteredData = data.filter((item) => item.id !== donaturId);
-
+  const handleDelete = (id: number) => {
+    // First check if the ID exists in the data
+    const itemExists = data.some(item => item.id === id);
+    if (!itemExists) {
+      console.error(`Item with ID ${id} not found in data.`);
+      return;
+    }
+    
+    const filteredData = data.filter((item) => item.id !== id);
     const updatedData = filteredData.map((item, index) => ({
       ...item,
       no: index + 1,
     }));
-
     setData(updatedData);
   };
 
@@ -200,8 +188,13 @@ export function TableRiwayatTahunan({
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
       setData((data) => {
-        const oldIndex = data.findIndex((item) => item.id === active.id);
-        const newIndex = data.findIndex((item) => item.id === over.id);
+        const oldIndex = data.findIndex((item) => item.id.toString() === active.id);
+        const newIndex = data.findIndex((item) => item.id.toString() === over.id);
+        
+        if (oldIndex === -1 || newIndex === -1) {
+          console.error("Could not find one of the dragged items in the data");
+          return data;
+        }
 
         const reorderedData = arrayMove(data, oldIndex, newIndex);
 
@@ -214,24 +207,30 @@ export function TableRiwayatTahunan({
   }
 
   const monthlyTotals = React.useMemo(() => {
+    if (!data || data.length === 0) {
+      return {
+        jan: 0, feb: 0, mar: 0, apr: 0, mei: 0, jun: 0,
+        jul: 0, aug: 0, sep: 0, okt: 0, nov: 0, des: 0
+      };
+    }
+    
     return {
-      jan: data.reduce((sum, item) => sum + item.jan, 0),
-      feb: data.reduce((sum, item) => sum + item.feb, 0),
-      mar: data.reduce((sum, item) => sum + item.mar, 0),
-      apr: data.reduce((sum, item) => sum + item.apr, 0),
-      mei: data.reduce((sum, item) => sum + item.mei, 0),
-      jun: data.reduce((sum, item) => sum + item.jun, 0),
-      jul: data.reduce((sum, item) => sum + item.jul, 0),
-      aug: data.reduce((sum, item) => sum + item.aug, 0),
-      sep: data.reduce((sum, item) => sum + item.sep, 0),
-      okt: data.reduce((sum, item) => sum + item.okt, 0),
-      nov: data.reduce((sum, item) => sum + item.nov, 0),
-      des: data.reduce((sum, item) => sum + item.des, 0),
-      infaq: data.reduce((sum, item) => sum + item.infaq, 0),
+      jan: data.reduce((sum, item) => sum + (item.jan || 0), 0),
+      feb: data.reduce((sum, item) => sum + (item.feb || 0), 0),
+      mar: data.reduce((sum, item) => sum + (item.mar || 0), 0),
+      apr: data.reduce((sum, item) => sum + (item.apr || 0), 0),
+      mei: data.reduce((sum, item) => sum + (item.mei || 0), 0),
+      jun: data.reduce((sum, item) => sum + (item.jun || 0), 0),
+      jul: data.reduce((sum, item) => sum + (item.jul || 0), 0),
+      aug: data.reduce((sum, item) => sum + (item.aug || 0), 0),
+      sep: data.reduce((sum, item) => sum + (item.sep || 0), 0),
+      okt: data.reduce((sum, item) => sum + (item.okt || 0), 0),
+      nov: data.reduce((sum, item) => sum + (item.nov || 0), 0),
+      des: data.reduce((sum, item) => sum + (item.des || 0), 0)
     };
   }, [data]);
 
-  const totalDonations = React.useMemo(() => {
+  const totalPengeluaran = React.useMemo(() => {
     return Object.values(monthlyTotals).reduce((sum, value) => sum + value, 0);
   }, [monthlyTotals]);
 
@@ -275,7 +274,7 @@ export function TableRiwayatTahunan({
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={columns({}).length}
                     className="h-24 text-center"
                   >
                     Tidak ada data pengeluaran.
@@ -285,12 +284,10 @@ export function TableRiwayatTahunan({
 
               {/* Summary row */}
               {table.getRowModel().rows?.length > 0 && (
-                <TableRow className="bg-muted font-medium sticky bottom-0 border-t-2 ">
-                  {/* Kolom No, Nama dan Alamat */}
+                <TableRow className="bg-muted font-medium sticky bottom-0 border-t-2">
                   <TableCell className="text-right font-bold px-4 py-3">
                     Total:
                   </TableCell>
-                  <TableCell />
                   <TableCell />
                   
                   {/* Bulan Januari sampai Desember */}
@@ -331,12 +328,9 @@ export function TableRiwayatTahunan({
                     {formatCurrency(monthlyTotals.des)}
                   </TableCell>
                   
-                  {/* Infaq dan Total */}
+                  {/* Total */}
                   <TableCell className="text-center font-bold px-4 py-3">
-                    {formatCurrency(monthlyTotals.infaq)}
-                  </TableCell>
-                  <TableCell className="text-center font-bold px-4 py-3">
-                    {formatCurrency(totalDonations)}
+                    {formatCurrency(totalPengeluaran)}
                   </TableCell>
                   
                   {/* Kolom Aksi */}
@@ -351,24 +345,75 @@ export function TableRiwayatTahunan({
       <TablePagination table={table} />
 
       {/* Detail Dialog */}
-      <DetailDonatur
+      <DetailPengeluaran
         isOpen={isDetailOpen}
         onClose={handleCloseDetail}
-        data={selectedDonatur}
-        year={year}  
+        data={selectedPengeluaran ? {
+          id: selectedPengeluaran.id,
+          no: selectedPengeluaran.no,
+          nama: selectedPengeluaran.pengeluaran,
+          tanggal: new Date(),
+          jumlah: Object.entries(selectedPengeluaran)
+            .filter(([key, value]) => 
+              ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des']
+              .includes(key) && typeof value === 'number'
+            )
+            .reduce((sum, [_, value]) => sum + (value as number), 0),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          keterangan: '',
+          jan: selectedPengeluaran.jan || 0,
+          feb: selectedPengeluaran.feb || 0,
+          mar: selectedPengeluaran.mar || 0,
+          apr: selectedPengeluaran.apr || 0,
+          mei: selectedPengeluaran.mei || 0,
+          jun: selectedPengeluaran.jun || 0,
+          jul: selectedPengeluaran.jul || 0,
+          aug: selectedPengeluaran.aug || 0,
+          sep: selectedPengeluaran.sep || 0,
+          okt: selectedPengeluaran.okt || 0,
+          nov: selectedPengeluaran.nov || 0,
+          des: selectedPengeluaran.des || 0
+        } : null}
+        year={year}
       />
-
-      {/* Edit Dialog */}
-      <EditDonatur
+      
+      <EditPengeluaran
         isOpen={isEditOpen}
         onClose={handleCloseEdit}
-        data={selectedDonatur}
+        data={selectedPengeluaran ? {
+          id: selectedPengeluaran.id,
+          no: selectedPengeluaran.no,
+          nama: selectedPengeluaran.pengeluaran,
+          tanggal: new Date(),
+          jumlah: Object.entries(selectedPengeluaran)
+            .filter(([key, value]) => 
+              ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des']
+              .includes(key) && typeof value === 'number'
+            )
+            .reduce((sum, [_, value]) => sum + (value as number), 0),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          keterangan: '',
+          jan: selectedPengeluaran.jan || 0,
+          feb: selectedPengeluaran.feb || 0,
+          mar: selectedPengeluaran.mar || 0,
+          apr: selectedPengeluaran.apr || 0,
+          mei: selectedPengeluaran.mei || 0,
+          jun: selectedPengeluaran.jun || 0,
+          jul: selectedPengeluaran.jul || 0,
+          aug: selectedPengeluaran.aug || 0,
+          sep: selectedPengeluaran.sep || 0,
+          okt: selectedPengeluaran.okt || 0,
+          nov: selectedPengeluaran.nov || 0,
+          des: selectedPengeluaran.des || 0
+        } : null}
         onSave={handleSaveEdit}
-        onDelete={handleDelete}  
-        year={year}  
+        onDelete={handleDelete}
+        year={year}
       />
     </div>
-  );
+  ); 
 }
 
 export default TableRiwayatTahunan;

@@ -10,39 +10,37 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
 import Swal from "sweetalert2";
 import { supabase } from "@/lib/supabase";
 
-interface DeleteDonaturDialogProps {
+interface DeletePengeluaranDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (id: number) => Promise<boolean>;
-  donaturName: string;
-  donaturId: number;
+  pengeluaranName: string;
+  pengeluaranId: number;
 }
 
-export function DeleteDonaturDialog({
+export function DeletePengeluaranDialog({
   isOpen,
   onClose,
   onConfirm,
-  donaturName,
-  donaturId,
-}: DeleteDonaturDialogProps) {
+  pengeluaranName,
+  pengeluaranId,
+}: DeletePengeluaranDialogProps) {
   const handleConfirm = async () => {
     try {
       const { error } = await supabase
-        .from("Donatur")
+        .from("Pengeluaran")
         .delete()
-        .eq("id", donaturId);
+        .eq("id", pengeluaranId);
 
       if (error) {
-        console.error("Error deleting donatur:", error);
+        console.error("Error deleting pengeluaran:", error);
         Swal.fire({
           title: "Error!",
-          text: "Gagal menghapus data donatur",
+          text: "Gagal menghapus data pengeluaran",
           icon: "error",
           timer: 2000,
           timerProgressBar: true,
@@ -50,11 +48,22 @@ export function DeleteDonaturDialog({
         });
         return;
       }
-      await onConfirm(donaturId);
+      
+      // Also delete from PengeluaranTahunan table
+      const { error: yearlyError } = await supabase
+        .from("PengeluaranTahunan")
+        .delete()
+        .eq("id", pengeluaranId);
+        
+      if (yearlyError) {
+        console.error("Error deleting yearly pengeluaran:", yearlyError);
+      }
+      
+      await onConfirm(pengeluaranId);
 
       Swal.fire({
         title: "Terhapus!",
-        text: "Data donatur berhasil dihapus",
+        text: "Data pengeluaran berhasil dihapus",
         icon: "success",
         timer: 2000,
         timerProgressBar: true,
@@ -79,10 +88,10 @@ export function DeleteDonaturDialog({
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Hapus Data Donatur</AlertDialogTitle>
+          <AlertDialogTitle>Hapus Data Pengeluaran</AlertDialogTitle>
           <AlertDialogDescription>
-            Apakah Anda yakin ingin menghapus data donatur{" "}
-            <strong>{donaturName}</strong>? Tindakan ini tidak dapat dibatalkan.
+            Apakah Anda yakin ingin menghapus data pengeluaran{" "}
+            <strong>{pengeluaranName}</strong>? Tindakan ini tidak dapat dibatalkan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

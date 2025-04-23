@@ -10,13 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DonaturData } from "./schema";
-import { DeleteDonaturDialog } from "./delete-donatur";
+import { PengeluaranTahunanData } from "../schema";
+import { DeletePengeluaranDialog } from "./delete-pengeluaran";
 
 interface TableActionsProps {
-  donatur: DonaturData;
-  onViewDetail?: (donatur: DonaturData) => void;
-  onEdit?: (donatur: DonaturData) => void;
+  donatur: PengeluaranTahunanData;
+  onViewDetail?: (data: PengeluaranTahunanData) => void;
+  onEdit?: (data: PengeluaranTahunanData) => void;
   onDelete?: (id: number) => void;
 }
 
@@ -67,12 +67,12 @@ export function TableActions({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <DeleteDonaturDialog
+      <DeletePengeluaranDialog
         isOpen={isDeleteDialogOpen}
         onClose={() => setIsDeleteDialogOpen(false)}
         onConfirm={handleDelete}
-        donaturName={donatur.nama}
-        donaturId={donatur.id}
+        pengeluaranName={donatur.pengeluaran}
+        pengeluaranId={donatur.id}
       />
     </>
   );
