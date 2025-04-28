@@ -5,14 +5,15 @@ import {
   IconChartBar,
   IconDashboard,
   IconFolder,
-  IconHelp,
   IconListDetails,
   IconFileDescription,
   IconSettings,
   IconUsers,
   IconArticle,
   IconReportAnalytics,
-  IconChevronRight,  
+  IconChevronRight,
+  IconUserPlus,  
+  IconUsersGroup, 
 } from "@tabler/icons-react";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { NavDocuments } from "@/components/admin/layout/nav-documents";
@@ -29,6 +30,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Image from "next/image";
+import { type NavMainItem } from "@/components/admin/layout/nav-main";
 
 type IconComponent = React.ComponentType<{
   size?: number;
@@ -41,7 +43,6 @@ interface NavItem {
   url: string;
   icon: IconComponent;
 }
-import { type NavMainItem } from "@/components/admin/layout/nav-main";
 
 const data = {
   user: {
@@ -75,50 +76,53 @@ const data = {
     },
     {
       title: "Manajemen",
-      url: "/admin/main/management",
-      icon: IconListDetails,
+      icon: IconListDetails as React.ComponentType<any>,
+      url: "#",
+      chevronIcon: IconChevronRight as React.ComponentType<any>,
+      children: [
+        {
+          title: "Daftar Pengurus",
+          url: "/admin/main/management/daftar-pengurus",
+          icon: IconUsersGroup as React.ComponentType<any>, 
+        },
+        {
+          title: "Tambah Pengurus",
+          url: "/admin/main/management/tambah-pengurus",
+          icon: IconUserPlus as React.ComponentType<any>, 
+        },
+      ],
     },
     {
       title: "Konten",
-      url: "#",
+      url: "/admin/main/content",
       icon: IconArticle,
     },
     {
       title: "Inventaris",
-      url: "#",
+      url: "/admin/main/inventaris",
       icon: IconFolder,
     },
     {
       title: "Kegiatan",
-      url: "#",
+      url: "/admin/main/kegiatan",
       icon: IconUsers,
     },
     {
       title: "Laporan Keuangan",
-      url: "#",
+      url: "/admin/main/laporan-keuangan",
       icon: IconReportAnalytics,
     },
   ] as NavMainItem[],
   documents: [
     {
       name: "Panduan penggunaan",
-      url: "#",
+      url: "/admin/main/panduan",
       icon: IconFileDescription,
-    },
-    {
-      name: "FAQ",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      name: "Kontak support",
-      url: "#",
-      icon: IconUsers,
     },
   ],
   navSecondary: [
     {
-      title: "Settings",
+      title: "Pengaturan",
       url: "#",
       icon: IconSettings,
     },
@@ -137,7 +141,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             >
               <a href="#">
                 <Image
-                  src="/logo-masjid.png"
+                  src="/images/logo-masjid.png"
                   alt="Masjid Logo"
                   width={38}
                   height={38}

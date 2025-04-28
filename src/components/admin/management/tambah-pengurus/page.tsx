@@ -1,18 +1,9 @@
 import { AppSidebar } from "@/components/admin/layout/app-sidebar";
-import { DataTable } from "@/components/admin/layout/finance/pemasukan/table-donation";
-import { SiteHeader } from "@/components/admin/layout/finance/pemasukan/site-header";
+import { SiteHeader } from "@/components/admin/layout/manajemen/tambah-pengurus/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { getDonaturData } from "@/lib/services/donatur";
-import { getDonasiKhusus } from "@/lib/services/donasi-khusus";
-import { getKotakAmalData } from "@/lib/services/kotak-amal";
+import { FormPengurus } from "@/components/admin/layout/manajemen/tambah-pengurus/form-pengurus";
 
 export default async function Page() {
-  const [donaturData, donasiKhususData, kotakAmalData] = await Promise.all([
-    getDonaturData(),
-    getDonasiKhusus(),
-    getKotakAmalData()
-  ]);
-
   return (
     <SidebarProvider
       style={{
@@ -26,11 +17,7 @@ export default async function Page() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <DataTable
-                data={donaturData}
-                kotakAmalData={kotakAmalData}
-                donasiKhususData={donasiKhususData}
-              />
+              <FormPengurus />
             </div>
           </div>
         </div>

@@ -32,3 +32,16 @@ export async function updateKotakAmalOrder(kotakAmalData: KotakAmalData[]) {
 
   return true;
 }
+
+export async function getTotalKotakAmal(): Promise<number> {
+  const { data, error } = await supabase
+    .from("KotakAmal")
+    .select("nominal");
+
+  if (error) {
+    console.error("Error fetching kotak amal total:", error);
+    throw new Error("Failed to fetch kotak amal total");
+  }
+
+  return data?.reduce((total, item) => total + (item.nominal || 0), 0) || 0;
+}

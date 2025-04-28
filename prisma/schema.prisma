@@ -78,4 +78,15 @@ model Pengeluaran {
   updatedAt   DateTime @default(now()) 
 }
 
+model Pengurus {
+  id        Int      @id @default(autoincrement())
+  no        Int            
+  nama      String
+  jabatan   String
+  periode   String
+  fotoUrl   String?  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+}
+
 

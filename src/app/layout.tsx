@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Poppins } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/admin/layout/theme-provider";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,19 +27,19 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/logo-masjid.png",
+        url: "images/logo-masjid.png",
         sizes: "32x32",
       },
       {
-        url: "/logo-masjid.png",
+        url: "images/logo-masjid.png",
         sizes: "64x64",
       },
       {
-        url: "/logo-masjid.png",
+        url: "/images/logo-masjid.png",
         sizes: "192x192",
       },
       {
-        url: "/logo-masjid.png",
+        url: "/images/logo-masjid.png",
         sizes: "512x512",
       },
     ],
@@ -67,6 +68,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

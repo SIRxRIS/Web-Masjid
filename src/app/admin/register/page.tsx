@@ -1,8 +1,8 @@
 import { BackgroundLines } from "@/components/ui/background-lines";
-import LoginForm from "@/components/admin/login/page";
+import RegisterForm from "@/components/admin/register/page";
 import Image from "next/image";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <BackgroundLines className="w-full min-h-svh">
       <div className="flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10 relative z-10">
@@ -18,7 +18,7 @@ export default function LoginPage() {
             />
             <span className="text-lg font-semibold">Masjid Jawahiruzzarqa</span>
           </a>
-          <LoginForm />
+          <RegisterForm />
         </div>
       </div>
     </BackgroundLines>

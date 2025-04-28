@@ -1,11 +1,8 @@
 import { AppSidebar } from "@/components/admin/layout/app-sidebar";
-import { ChartAreaInteractive } from "@/components/admin/layout/dashboard/chart-area-interactive";
-import { DataTable } from "@/components/admin/layout/dashboard/data-table";
 import { SectionCards } from "@/components/admin/layout/dashboard/section-cards";
 import { SiteHeader } from "@/components/admin/layout/dashboard/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { ChartSaldo } from "@/components/admin/layout/dashboard/chart-saldo";
-import data from "./data.json";
 
 export default function Page() {
   return (
@@ -27,11 +24,6 @@ export default function Page() {
               <div className="px-4 lg:px-6">
                 <ChartSaldo />
               </div>
-              <div className="px-4 lg:px-6">
-                <ChartAreaInteractive />
-              </div>
-
-              <DataTable data={data} />
             </div>
           </div>
         </div>
