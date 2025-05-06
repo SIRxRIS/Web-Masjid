@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { BackgroundGradient } from "@/components/ui/background-gradient";
-import { PengurusData, getPengurusData, deletePengurus } from "@/lib/services/pengurus";
+import { PengurusData, getPengurusData, deletePengurus } from "@/lib/services/supabase/pengurus";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { motion } from "framer-motion";

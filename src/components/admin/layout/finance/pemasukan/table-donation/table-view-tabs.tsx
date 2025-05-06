@@ -52,6 +52,7 @@ export function TableViewTabs({ table }: TableViewTabsProps) {
             <SelectItem value="riwayat-tahunan">Riwayat Tahunan</SelectItem>
             <SelectItem value="donasi-khusus">Donasi Khusus</SelectItem>
             <SelectItem value="kotak-amal">Kotak Amal</SelectItem>
+            <SelectItem value="kotak-amal-masjid">Kotak Amal Masjid</SelectItem>
           </SelectContent>
         </Select>
 
@@ -71,9 +72,15 @@ export function TableViewTabs({ table }: TableViewTabsProps) {
           </TabsTrigger>
           <TabsTrigger
             value="kotak-amal"
-            title="Catatan pemasukan dari kotak amal"
+            title="Catatan pemasukan dari kotak amal luar kompleks"
           >
             Kotak Amal
+          </TabsTrigger>
+          <TabsTrigger
+            value="kotak-amal-masjid"
+            title="Catatan pemasukan dari kotak amal masjid"
+          >
+            Kotak Amal Masjid
           </TabsTrigger>
         </TabsList>
       </div>

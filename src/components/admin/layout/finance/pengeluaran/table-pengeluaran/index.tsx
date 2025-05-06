@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { type PengeluaranData } from "./schema";
+import { type Table } from "@tanstack/react-table";
+import { type PengeluaranData, type PengeluaranTahunanData } from "./schema";
 import { TableViewTabs } from "./table-view-tabs";
 import { Tabs } from "@/components/ui/tabs";
 import { DataTableTabsContent } from "./data-table-tabs-content";
@@ -17,6 +18,7 @@ export function DataTable({
   const [searchQuery, setSearchQuery] = React.useState("");
   const [year, setYear] = React.useState("2025");
   const [activeTab, setActiveTab] = React.useState("riwayat-tahunan");
+  const [tableInstance, setTableInstance] = React.useState<Table<PengeluaranData | PengeluaranTahunanData> | null>(null);
 
   const getPlaceholder = () => {
     switch (activeTab) {
@@ -47,6 +49,7 @@ export function DataTable({
           pengeluaranData={initialPengeluaranData}
           searchQuery={searchQuery}
           year={year}
+          onTableInstanceChange={setTableInstance}
         />
       </Tabs>
     </div>

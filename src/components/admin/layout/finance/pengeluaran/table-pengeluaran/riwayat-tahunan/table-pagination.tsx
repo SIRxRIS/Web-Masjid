@@ -28,7 +28,7 @@ export function TablePagination({ table }: TablePaginationProps) {
     <div className="flex items-center justify-between px-4 lg:px-6">
       <div className="text-muted-foreground hidden flex-1 text-sm lg:block">
         {table.getFilteredSelectedRowModel().rows.length} dari{" "}
-        {table.getFilteredRowModel().rows.length} donatur dipilih.
+        {table.getFilteredRowModel().rows.length} pengeluaran dipilih.
       </div>
 
       <div className="flex items-center gap-4">

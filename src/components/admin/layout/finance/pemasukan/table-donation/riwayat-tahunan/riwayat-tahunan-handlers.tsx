@@ -1,6 +1,6 @@
 import * as React from "react";
 import { type DonaturData, type KotakAmalData, type DonasiKhususData } from "../schema";
-import { type IntegratedData } from "@/lib/services/data-integration";
+import { type IntegratedData } from "@/lib/services/supabase/data-integration";
 
 interface UseRiwayatTahunanHandlersProps {
   data: IntegratedData[];

@@ -4,7 +4,7 @@ import * as React from "react";
 import { type ColumnDef } from "@tanstack/react-table";
 import { TableActions } from "./table-actions";
 import { formatCurrency } from "../../../pemasukan/table-donation/utils";
-import { type IntegratedData } from "@/lib/services/data-integration";
+import { type IntegratedData } from "@/lib/services/supabase/data-integration";
 
 interface ColumnOptions {
   onViewDetail?: (data: IntegratedData) => void;

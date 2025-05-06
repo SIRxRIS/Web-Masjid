@@ -39,7 +39,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { columns } from "./columns";
-import { type DonaturData, type KotakAmalData, type DonasiKhususData } from "../schema";
+import { type DonaturData, type KotakAmalData, type DonasiKhususData, type KotakAmalMasjidData } from "../schema";
 import { TablePagination } from "./table-pagination";
 import { DraggableRow } from "../draggable-row";
 import { formatCurrency } from "../../../pemasukan/table-donation/utils";
@@ -49,13 +49,14 @@ import { DetailKotakAmal } from "../kotak-amal/detail-kotak-amal";
 import { EditKotakAmal } from "../kotak-amal/edit-kotak-amal";
 import { DetailDonasiKhusus } from "../donasi-khusus/detail-donasi-khusus";
 import { EditDonasiKhusus } from "../donasi-khusus/edit-donasi-khusus";
-import { integrateData, type IntegratedData } from "@/lib/services/data-integration";
+import { integrateData, type IntegratedData } from "@/lib/services/supabase/data-integration";
 import { useRiwayatTahunanHandlers } from "./riwayat-tahunan-handlers";
 
 interface TableRiwayatTahunanProps {
   donaturData: DonaturData[];
   kotakAmalData: KotakAmalData[];
   donasiKhususData: DonasiKhususData[];
+  kotakAmalMasjidData: KotakAmalMasjidData[];
   year: string;
 }
 
@@ -63,6 +64,7 @@ export function TableRiwayatTahunan({
   donaturData,
   kotakAmalData,
   donasiKhususData,
+  kotakAmalMasjidData,
   year,
 }: TableRiwayatTahunanProps) {
   const [isKotakAmalDetailOpen, setIsKotakAmalDetailOpen] = React.useState(false);
@@ -73,12 +75,12 @@ export function TableRiwayatTahunan({
   const [selectedDonasiKhusus, setSelectedDonasiKhusus] = React.useState<DonasiKhususData | null>(null);
 
   const [data, setData] = React.useState<IntegratedData[]>(() => 
-    integrateData(donaturData, kotakAmalData, donasiKhususData, year)
+    integrateData(donaturData, kotakAmalData, donasiKhususData, kotakAmalMasjidData, year)
   );
 
   React.useEffect(() => {
-    setData(integrateData(donaturData, kotakAmalData, donasiKhususData, year));
-  }, [donaturData, kotakAmalData, donasiKhususData, year]);
+    setData(integrateData(donaturData, kotakAmalData, donasiKhususData, kotakAmalMasjidData, year));
+  }, [donaturData, kotakAmalData, donasiKhususData, kotakAmalMasjidData, year]);
 
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -238,8 +240,8 @@ export function TableRiwayatTahunan({
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
+                    colSpan={17}
+                    className="h-[200px] text-center align-middle text-muted-foreground"
                   >
                     Tidak ada data donatur.
                   </TableCell>
@@ -343,7 +345,6 @@ export function TableRiwayatTahunan({
         onSave={handleSaveKotakAmal}
         onDelete={(id) => {
           if (selectedKotakAmal) {
-            // Find the integrated data ID that corresponds to this kotak amal
             const integratedItem = data.find(item => 
               item.sourceType === 'kotakAmal' && 
               (typeof item.sourceId === 'string' 
@@ -373,7 +374,6 @@ export function TableRiwayatTahunan({
         onSave={handleSaveDonasiKhusus}
         onDelete={(id) => {
           if (selectedDonasiKhusus) {
-            // Find the integrated data ID that corresponds to this donasi khusus
             const integratedItem = data.find(item => 
               item.sourceType === 'donasiKhusus' && 
               (typeof item.sourceId === 'string' 

@@ -17,7 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { type IntegratedData } from "@/lib/services/data-integration";
+import { type IntegratedData } from "@/lib/services/supabase/data-integration";
 
 interface TablePaginationProps {
   table: Table<IntegratedData>;

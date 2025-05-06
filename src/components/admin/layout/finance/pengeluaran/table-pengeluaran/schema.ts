@@ -5,6 +5,7 @@ export const pengeluaranSchema = z.object({
   no: z.number(),
   nama: z.string(),
   tanggal: z.date(),
+  tahun: z.number(),
   jumlah: z.number(),
   keterangan: z.string().optional(),
   createdAt: z.date(),

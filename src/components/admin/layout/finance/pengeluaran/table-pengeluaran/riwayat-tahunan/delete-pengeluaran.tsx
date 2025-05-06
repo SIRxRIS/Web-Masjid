@@ -31,6 +31,7 @@ export function DeletePengeluaranDialog({
 }: DeletePengeluaranDialogProps) {
   const handleConfirm = async () => {
     try {
+      // Lakukan query delete langsung ke Supabase
       const { error } = await supabase
         .from("Pengeluaran")
         .delete()
@@ -48,17 +49,8 @@ export function DeletePengeluaranDialog({
         });
         return;
       }
-      
-      // Also delete from PengeluaranTahunan table
-      const { error: yearlyError } = await supabase
-        .from("PengeluaranTahunan")
-        .delete()
-        .eq("id", pengeluaranId);
-        
-      if (yearlyError) {
-        console.error("Error deleting yearly pengeluaran:", yearlyError);
-      }
-      
+
+      // Panggil onConfirm untuk memperbarui UI atau melakukan tindakan lain setelah penghapusan
       await onConfirm(pengeluaranId);
 
       Swal.fire({

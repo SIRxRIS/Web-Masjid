@@ -140,7 +140,7 @@ export const columns = ({
     id: "actions",
     header: () => <div className="text-center">Aksi</div>,
     cell: ({ row }) => (
-      <div className="text-center">
+      <div className="flex justify-center">
         <TableActions
           donatur={row.original}
           onViewDetail={onViewDetail}

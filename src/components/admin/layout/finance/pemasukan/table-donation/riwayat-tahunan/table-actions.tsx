@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { type IntegratedData } from "@/lib/services/data-integration";
+import { type IntegratedData } from "@/lib/services/supabase/data-integration";
 import { DeleteDonaturDialog } from "./delete-donatur";
 
 interface TableActionsProps {

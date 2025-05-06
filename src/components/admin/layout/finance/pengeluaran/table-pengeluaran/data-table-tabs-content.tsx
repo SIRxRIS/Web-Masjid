@@ -4,6 +4,7 @@ import * as React from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { TableRiwayatTahunan } from "./riwayat-tahunan/table-riwayat-tahunan";
 import { TablePengeluaran } from "./table-pengeluaran-bulanan/table-pengeluaran";
+import { Table } from "@tanstack/react-table";
 import {
   type PengeluaranData,
   type PengeluaranTahunanData,
@@ -13,12 +14,14 @@ interface DataTableTabsContentProps {
   pengeluaranData: PengeluaranData[];
   searchQuery: string;
   year: string;
+  onTableInstanceChange?: (table: Table<any> | null) => void;
 }
 
 export function DataTableTabsContent({
   pengeluaranData,
   searchQuery,
   year,
+  onTableInstanceChange
 }: DataTableTabsContentProps) {
   const filteredPengeluaranData = React.useMemo(() => {
     if (!searchQuery) return pengeluaranData;
@@ -31,7 +34,6 @@ export function DataTableTabsContent({
     );
   }, [pengeluaranData, searchQuery]);
 
-  // Transform PengeluaranData to PengeluaranTahunanData
   const transformedData = React.useMemo(() => {
     const monthlyData = filteredPengeluaranData.reduce((acc, item) => {
       const month = new Date(item.tanggal).getMonth();
@@ -54,11 +56,23 @@ export function DataTableTabsContent({
     return Object.values(monthlyData);
   }, [filteredPengeluaranData]);
 
+  const [riwayatTahunanTable, setRiwayatTahunanTable] = React.useState<Table<PengeluaranTahunanData> | null>(null);
+  const [pengeluaranTable, setPengeluaranTable] = React.useState<Table<PengeluaranData> | null>(null);
+  const [activeTab, setActiveTab] = React.useState("riwayat-tahunan");
+
+  React.useEffect(() => {
+    if (onTableInstanceChange) {
+      const currentTable = activeTab === "riwayat-tahunan" ? riwayatTahunanTable : pengeluaranTable;
+      onTableInstanceChange(currentTable);
+    }
+  }, [activeTab, riwayatTahunanTable, pengeluaranTable, onTableInstanceChange]);
+
   return (
     <>
       <TabsContent
         value="riwayat-tahunan"
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
+        onSelect={() => setActiveTab("riwayat-tahunan")}
       >
         <TableRiwayatTahunan 
           pengeluaranData={transformedData}
@@ -69,12 +83,28 @@ export function DataTableTabsContent({
       <TabsContent 
         value="pengeluaran-bulanan" 
         className="flex flex-col px-4 lg:px-6"
+        onSelect={() => setActiveTab("pengeluaran-bulanan")}
       >
         <TablePengeluaran 
           pengeluaranData={filteredPengeluaranData} 
-          year={year} 
+          year={year}
         />
       </TabsContent>
     </>
   );
+}
+
+interface TableRiwayatTahunanProps {
+  pengeluaranData: PengeluaranTahunanData[];
+  year: string;
+  table?: Table<any> | null;
+  onTableChange?: (table: Table<any> | null) => void;
+}
+
+interface TablePengeluaranProps {
+  pengeluaranData: PengeluaranData[];
+  year: string;
+  table?: Table<any> | null;
+  onTableChange?: (table: Table<any> | null) => void;
+  onDataChange?: (updatedData: PengeluaranData[]) => void;
 }

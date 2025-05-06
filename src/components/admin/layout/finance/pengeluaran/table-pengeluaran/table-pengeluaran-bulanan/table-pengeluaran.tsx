@@ -57,14 +57,12 @@ export function TablePengeluaran({
   year,
   onDataChange,
 }: TablePengeluaranProps) {
-  // State management
   const [data, setData] = React.useState<PengeluaranData[]>(pengeluaranData);
   const [selectedPengeluaran, setSelectedPengeluaran] = 
     React.useState<PengeluaranData | null>(null);
   const [isDetailOpen, setIsDetailOpen] = React.useState(false);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
   
-  // Table state
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -74,12 +72,10 @@ export function TablePengeluaran({
     pageSize: 10,
   });
 
-  // Update data when props change
   React.useEffect(() => {
     setData(pengeluaranData);
   }, [pengeluaranData]);
 
-  // DnD setup
   const sortableId = React.useId();
   const sensors = useSensors(
     useSensor(MouseSensor, {}),
@@ -88,7 +84,6 @@ export function TablePengeluaran({
   );
   const dataIds = React.useMemo(() => data?.map(({ id }) => id) || [], [data]);
 
-  // Calculated values
   const totalPengeluaran = React.useMemo(() => 
     data.reduce((total, item) => total + item.jumlah, 0),
   [data]);
@@ -102,7 +97,6 @@ export function TablePengeluaran({
     return totals;
   }, [data]);
 
-  // Event handlers
   const updateData = (newData: PengeluaranData[]) => {
     setData(newData);
     if (onDataChange) {
@@ -166,7 +160,6 @@ export function TablePengeluaran({
     }
   }
 
-  // Table setup
   const table = useReactTable({
     data,
     columns: columns({

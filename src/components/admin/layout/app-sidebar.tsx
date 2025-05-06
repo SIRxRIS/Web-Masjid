@@ -103,11 +103,6 @@ const data = {
       icon: IconFolder,
     },
     {
-      title: "Kegiatan",
-      url: "/admin/main/kegiatan",
-      icon: IconUsers,
-    },
-    {
       title: "Laporan Keuangan",
       url: "/admin/main/laporan-keuangan",
       icon: IconReportAnalytics,

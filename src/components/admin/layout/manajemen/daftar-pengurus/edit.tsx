@@ -33,7 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { PengurusData, updatePengurusWithOptionalFoto } from "@/lib/services/pengurus";
+import { PengurusData, updatePengurusWithOptionalFoto } from "@/lib/services/supabase/pengurus";
 import { jabatanToNoMap } from "../tambah-pengurus//pengurus-schema";
 import { ErrorMessage, FieldDescription } from "../tambah-pengurus/form-components";
 

@@ -63,7 +63,6 @@ export function DataTable({ data, year }: DataTableProps) {
   const [isDetailOpen, setIsDetailOpen] = React.useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
 
-  // Update items ketika data berubah
   React.useEffect(() => {
     setItems(formattedData);
   }, [formattedData]);
@@ -179,10 +178,10 @@ export function DataTable({ data, year }: DataTableProps) {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
+                    colSpan={17}
+                    className="h-[200px] text-center align-middle text-muted-foreground"
                   >
-                    Tidak ada data donasi.
+                    Tidak ada data donatur.
                   </TableCell>
                 </TableRow>
               )}
@@ -215,12 +214,15 @@ export function DataTable({ data, year }: DataTableProps) {
         onClose={() => setIsEditOpen(false)}
         donasi={selectedDonasi}
         onSave={handleSave}
+        onDelete={handleDeleteConfirm}
+        year={year}
       />
 
       <DetailDonasiKhusus
         isOpen={isDetailOpen}
         onClose={() => setIsDetailOpen(false)}
         donasi={selectedDonasi}
+        year={year}
       />
 
       <DeleteDonasiKhususDialog

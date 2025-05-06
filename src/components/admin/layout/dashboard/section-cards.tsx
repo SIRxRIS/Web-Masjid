@@ -1,5 +1,7 @@
-import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
+"use client";
 
+import { IconTrendingDown, IconTrendingUp } from "@tabler/icons-react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -9,29 +11,68 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getDashboardData } from "@/lib/services/supabase/dashboard/dashboard";
 
 export function SectionCards() {
+  const [dashboardData, setDashboardData] = useState({
+    saldo: 0,
+    pertumbuhanDanaBulanan: 0,
+    jumlahDonatur: 0,
+    pertumbuhanDonatur: 0,
+    totalKontenPublished: 0,
+    pertumbuhanDanaTahunan: 0,
+    totalGabunganKotakAmal: 0,
+    donasiBulanan: 0,
+    pertumbuhanDonasi: 0,
+    totalPengeluaran: 0
+  });
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const currentDate = new Date();
+        const data = await getDashboardData(currentDate.getFullYear(), currentDate.getMonth() + 1);
+        setDashboardData({
+          saldo: data.saldo,
+          pertumbuhanDanaBulanan: data.pertumbuhanDanaBulanan,
+          jumlahDonatur: data.jumlahDonatur,
+          pertumbuhanDonatur: data.pertumbuhanDonatur,
+          totalKontenPublished: data.totalKontenPublished,
+          pertumbuhanDanaTahunan: data.pertumbuhanDanaTahunan,
+          totalGabunganKotakAmal: data.totalGabunganKotakAmal,
+          donasiBulanan: data.donasiBulanan,
+          pertumbuhanDonasi: data.pertumbuhanDonasi,
+          totalPengeluaran: data.totalPengeluaran
+        });
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
     <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-      {/* Total Saldo - keeping existing card */}
+      {/* Total Saldo */}
       <Card className="@container/card">
         <CardHeader>
           <CardDescription>Total Saldo</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            Rp10,250.000
+            Rp{dashboardData.saldo.toLocaleString('id-ID')}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
               <IconTrendingUp />
-              +12.5%
+              +{dashboardData.pertumbuhanDanaBulanan}%
             </Badge>
           </CardAction>
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Peningkatan bulan ini <IconTrendingUp className="size-4" />
+            Pertumbuhan Saldo <IconTrendingUp className="size-4" />
           </div>
-          <div className="text-muted-foreground">Dibandingkan bulan lalu</div>
+          <div className="text-muted-foreground">Saldo dari bulan ke bulan</div>
         </CardFooter>
       </Card>
 
@@ -40,12 +81,12 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Total Donatur</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            156
+            {dashboardData.jumlahDonatur}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
               <IconTrendingUp />
-              +15%
+              +{dashboardData.pertumbuhanDonatur}%
             </Badge>
           </CardAction>
         </CardHeader>
@@ -57,12 +98,12 @@ export function SectionCards() {
         </CardFooter>
       </Card>
 
-      {/* Kegiatan Aktif */}
+      {/* Konten Aktif */}
       <Card className="@container/card">
         <CardHeader>
-          <CardDescription>Kegiatan Aktif</CardDescription>
+          <CardDescription>Konten Aktif</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            12
+            {dashboardData.totalKontenPublished}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
@@ -73,7 +114,7 @@ export function SectionCards() {
         </CardHeader>
         <CardFooter className="flex-col items-start gap-1.5 text-sm">
           <div className="line-clamp-1 flex gap-2 font-medium">
-            Kegiatan bulan ini <IconTrendingUp className="size-4" />
+            Konten bulan ini <IconTrendingUp className="size-4" />
           </div>
           <div className="text-muted-foreground">Program masjid aktif</div>
         </CardFooter>
@@ -84,12 +125,12 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Pertumbuhan Dana</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            15.5%
+            {dashboardData.pertumbuhanDanaTahunan}%
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
               <IconTrendingUp />
-              +2.3%
+              +{dashboardData.pertumbuhanDanaBulanan}%
             </Badge>
           </CardAction>
         </CardHeader>
@@ -106,7 +147,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Total Kotak Amal</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            Rp2,150.000
+            Rp{dashboardData.totalGabunganKotakAmal.toLocaleString('id-ID')}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
@@ -128,12 +169,12 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Donasi Bulanan</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            Rp8,500.000
+            Rp{dashboardData.donasiBulanan.toLocaleString('id-ID')}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">
               <IconTrendingUp />
-              +5.7%
+              +{dashboardData.pertumbuhanDonasi}%
             </Badge>
           </CardAction>
         </CardHeader>
@@ -150,7 +191,7 @@ export function SectionCards() {
         <CardHeader>
           <CardDescription>Pengeluaran Terkini</CardDescription>
           <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            Rp3,250.000
+            Rp{dashboardData.totalPengeluaran.toLocaleString('id-ID')}
           </CardTitle>
           <CardAction>
             <Badge variant="outline">

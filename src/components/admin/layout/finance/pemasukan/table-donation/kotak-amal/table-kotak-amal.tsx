@@ -190,13 +190,13 @@ export function DataTable({ data, year }: DataTableProps) {
               </SortableContext>
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  Tidak ada data donasi.
-                </TableCell>
-              </TableRow>
+                  <TableCell
+                    colSpan={17}
+                    className="h-[200px] text-center align-middle text-muted-foreground"
+                  >
+                    Tidak ada data donatur.
+                  </TableCell>
+                </TableRow>
             )}
             {table.getRowModel().rows?.length > 0 && (
               <TableRow>

@@ -4,17 +4,20 @@ import * as React from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { DataTable as DonasiKhususTable } from "./donasi-khusus/table-donation-primary";
 import { DataTable as KotakAmalTable } from "./kotak-amal/table-kotak-amal";
+import { DataTable as KotakAmalMasjidTable } from "./kotak-amal-masjid/table-kotak-amal-masjid";
 import { TableRiwayatTahunan } from "./riwayat-tahunan/table-riwayat-tahunan";
 import {
   type DonaturData,
   type KotakAmalData,
   type DonasiKhususData,
+  type KotakAmalMasjidData,
 } from "./schema";
 
 interface DataTableTabsContentProps {
   donaturData: DonaturData[];
   kotakAmalData: KotakAmalData[];
   donasiKhususData: DonasiKhususData[];
+  kotakAmalMasjidData: KotakAmalMasjidData[];
   searchQuery: string;
   year: string;
 }
@@ -23,6 +26,7 @@ export function DataTableTabsContent({
   donaturData,
   kotakAmalData,
   donasiKhususData,
+  kotakAmalMasjidData,
   searchQuery,
   year,
 }: DataTableTabsContentProps) {
@@ -59,6 +63,17 @@ export function DataTableTabsContent({
     );
   }, [donasiKhususData, searchQuery]);
 
+  const filteredKotakAmalMasjidData = React.useMemo(() => {
+    if (!searchQuery) return kotakAmalMasjidData;
+
+    const lowerQuery = searchQuery.toLowerCase();
+    return kotakAmalMasjidData.filter(
+      (item) =>
+        item.tanggal.toString().toLowerCase().includes(lowerQuery) ||
+        item.jumlah.toString().toLowerCase().includes(lowerQuery)
+    );
+  }, [kotakAmalMasjidData, searchQuery]);
+
   const renderPlaceholder = (message: string) => (
     <div className="aspect-video w-full flex-1 rounded-lg border border-dashed flex items-center justify-center text-muted-foreground">
       {message}
@@ -75,6 +90,7 @@ export function DataTableTabsContent({
           donaturData={filteredDonaturData}
           kotakAmalData={filteredKotakAmalData}
           donasiKhususData={filteredDonasiKhususData}
+          kotakAmalMasjidData={filteredKotakAmalMasjidData}
           year={year}
         />
       </TabsContent>
@@ -85,6 +101,10 @@ export function DataTableTabsContent({
 
       <TabsContent value="kotak-amal" className="flex flex-col px-4 lg:px-6">
         <KotakAmalTable data={filteredKotakAmalData} year={year} />
+      </TabsContent>
+
+      <TabsContent value="kotak-amal-masjid" className="flex flex-col px-4 lg:px-6">
+        <KotakAmalMasjidTable data={filteredKotakAmalMasjidData} year={year} />
       </TabsContent>
     </>
   );

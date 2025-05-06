@@ -1,5 +1,5 @@
 import { BackgroundLines } from "@/components/ui/background-lines";
-import LoginForm from "@/components/admin/login/page";
+import LoginForm from "@/components/admin/layout/login/page";
 import Image from "next/image";
 
 export default function LoginPage() {

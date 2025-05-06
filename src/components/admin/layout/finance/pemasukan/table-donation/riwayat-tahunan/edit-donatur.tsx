@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Swal from "sweetalert2";
 import { supabase } from "@/lib/supabase";
-import { type IntegratedData } from "@/lib/services/data-integration";
+import { type IntegratedData } from "@/lib/services/supabase/data-integration";
 import { formatNumber, unformatNumber } from "../../../pemasukan/table-donation/utils";
 
 interface MonthName {

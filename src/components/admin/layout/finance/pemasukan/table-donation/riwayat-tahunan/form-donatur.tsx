@@ -20,6 +20,7 @@ interface DonaturFormValues {
   alamat: string;
   jumlah: number;
   bulan: string;
+  tahun: number;  
 }
 
 const bulanOptions = [
@@ -50,6 +51,7 @@ export function FormDonaturRutin({ onSuccess }: FormDonaturRutinProps) {
       alamat: "",
       jumlah: 0,
       bulan: "jan",
+      tahun: new Date().getFullYear(), // Menambahkan default value tahun
     },
   });
 
@@ -59,6 +61,7 @@ export function FormDonaturRutin({ onSuccess }: FormDonaturRutinProps) {
       const { data: lastDonatur, error: countError } = await supabase
         .from("Donatur")
         .select("no")
+        .eq("tahun", data.tahun) // Menambahkan filter berdasarkan tahun
         .order("no", { ascending: false })
         .limit(1);
 
@@ -68,6 +71,7 @@ export function FormDonaturRutin({ onSuccess }: FormDonaturRutinProps) {
         no: nextNo,
         nama: data.nama,
         alamat: data.alamat,
+        tahun: data.tahun, // Menambahkan field tahun
         [data.bulan]: data.jumlah,
       };
       const { error } = await supabase.from("Donatur").insert(donaturData);
@@ -134,6 +138,27 @@ export function FormDonaturRutin({ onSuccess }: FormDonaturRutinProps) {
           />
 
           <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="tahun"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tahun</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Masukkan tahun"
+                      min={2000}
+                      max={2100}
+                      {...field}
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="bulan"

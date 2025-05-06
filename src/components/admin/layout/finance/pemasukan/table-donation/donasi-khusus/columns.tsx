@@ -71,13 +71,16 @@ export const columns = ({
   },
   {
     id: "actions",
+    header: () => <div className="text-center">Aksi</div>,
     cell: ({ row }) => (
-      <TableActions
-        donasi={row.original}
-        onEdit={onEdit}
-        onViewDetail={onViewDetail}
-        onDelete={onDelete}
-      />
+      <div className="text-center">
+        <TableActions
+          donasi={row.original}
+          onViewDetail={onViewDetail}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      </div>
     ),
   },
 ];

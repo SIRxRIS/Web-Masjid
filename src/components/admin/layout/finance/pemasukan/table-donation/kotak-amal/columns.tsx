@@ -142,13 +142,16 @@ export const columns = ({
   },
   {
     id: "actions",
+    header: () => <div className="text-center">Aksi</div>,
     cell: ({ row }) => (
-      <TableActions
-        kotakAmal={row.original}
-        onEdit={onEdit}
-        onViewDetail={onViewDetail}
-        onDelete={onDelete}
-      />
+      <div className="text-center">
+        <TableActions
+          kotakAmal={row.original}
+          onViewDetail={onViewDetail}
+          onEdit={onEdit}
+          onDelete={onDelete}
+        />
+      </div>
     ),
   },
 ];

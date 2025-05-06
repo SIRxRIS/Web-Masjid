@@ -1,5 +1,5 @@
 import { BackgroundLines } from "@/components/ui/background-lines";
-import RegisterForm from "@/components/admin/register/page";
+import RegisterForm from "@/components/admin/layout/register/page";
 import Image from "next/image";
 
 export default function RegisterPage() {

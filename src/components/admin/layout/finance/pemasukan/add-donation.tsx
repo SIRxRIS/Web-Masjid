@@ -13,6 +13,8 @@ import { PlusIcon } from "lucide-react";
 import { FormDonaturRutin } from "./table-donation/riwayat-tahunan/form-donatur";
 import { FormDonasiKhusus } from "./table-donation/donasi-khusus/form-donatur-khusus";
 import { FormKotakAmal } from "./table-donation/kotak-amal/form-kotak-amal";
+import { FormKotakAmalMasjid } from "./table-donation/kotak-amal-masjid/form-kotak-amal-masjid";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function AddDonation() {
   const [open, setOpen] = useState(false);
@@ -39,10 +41,14 @@ export default function AddDonation() {
         </DialogHeader>
 
         <Tabs value={tabValue} onValueChange={setTabValue}>
-          <TabsList className="grid grid-cols-3 mb-4">
+          <TabsList className="grid grid-cols-4 mb-4">
             <TabsTrigger value="donatur-rutin">Donasi Rutin</TabsTrigger>
             <TabsTrigger value="donasi-khusus">Donasi Khusus</TabsTrigger>
             <TabsTrigger value="kotak-amal">Kotak Amal</TabsTrigger>
+            
+                
+                  <TabsTrigger value="kotak-amal-masjid" title="kotak amal masjid">Masjid</TabsTrigger>
+                
           </TabsList>
 
           {/* Form Donatur Rutin */}
@@ -58,6 +64,11 @@ export default function AddDonation() {
           {/* Form Kotak Amal */}
           <TabsContent value="kotak-amal">
             <FormKotakAmal onSuccess={handleSuccess} />
+          </TabsContent>
+
+          {/* Form Kotak Amal Masjid */}
+          <TabsContent value="kotak-amal-masjid">
+            <FormKotakAmalMasjid onSuccess={handleSuccess} />
           </TabsContent>
         </Tabs>
       </DialogContent>

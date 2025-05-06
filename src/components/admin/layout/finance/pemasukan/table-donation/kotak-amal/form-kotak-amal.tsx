@@ -20,6 +20,7 @@ interface KotakAmalFormValues {
   lokasi: string;
   jumlah: number;
   bulan: string;
+  tahun: number;
 }
 
 const bulanOptions = [
@@ -50,6 +51,7 @@ export function FormKotakAmal({ onSuccess }: FormKotakAmalProps) {
       lokasi: "",
       jumlah: 0,
       bulan: "jan",
+      tahun: new Date().getFullYear(),
     },
   });
 
@@ -68,6 +70,7 @@ export function FormKotakAmal({ onSuccess }: FormKotakAmalProps) {
         no: nextNo,
         nama: data.nama,
         lokasi: data.lokasi,
+        tahun: data.tahun,
         [data.bulan]: data.jumlah,
       };
 
@@ -137,6 +140,27 @@ export function FormKotakAmal({ onSuccess }: FormKotakAmalProps) {
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
+              name="tahun"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tahun</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      placeholder="Masukkan tahun"
+                      min={2000}
+                      max={2100}
+                      {...field}
+                      onChange={(e) => field.onChange(parseInt(e.target.value))}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="bulan"
               render={({ field }) => (
                 <FormItem>
@@ -157,29 +181,29 @@ export function FormKotakAmal({ onSuccess }: FormKotakAmalProps) {
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="jumlah"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Jumlah (Rp)</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="text"
-                      placeholder="0"
-                      value={field.value ? formatNumber(field.value.toString()) : ''}
-                      onChange={(e) => {
-                        const value = unformatNumber(e.target.value);
-                        field.onChange(value);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
           </div>
+
+          <FormField
+            control={form.control}
+            name="jumlah"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Jumlah (Rp)</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="0"
+                    value={field.value ? formatNumber(field.value.toString()) : ''}
+                    onChange={(e) => {
+                      const value = unformatNumber(e.target.value);
+                      field.onChange(value);
+                    }}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
 
         <DialogFooter className="mt-6">

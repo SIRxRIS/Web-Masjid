@@ -66,7 +66,8 @@ export function FormDonasiKhusus({ onSuccess }: FormDonasiKhususProps) {
       const donasiKhususData = {
         no: nextNo,
         nama: data.nama,
-        tanggal: format(data.tanggal, 'yyyy-MM-dd'), 
+        tanggal: format(data.tanggal, 'yyyy-MM-dd'),
+        tahun: data.tanggal.getFullYear(), 
         jumlah: data.jumlah,
         keterangan: data.keterangan,
       };

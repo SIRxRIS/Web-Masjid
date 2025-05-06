@@ -229,6 +229,7 @@ export function FormPengeluaran({ onSuccess }: FormPengeluaranProps) {
   const onSubmit = async (data: PengeluaranFormValues) => {
     setIsSubmitting(true);
     try {
+      const tahun = data.tanggal.getFullYear();
       const { data: lastPengeluaran, error: countError } = await supabase
         .from("Pengeluaran")
         .select("no")
@@ -241,6 +242,7 @@ export function FormPengeluaran({ onSuccess }: FormPengeluaranProps) {
         no: nextNo,
         nama: data.nama,
         tanggal: format(data.tanggal, 'yyyy-MM-dd'),
+        tahun: tahun,
         jumlah: data.jumlah,
         keterangan: data.keterangan,
       };

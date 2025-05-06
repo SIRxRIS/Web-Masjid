@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DonaturData } from "../schema";
-import { type IntegratedData } from "@/lib/services/data-integration";
+import { type IntegratedData } from "@/lib/services/supabase/data-integration";
 import { formatCurrency } from "../../../pemasukan/table-donation/utils";
 
 interface DetailDonaturProps {

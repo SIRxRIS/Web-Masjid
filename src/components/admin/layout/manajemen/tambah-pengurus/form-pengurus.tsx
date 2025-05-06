@@ -20,7 +20,7 @@ import { Form } from "@/components/ui/form"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FormPengurusSchema, type FormPengurusType } from "./pengurus-schema"
 import { FormDataTab, FormFotoTab } from "./form-tabs"
-import { createPengurusWithFoto } from "@/lib/services/pengurus"
+import { createPengurusWithFoto } from "@/lib/services/supabase/pengurus"
 
 export function FormPengurus() {
   const [previewImage, setPreviewImage] = useState<string | null>(null)

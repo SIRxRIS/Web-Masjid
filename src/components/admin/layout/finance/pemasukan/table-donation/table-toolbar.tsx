@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useEffect, useState } from "react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,7 +19,7 @@ interface TableToolbarProps {
   placeholder?: string;
   year: string;
   setYear: (value: string) => void;
-  availableYears?: string[];
+  fetchYears: () => Promise<number[]>; // Fungsi untuk mengambil data tahun
 }
 
 export function TableToolbar({
@@ -27,8 +28,46 @@ export function TableToolbar({
   placeholder = "Cari nama atau alamat...",
   year,
   setYear,
-  availableYears = ["2023", "2024", "2025"],
+  fetchYears, // Terima fungsi langsung tanpa harus menentukan tipe service
 }: TableToolbarProps) {
+  const [availableYears, setAvailableYears] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const getYears = async () => {
+      try {
+        setIsLoading(true);
+        const yearsData = await fetchYears();
+        
+        if (yearsData && yearsData.length > 0) {
+          const sortedYears = [...yearsData].sort((a, b) => b - a); // Urutkan tahun dari terbaru
+          const yearsString = sortedYears.map(year => year.toString());
+          setAvailableYears(yearsString);
+          
+          // Jika tahun belum dipilih atau tidak valid, pilih tahun terbaru
+          if (!year || !yearsString.includes(year)) {
+            setYear(yearsString[0]);
+          }
+        } else {
+          // Jika tidak ada data tahun, gunakan tahun saat ini
+          const currentYear = new Date().getFullYear().toString();
+          setAvailableYears([currentYear]);
+          setYear(currentYear);
+        }
+      } catch (error) {
+        console.error("Error mengambil tahun:", error);
+        // Jika terjadi error, gunakan tahun saat ini
+        const currentYear = new Date().getFullYear().toString();
+        setAvailableYears([currentYear]);
+        setYear(currentYear);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getYears();
+  }, [fetchYears, setYear]);
+
   return (
     <div className="flex flex-col gap-4 px-4 lg:px-6">
       <div className="flex items-center gap-4">
@@ -49,9 +88,13 @@ export function TableToolbar({
           <Label htmlFor="tahun" className="text-sm whitespace-nowrap">
             Tahun:
           </Label>
-          <Select value={year} onValueChange={setYear}>
+          <Select 
+            value={year} 
+            onValueChange={setYear}
+            disabled={isLoading || availableYears.length === 0}
+          >
             <SelectTrigger id="tahun" className="w-24 h-9">
-              <SelectValue placeholder="Tahun" />
+              <SelectValue placeholder={isLoading ? "Memuat..." : "Tahun"} />
             </SelectTrigger>
             <SelectContent>
               {availableYears.map((yearOption) => (
