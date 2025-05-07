@@ -5,6 +5,17 @@ import { getTotalKotakAmal } from "../kotak-amal";
 import { getKotakAmalTahunan as getKotakAmalMasjidTahunan } from "../kotak-amal-masjid";
 import { getTotalKontenPublished } from "../konten"; 
 
+// Definisi enum SumberPemasukan
+export const SUMBER_PEMASUKAN = [
+  "DONATUR",
+  "KOTAK_AMAL_LUAR",
+  "KOTAK_AMAL_MASJID",
+  "DONASI_KHUSUS",
+  "LAINNYA"
+] as const;
+
+export type SumberPemasukan = typeof SUMBER_PEMASUKAN[number];
+
 export async function getDashboardData(tahun: number, bulan: number) {
   try {
     const totalPemasukan = await getPemasukanTahunan(tahun);
@@ -225,14 +236,11 @@ async function getPertumbuhanDanaBulanan(tahun: number, bulanIni: number): Promi
       tahunSebelumnya = tahun - 1;
     }
     
-    // Ambil total pemasukan bulan ini dan bulan lalu
     const pemasukanBulanIni = await getDonasiBulanan(tahun, bulanIni);
     const pemasukanBulanLalu = await getDonasiBulanan(tahunSebelumnya, bulanSebelumnya);
     
-    // Jika bulan lalu tidak ada data, return 100% (pertumbuhan penuh)
     if (pemasukanBulanLalu === 0) return 100;
     
-    // Hitung persentase pertumbuhan
     return parseFloat(
       (((pemasukanBulanIni - pemasukanBulanLalu) / pemasukanBulanLalu) * 100).toFixed(1)
     );

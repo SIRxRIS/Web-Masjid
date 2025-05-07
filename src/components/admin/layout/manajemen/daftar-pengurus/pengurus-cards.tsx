@@ -106,7 +106,6 @@ export function PengurusCards() {
             ease: "easeOut"
           }}
         >
-          <BackgroundGradient className="rounded-[22px]">
             <Card className="border-0 shadow-none bg-white dark:bg-zinc-900 rounded-[22px] h-full">
               <CardContent className="pt-6 px-4 sm:px-6 flex flex-col items-center">
                 <div className="w-full aspect-[4/5] overflow-hidden rounded-xl">
@@ -149,7 +148,6 @@ export function PengurusCards() {
                 </Button>
               </CardFooter>
             </Card>
-          </BackgroundGradient>
         </motion.div>
       ))}
 

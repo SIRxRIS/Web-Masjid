@@ -47,14 +47,19 @@ export function DataTable({
         return async () => {
           try {
             const [donaturYears, kotakAmalYears, donasiKhususYears, kotakAmalMasjidYears] = await Promise.all([
-              getDonaturYears(),
-              getKotakAmalYears(),
-              getDonasiKhususYears(),
-              getKotakAmalMasjidYears()
+              getDonaturYears().catch(() => []),
+              getKotakAmalYears().catch(() => []),
+              getDonasiKhususYears().catch(() => []),
+              getKotakAmalMasjidYears().catch(() => [])
             ]);
             
             const allYears = [...donaturYears, ...kotakAmalYears, ...donasiKhususYears, ...kotakAmalMasjidYears];
-            const uniqueYears = [...new Set(allYears)];
+            const uniqueYears = [...new Set(allYears)].filter(year => year); // Filter out any falsy values
+            
+            if (uniqueYears.length === 0) {
+              return [new Date().getFullYear()];
+            }
+            
             return uniqueYears;
           } catch (error) {
             console.error("Error saat mengambil data tahun:", error);

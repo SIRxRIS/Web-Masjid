@@ -4,17 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Edit, Save } from "lucide-react";
+import { Edit, Save, Phone } from "lucide-react";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   
   const [profile, setProfile] = useState({
-    name: "Ahmad Shadcn",
-    jabatan: "Ketua Pengurus",
-    periode: "2023-2026",
-    alamat: "Jl. Masjid No. 123, Jakarta Pusat",
-    fotoUrl: null
+    userId: "",
+    nama: "Ahmad Shadcn",
+    jabatan: "KETUA",
+    role: "ADMIN",
+    fotoUrl: null,
+    phone: null,
+    alamat: "Jl. Masjid No. 123, Jakarta Pusat"
   });
   
   const toggleEdit = () => {
@@ -37,7 +46,7 @@ export default function ProfilePage() {
     <div className="flex flex-col gap-4 p-6 w-full max-w-4xl mx-auto">
       <div className="flex flex-row items-center justify-between pb-4">
         <div>
-          <h1 className="text-2xl font-bold">{profile.name}</h1>
+          <h1 className="text-2xl font-bold">{profile.nama}</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Detail Profil Pengurus
           </p>
@@ -63,9 +72,9 @@ export default function ProfilePage() {
           <div className="flex flex-col items-center gap-4">
             <Avatar className="w-40 h-40 rounded-xl">
               <AvatarFallback className="text-5xl">
-                {profile.name.split(" ").map(n => n[0]).join("")}
+                {profile.nama.split(" ").map(n => n[0]).join("")}
               </AvatarFallback>
-              {profile.fotoUrl && <AvatarImage src={profile.fotoUrl} alt={profile.name} />}
+              {profile.fotoUrl && <AvatarImage src={profile.fotoUrl} alt={profile.nama} />}
             </Avatar>
             {isEditing && (
               <Button 
@@ -81,19 +90,19 @@ export default function ProfilePage() {
           <div className="flex-1 space-y-6">
             <div className="grid gap-6">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium">
+                <Label htmlFor="nama" className="text-sm font-medium">
                   Nama Lengkap
                 </Label>
                 {isEditing ? (
                   <Input 
-                    id="name"
-                    name="name"
-                    value={profile.name}
+                    id="nama"
+                    name="nama"
+                    value={profile.nama}
                     onChange={handleInputChange}
                     className="mt-1"
                   />
                 ) : (
-                  <p className="text-lg font-medium">{profile.name}</p>
+                  <p className="text-lg font-medium">{profile.nama}</p>
                 )}
               </div>
               
@@ -102,30 +111,71 @@ export default function ProfilePage() {
                   Jabatan
                 </Label>
                 {isEditing ? (
-                  <Input 
-                    id="jabatan"
-                    name="jabatan"
+                  <Select
                     value={profile.jabatan}
-                    onChange={handleInputChange}
-                  />
+                    onValueChange={(value) => setProfile(prev => ({ ...prev, jabatan: value }))}
+                  >
+                    <SelectTrigger id="jabatan" className="w-full">
+                      <SelectValue placeholder="Pilih jabatan" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="PENASEHAT">Penasehat</SelectItem>
+                      <SelectItem value="KETUA">Ketua</SelectItem>
+                      <SelectItem value="SEKRETARIS">Sekretaris</SelectItem>
+                      <SelectItem value="BENDAHARA">Bendahara</SelectItem>
+                      <SelectItem value="KOORDINATOR">Koordinator</SelectItem>
+                      <SelectItem value="PENGURUS">Pengurus</SelectItem>
+                    </SelectContent>
+                  </Select>
                 ) : (
                   <p className="text-lg">{profile.jabatan}</p>
                 )}
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="periode">
-                  Periode
+                <Label htmlFor="role">
+                  Role
+                </Label>
+                {isEditing ? (
+                  <Select
+                    value={profile.role}
+                    onValueChange={(value) => setProfile(prev => ({ ...prev, role: value }))}
+                  >
+                    <SelectTrigger id="role" className="w-full">
+                      <SelectValue placeholder="Pilih role" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ADMIN">Admin</SelectItem>
+                      <SelectItem value="FINANCE">Finance</SelectItem>
+                      <SelectItem value="CONTENT">Content</SelectItem>
+                      <SelectItem value="VIEWER">Viewer</SelectItem>
+                      <SelectItem value="MANAGEMENT">Management</SelectItem>
+                      <SelectItem value="INVENTORY">Inventory</SelectItem>
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <p className="text-lg">{profile.role}</p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phone">
+                  Nomor Telepon
                 </Label>
                 {isEditing ? (
                   <Input 
-                    id="periode"
-                    name="periode"
-                    value={profile.periode}
+                    id="phone"
+                    name="phone"
+                    type="number"
+                    value={profile.phone || ""}
                     onChange={handleInputChange}
+                    placeholder="Masukkan nomor telepon"
                   />
                 ) : (
-                  <p className="text-lg">{profile.periode}</p>
+                  <p className="text-lg flex items-center gap-2">
+                    <Phone className="h-4 w-4" />
+                    {profile.phone || "-"}
+                  </p>
                 )}
               </div>
               

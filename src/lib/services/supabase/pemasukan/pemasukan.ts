@@ -248,8 +248,50 @@ export async function getPemasukanByKotakMasjid(kotakMasjidId: number): Promise<
   return data || [];
 }
 
+/**
+ * Fungsi untuk menghapus semua pemasukan yang terkait dengan suatu entitas
+ * dan mengisikan ulang berdasarkan data terbaru
+ */
+export async function refreshPemasukanForEntity(
+  entityType: 'donatur' | 'kotakAmal' | 'kotakMasjid' | 'donasiKhusus', 
+  entityId: number
+): Promise<boolean> {
+  try {
+    // Mapping field ID sesuai entity type
+    const fieldMapping = {
+      'donatur': 'donaturId',
+      'kotakAmal': 'kotakAmalId',
+      'kotakMasjid': 'kotakMasjidId',
+      'donasiKhusus': 'donasiKhususId'
+    };
+    
+    const idField = fieldMapping[entityType];
+    
+    // Hapus pemasukan yang terkait dengan entity
+    const { error: deleteError } = await supabase
+      .from("Pemasukan")
+      .delete()
+      .eq(idField, entityId);
+    
+    if (deleteError) throw deleteError;
+    
+    return true;
+  } catch (error) {
+    console.error(`Error saat refresh pemasukan untuk ${entityType}:`, error);
+    throw new Error(`Gagal refresh pemasukan untuk ${entityType}`);
+  }
+}
+
 export async function syncAllPemasukan(): Promise<void> {
   try {
+    // Hapus semua data pemasukan terlebih dahulu untuk menghindari duplikasi
+    const { error: deleteError } = await supabase
+      .from("Pemasukan")
+      .delete()
+      .neq("id", 0);  // Menghapus semua data
+
+    if (deleteError) throw new Error("Gagal menghapus data pemasukan lama");
+    
     // 1. Sync Donasi Khusus
     const { data: donasiList, error: donasiError } = await supabase
       .from("DonasiKhusus")

@@ -39,24 +39,22 @@ export function TableToolbar({
         setIsLoading(true);
         const yearsData = await fetchYears();
         
-        if (yearsData && yearsData.length > 0) {
-          const sortedYears = [...yearsData].sort((a, b) => b - a); // Urutkan tahun dari terbaru
+        if (Array.isArray(yearsData) && yearsData.length > 0) {
+          const sortedYears = [...yearsData].sort((a, b) => b - a);
           const yearsString = sortedYears.map(year => year.toString());
           setAvailableYears(yearsString);
           
-          // Jika tahun belum dipilih atau tidak valid, pilih tahun terbaru
           if (!year || !yearsString.includes(year)) {
             setYear(yearsString[0]);
           }
         } else {
-          // Jika tidak ada data tahun, gunakan tahun saat ini
           const currentYear = new Date().getFullYear().toString();
           setAvailableYears([currentYear]);
           setYear(currentYear);
+          console.warn("Tidak ada data tahun yang tersedia, menggunakan tahun saat ini");
         }
       } catch (error) {
         console.error("Error mengambil tahun:", error);
-        // Jika terjadi error, gunakan tahun saat ini
         const currentYear = new Date().getFullYear().toString();
         setAvailableYears([currentYear]);
         setYear(currentYear);
@@ -66,7 +64,7 @@ export function TableToolbar({
     };
 
     getYears();
-  }, [fetchYears, setYear]);
+  }, [fetchYears, setYear, year]);
 
   return (
     <div className="flex flex-col gap-4 px-4 lg:px-6">

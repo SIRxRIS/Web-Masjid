@@ -27,12 +27,81 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { DonaturData } from "./schema";
 import AddDonation from "../add-donation";
+import { exportToExcel } from "@/lib/excel";
+import { exportToCSV } from "@/lib/csv";
+import { toast } from "sonner"; 
 
 interface TableViewTabsProps {
   table?: Table<DonaturData>;
+  isLoading?: boolean;
 }
 
-export function TableViewTabs({ table }: TableViewTabsProps) {
+export function TableViewTabs({ table, isLoading = false }: TableViewTabsProps) {
+  // State untuk melacak apakah tabel sudah siap
+  const [isTableReady, setIsTableReady] = React.useState<boolean>(false);
+
+  // Effect untuk memeriksa status tabel
+  React.useEffect(() => {
+    // Cek apakah tabel tersedia dan memiliki data
+    const hasTable = table !== undefined;
+    const hasData = hasTable && table.getRowModel().rows.length > 0;
+    
+    setIsTableReady(hasData);
+    
+    if (hasTable) {
+      console.log("Table status:", {
+        available: true,
+        rowCount: table.getRowModel().rows.length
+      });
+    } else {
+      console.log("Table status: not available");
+    }
+  }, [table]);
+
+  const handleExport = (type: 'excel' | 'csv') => {
+    try {
+      // Check if table is available
+      if (!table) {
+        console.error("Table belum tersedia");
+        showNotification("Table belum tersedia. Mohon tunggu hingga data dimuat.");
+        return;
+      }
+      
+      // Get data from table
+      const data = table.getRowModel().rows.map(row => row.original);
+      
+      // Check if we have data to export
+      if (!data || data.length === 0) {
+        console.error("Tidak ada data untuk diekspor");
+        showNotification("Tidak ada data yang tersedia untuk diekspor");
+        return;
+      }
+      
+      console.log(`Mengekspor ${data.length} baris data ke ${type}`);
+      
+      // Export based on selected type
+      if (type === 'excel') {
+        exportToExcel(data, 'data-donasi.xlsx');
+      } else {
+        exportToCSV(data, 'data-donasi.csv');
+      }
+    } catch (error) {
+      console.error("Error saat mengekspor data:", error);
+      showNotification("Terjadi kesalahan saat mengekspor data. Silakan coba lagi.");
+    }
+  };
+
+  // Helper function untuk menampilkan notifikasi
+  const showNotification = (message: string) => {
+    if (typeof toast !== 'undefined') {
+      toast.error(message, {
+        description: "Export notification"
+      });
+    } else {
+      alert(message);
+    }
+  };
+
   return (
     <div className="flex items-center justify-between px-4 lg:px-6">
       <div className="flex items-center gap-4">
@@ -88,17 +157,17 @@ export function TableViewTabs({ table }: TableViewTabsProps) {
       <div className="flex items-center gap-2">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" disabled={isLoading || !isTableReady}>
               <IconDownload className="size-4 mr-1" />
               <span>Export</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport('excel')}>
               <IconFileSpreadsheet className="mr-2 size-4" />
               <span>Excel (.xlsx)</span>
             </DropdownMenuItem>
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport('csv')}>
               <IconFileSpreadsheet className="mr-2 size-4" />
               <span>CSV (.csv)</span>
             </DropdownMenuItem>

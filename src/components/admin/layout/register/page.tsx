@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -23,8 +24,14 @@ export default function RegisterForm() {
     e.preventDefault();
     setError("");
 
+    // Validasi password
+    if (formData.password.length < 8) {
+      toast.error("Validasi Gagal", { description: "Password minimal 8 karakter" });
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
-      setError("Password tidak cocok.");
+      toast.error("Validasi Gagal", { description: "Password tidak cocok" });
       return;
     }
 
@@ -34,18 +41,39 @@ export default function RegisterForm() {
       password: formData.password,
       options: {
         data: {
-          full_name: formData.fullName, 
+          full_name: formData.fullName,
         },
+        emailRedirectTo: `${window.location.origin}/admin/profile/setup`,
       },
     });
 
     if (error) {
-      setError(error.message);
+      const errorMessage = error.message === "User already registered" 
+        ? "Email sudah terdaftar"
+        : error.message;
+      toast.error("Registrasi Gagal", { description: errorMessage });
     } else {
-      router.push("/admin/login"); 
+      toast.success("Registrasi Berhasil", { 
+        description: "Silakan cek email Anda untuk verifikasi" 
+      });
+      router.push("/admin/profile/setup");
     }
     setLoading(false);
   }
+
+  // Perbaikan fungsi register dengan Google
+  const registerWithGoogle = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/admin/profile/setup`,
+      },
+    });
+
+    if (error) {
+      toast.error("Login Google Gagal", { description: error.message });
+    }
+  };
 
   return (
     <div className="w-full">
@@ -60,8 +88,12 @@ export default function RegisterForm() {
           <form onSubmit={handleSubmit}>
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
-                <Button variant="outline" type="button" disabled>
-                  {/* nanti kita isi untuk Google login */}
+                {/* Tombol Daftar dengan Google */}
+                <Button 
+                  variant="outline" 
+                  type="button" 
+                  onClick={registerWithGoogle}
+                >
                   Daftar dengan Google
                 </Button>
               </div>

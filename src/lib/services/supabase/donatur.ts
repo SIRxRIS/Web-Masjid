@@ -109,27 +109,102 @@ export async function createDonatur(
   return data;
 }
 
+/**
+ * Fungsi update donatur yang telah diperbaiki
+ * untuk menangani sinkronisasi dengan tabel pemasukan
+ */
 export async function updateDonatur(
   id: number,
   donatur: Partial<Omit<DonaturData, "id" | "createdAt" | "updatedAt">>
 ): Promise<DonaturData> {
-  const { data, error } = await supabase
-    .from("Donatur")
-    .update(donatur)
-    .eq("id", id)
-    .select()
-    .single();
+  try {
+    // 1. Dapatkan data donatur sebelum diupdate
+    const { data: oldDonatur, error: getError } = await supabase
+      .from("Donatur")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-  if (error) {
+    if (getError) throw getError;
+
+    // 2. Update donatur
+    const { data: updatedDonatur, error: updateError } = await supabase
+      .from("Donatur")
+      .update({
+        ...donatur,
+        updatedAt: new Date().toISOString()
+      })
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (updateError) throw updateError;
+
+    // 3. Hapus semua entri pemasukan yang terkait dengan donatur ini
+    // untuk menghindari duplikasi data
+    if (donatur.jan !== undefined || donatur.feb !== undefined || 
+        donatur.mar !== undefined || donatur.apr !== undefined ||
+        donatur.mei !== undefined || donatur.jun !== undefined ||
+        donatur.jul !== undefined || donatur.aug !== undefined ||
+        donatur.sep !== undefined || donatur.okt !== undefined ||
+        donatur.nov !== undefined || donatur.des !== undefined) {
+      
+      // Hapus entri pemasukan yang terkait dengan donatur ini
+      const { error: deletePemasukanError } = await supabase
+        .from("Pemasukan")
+        .delete()
+        .eq("donaturId", id)
+        .eq("sumber", "DONATUR");
+      
+      if (deletePemasukanError) throw deletePemasukanError;
+      
+      // Persiapkan data untuk insert ulang pemasukan
+      const bulanMap = {
+        jan: 0, feb: 1, mar: 2, apr: 3, mei: 4, jun: 5,
+        jul: 6, aug: 7, sep: 8, okt: 9, nov: 10, des: 11,
+      };
+      
+      const donaturSekarang = {...oldDonatur, ...donatur};
+      const pemasukanRows = Object.entries(bulanMap)
+        .filter(([bulan]) => donaturSekarang[bulan] > 0)
+        .map(([bulan, index]) => ({
+          tanggal: new Date(donaturSekarang.tahun, index, 1).toISOString(),
+          sumber: "DONATUR",
+          jumlah: donaturSekarang[bulan],
+          tahun: donaturSekarang.tahun,
+          donaturId: id,
+          keterangan: `Donatur bulan ${bulan.toUpperCase()} - ${donaturSekarang.nama}`,
+          kotakAmalId: null,
+          kotakMasjidId: null,
+          donasiKhususId: null
+        }));
+      
+      if (pemasukanRows.length) {
+        const { error: insertError } = await supabase
+          .from("Pemasukan")
+          .insert(pemasukanRows);
+        
+        if (insertError) throw insertError;
+      }
+    }
+
+    return updatedDonatur;
+  } catch (error) {
     console.error("Error mengupdate donatur:", error);
     throw new Error("Gagal mengupdate donatur");
   }
-
-  return data;
 }
 
 export async function deleteDonatur(id: number): Promise<boolean> {
   try {
+    // Hapus terlebih dahulu semua pemasukan terkait donatur
+    const { error: deletePemasukanError } = await supabase
+      .from("Pemasukan")
+      .delete()
+      .eq("donaturId", id);
+      
+    if (deletePemasukanError) throw deletePemasukanError;
+    
     const { data: donaturToDelete, error: getError } = await supabase
       .from("Donatur")
       .select("tahun")

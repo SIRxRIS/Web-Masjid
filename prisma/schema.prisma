@@ -8,11 +8,59 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
+model Profile {
+  id      String  @id @default(uuid())
+  userId  String  @unique
+  nama    String
+  jabatan Jabatan
+  role    Role
+  fotoUrl String?
+  phone   Int?
+  alamat  String?
+
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
+  UserPermission UserPermission[]
+}
+
+enum Jabatan {
+  PENASEHAT
+  KETUA
+  SEKRETARIS
+  BENDAHARA
+  KOORDINATOR
+  PENGURUS
+}
+
+enum Role {
+  ADMIN
+  FINANCE
+  CONTENT
+  VIEWER
+  MANAGEMENT
+  INVENTORY
+}
+
+model UserActivity {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String // LOGIN, LOGOUT, UPDATE_PROFILE, dll
+  details   Json? // Detail tambahan
+  ipAddress String?
+  userAgent String?
   createdAt DateTime @default(now())
+}
+
+model UserPermission {
+  id         String   @id @default(uuid())
+  profileId  String
+  profile    Profile  @relation(fields: [profileId], references: [id])
+  resource   String // keuangan, pengurus, dll
+  permission String // read, write, delete, approve
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([profileId, resource, permission])
 }
 
 model Donatur {
@@ -37,7 +85,7 @@ model Donatur {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
-  konten Konten[]
+  konten    Konten[]
   pemasukan Pemasukan[]
 }
 
@@ -45,7 +93,7 @@ model KotakAmal {
   id        Int      @id @default(autoincrement())
   no        Int
   nama      String
-  lokasi    String  
+  lokasi    String
   tahun     Int
   jan       Int      @default(0)
   feb       Int      @default(0)
@@ -62,15 +110,15 @@ model KotakAmal {
   createdAt DateTime @default(now())
 
   pemasukan Pemasukan[]
-  konten Konten[]
+  konten    Konten[]
 }
 
 model KotakAmalMasjid {
-  id         Int      @id @default(autoincrement())
-  tanggal    DateTime
-  jumlah     Int
-  tahun      Int
-  createdAt  DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  tanggal   DateTime
+  jumlah    Int
+  tahun     Int
+  createdAt DateTime @default(now())
 
   pemasukan Pemasukan[]
 }
@@ -89,22 +137,22 @@ model DonasiKhusus {
 }
 
 model Pemasukan {
-  id            Int              @id @default(autoincrement())
-  tanggal       DateTime
-  sumber        SumberPemasukan
-  jumlah        Int
-  keterangan    String           @default("")
-  tahun         Int
-  donaturId     Int?             // opsional
-  donasiKhususId Int?            // opsional
-  kotakAmalId   Int?             // opsional
-  kotakMasjidId Int?             // opsional
-  createdAt     DateTime         @default(now())
+  id             Int             @id @default(autoincrement())
+  tanggal        DateTime
+  sumber         SumberPemasukan
+  jumlah         Int
+  keterangan     String          @default("")
+  tahun          Int
+  donaturId      Int? // opsional
+  donasiKhususId Int? // opsional
+  kotakAmalId    Int? // opsional
+  kotakMasjidId  Int? // opsional
+  createdAt      DateTime        @default(now())
 
-  donatur        Donatur?        @relation(fields: [donaturId], references: [id])
-  donasiKhusus   DonasiKhusus?   @relation(fields: [donasiKhususId], references: [id])
-  kotakAmal      KotakAmal?      @relation(fields: [kotakAmalId], references: [id])
-  kotakMasjid    KotakAmalMasjid?@relation(fields: [kotakMasjidId], references: [id])
+  donatur      Donatur?         @relation(fields: [donaturId], references: [id])
+  donasiKhusus DonasiKhusus?    @relation(fields: [donasiKhususId], references: [id])
+  kotakAmal    KotakAmal?       @relation(fields: [kotakAmalId], references: [id])
+  kotakMasjid  KotakAmalMasjid? @relation(fields: [kotakMasjidId], references: [id])
 }
 
 enum SumberPemasukan {
@@ -253,19 +301,18 @@ enum SatuanInventaris {
 }
 
 model Inventaris {
-  id             Int                 @id @default(autoincrement())
-  no             Int
-  namaBarang     String
-  fotoUrl        String?            
-  kategori       KategoriInventaris
-  jumlah         Int
-  satuan         SatuanInventaris
-  lokasi         String
-  kondisi        KondisiInventaris
-  tanggalMasuk   DateTime
-  tahun          Int
-  keterangan     String?
-  createdAt      DateTime           @default(now())
-  updatedAt      DateTime           @default(now())
+  id           Int                @id @default(autoincrement())
+  no           Int
+  namaBarang   String
+  fotoUrl      String?
+  kategori     KategoriInventaris
+  jumlah       Int
+  satuan       SatuanInventaris
+  lokasi       String
+  kondisi      KondisiInventaris
+  tanggalMasuk DateTime
+  tahun        Int
+  keterangan   String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @default(now())
 }
-

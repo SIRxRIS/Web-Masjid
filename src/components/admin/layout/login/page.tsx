@@ -32,15 +32,27 @@ export default function LoginForm() {
       return;
     }
 
-    toast.success("Login Berhasil", { description: "Selamat datang kembali!" });
-    router.push("/admin/main/dashboard"); 
+    // Cek profil setelah login berhasil
+    const { data: profile } = await supabase
+      .from('Profile')
+      .select('id')
+      .eq('userId', data.user.id)
+      .single();
+
+    if (!profile) {
+      toast.success("Login Berhasil", { description: "Silakan lengkapi profil Anda" });
+      router.push("/admin/profile/setup");
+    } else {
+      toast.success("Login Berhasil", { description: "Selamat datang kembali!" });
+      router.push("/admin/main/dashboard");
+    }
   };
 
   const loginWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/admin/main/dashboard`, 
+        redirectTo: `${window.location.origin}/admin/profile/setup`,
       },
     });
 
