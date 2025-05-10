@@ -1,7 +1,9 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 import { type Pengeluaran } from "@prisma/client";
 
-export async function getPengeluaranData(tahunFilter?: number): Promise<Pengeluaran[]> {
+export async function getPengeluaranData(
+  tahunFilter?: number
+): Promise<Pengeluaran[]> {
   let query = supabase
     .from("Pengeluaran")
     .select("*")
@@ -32,10 +34,12 @@ export async function getAvailableTahun(): Promise<number[]> {
     throw new Error("Gagal mengambil data tahun");
   }
 
-  return [...new Set(data.map(item => item.tahun))];
+  return [...new Set(data.map((item) => item.tahun))];
 }
 
-export async function getPengeluaranById(id: number): Promise<Pengeluaran | null> {
+export async function getPengeluaranById(
+  id: number
+): Promise<Pengeluaran | null> {
   const { data, error } = await supabase
     .from("Pengeluaran")
     .select("*")
@@ -70,17 +74,19 @@ export async function createPengeluaran(
   }
 
   const nextNo = lastItem ? (lastItem.no || 0) + 1 : 1;
-  
+
   // Tambahkan tanggal updatedAt sesuai dengan schema
   const now = new Date();
-  
+
   const { data, error } = await supabase
     .from("Pengeluaran")
-    .insert([{
-      ...pengeluaran,
-      no: nextNo,
-      updatedAt: now.toISOString() // Tambahkan updatedAt
-    }])
+    .insert([
+      {
+        ...pengeluaran,
+        no: nextNo,
+        updatedAt: now.toISOString(), // Tambahkan updatedAt
+      },
+    ])
     .select()
     .single();
 
@@ -98,12 +104,12 @@ export async function updatePengeluaran(
 ): Promise<Pengeluaran> {
   // Tambahkan tanggal updatedAt sesuai dengan schema
   const now = new Date();
-  
+
   const { data, error } = await supabase
     .from("Pengeluaran")
     .update({
       ...pengeluaran,
-      updatedAt: now.toISOString() // Perbarui updatedAt
+      updatedAt: now.toISOString(), // Perbarui updatedAt
     })
     .eq("id", id)
     .select()
@@ -117,13 +123,16 @@ export async function updatePengeluaran(
   return data;
 }
 
-export async function getPengeluaranBulanan(tahun: number, bulan: number): Promise<number> {
+export async function getPengeluaranBulanan(
+  tahun: number,
+  bulan: number
+): Promise<number> {
   // Gunakan metode yang benar untuk menentukan tanggal awal dan akhir bulan
   const start = new Date(tahun, bulan - 1, 1);
   const end = new Date(tahun, bulan, 0); // Hari terakhir bulan
-  
-  const startStr = start.toISOString().split('T')[0];
-  const endStr = end.toISOString().split('T')[0];
+
+  const startStr = start.toISOString().split("T")[0];
+  const endStr = end.toISOString().split("T")[0];
 
   const { data, error } = await supabase
     .from("Pengeluaran")

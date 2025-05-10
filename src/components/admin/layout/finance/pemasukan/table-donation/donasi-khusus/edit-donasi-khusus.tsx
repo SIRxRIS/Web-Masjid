@@ -13,12 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DonasiKhususData } from "../schema";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { id } from 'date-fns/locale'; 
+import { id } from 'date-fns/locale';
 import {
   Popover,
   PopoverContent,
@@ -32,7 +32,7 @@ interface EditDonasiKhususProps {
   donasi: DonasiKhususData | null;
   onSave: (updatedDonasi: DonasiKhususData) => void;
   onDelete: (id: number) => void;
-  year: string;  
+  year: string;
 }
 
 export function EditDonasiKhusus({
@@ -41,7 +41,7 @@ export function EditDonasiKhusus({
   donasi,
   onSave,
   onDelete,
-  year,  
+  year,
 }: EditDonasiKhususProps) {
   const [formData, setFormData] = React.useState<DonasiKhususData | null>(null);
 
@@ -49,8 +49,8 @@ export function EditDonasiKhusus({
     if (donasi) {
       setFormData({
         ...donasi,
-        tanggal: donasi.tanggal instanceof Date ? 
-          donasi.tanggal : 
+        tanggal: donasi.tanggal instanceof Date ?
+          donasi.tanggal :
           new Date(donasi.tanggal)
       });
     }
@@ -60,7 +60,7 @@ export function EditDonasiKhusus({
   const handleInputChange = (field: string, value: string | number | Date) => {
     setFormData((prev) => {
       if (!prev) return null;
-  
+
       if (field === "nama" || field === "keterangan") {
         return { ...prev, [field]: value as string };
       } else if (field === "tanggal") {
@@ -79,8 +79,8 @@ export function EditDonasiKhusus({
           .from("DonasiKhusus")
           .update({
             nama: formData.nama,
-            tanggal: formData.tanggal instanceof Date ? 
-              format(formData.tanggal, 'yyyy-MM-dd') : 
+            tanggal: formData.tanggal instanceof Date ?
+              format(formData.tanggal, 'yyyy-MM-dd') :
               formData.tanggal,
             jumlah: formData.jumlah,
             keterangan: formData.keterangan,

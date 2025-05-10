@@ -1,7 +1,9 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 import { KotakAmalData } from "@/components/admin/layout/finance/pemasukan/table-donation/schema";
 
-export async function getKotakAmalData(tahunFilter?: number): Promise<KotakAmalData[]> {
+export async function getKotakAmalData(
+  tahunFilter?: number
+): Promise<KotakAmalData[]> {
   let query = supabase
     .from("KotakAmal")
     .select("*")
@@ -23,7 +25,19 @@ export async function getKotakAmalData(tahunFilter?: number): Promise<KotakAmalD
 
 export async function updateKotakAmalBulanan(
   id: number,
-  bulan: 'jan' | 'feb' | 'mar' | 'apr' | 'mei' | 'jun' | 'jul' | 'aug' | 'sep' | 'okt' | 'nov' | 'des',
+  bulan:
+    | "jan"
+    | "feb"
+    | "mar"
+    | "apr"
+    | "mei"
+    | "jun"
+    | "jul"
+    | "aug"
+    | "sep"
+    | "okt"
+    | "nov"
+    | "des",
   jumlah: number
 ): Promise<KotakAmalData> {
   const { data, error } = await supabase
@@ -52,7 +66,7 @@ export async function getAvailableTahun(): Promise<number[]> {
     throw new Error("Gagal mengambil data tahun");
   }
 
-  return [...new Set(data.map(item => item.tahun))];
+  return [...new Set(data.map((item) => item.tahun))];
 }
 
 export async function updateKotakAmalOrder(kotakAmalData: KotakAmalData[]) {
@@ -73,7 +87,9 @@ export async function updateKotakAmalOrder(kotakAmalData: KotakAmalData[]) {
   return true;
 }
 
-export async function getKotakAmalById(id: number): Promise<KotakAmalData | null> {
+export async function getKotakAmalById(
+  id: number
+): Promise<KotakAmalData | null> {
   const { data, error } = await supabase
     .from("KotakAmal")
     .select("*")
@@ -110,10 +126,12 @@ export async function createKotakAmal(
 
   const { data, error } = await supabase
     .from("KotakAmal")
-    .insert([{ 
-      ...kotakAmal,
-      no: nextNo 
-    }])
+    .insert([
+      {
+        ...kotakAmal,
+        no: nextNo,
+      },
+    ])
     .select()
     .single();
 
@@ -187,24 +205,27 @@ export async function deleteKotakAmal(id: number): Promise<boolean> {
   }
 }
 
-export async function getKotakAmalBulanan(tahun: number, bulan: string): Promise<number> {
+export async function getKotakAmalBulanan(
+  tahun: number,
+  bulan: string
+): Promise<number> {
   const bulanMapping: { [key: string]: string } = {
-    'jan': 'jan',
-    'feb': 'feb',
-    'mar': 'mar',
-    'apr': 'apr',
-    'mei': 'mei',
-    'jun': 'jun',
-    'jul': 'jul',
-    'aug': 'aug',
-    'sep': 'sep',
-    'okt': 'okt',
-    'nov': 'nov',
-    'des': 'des'
+    jan: "jan",
+    feb: "feb",
+    mar: "mar",
+    apr: "apr",
+    mei: "mei",
+    jun: "jun",
+    jul: "jul",
+    aug: "aug",
+    sep: "sep",
+    okt: "okt",
+    nov: "nov",
+    des: "des",
   };
 
   const kolom = bulanMapping[bulan.toLowerCase()];
-  
+
   if (!kolom) {
     throw new Error("Bulan tidak valid");
   }
@@ -219,7 +240,13 @@ export async function getKotakAmalBulanan(tahun: number, bulan: string): Promise
     throw new Error(`Gagal mengambil total kotak amal bulan ${bulan}`);
   }
 
-  return data?.reduce((total, item) => total + (item[kolom as keyof typeof item] as number || 0), 0) || 0;
+  return (
+    data?.reduce(
+      (total, item) =>
+        total + ((item[kolom as keyof typeof item] as number) || 0),
+      0
+    ) || 0
+  );
 }
 
 export async function getKotakAmalTahunan(tahun: number): Promise<number> {
@@ -233,21 +260,25 @@ export async function getKotakAmalTahunan(tahun: number): Promise<number> {
     throw new Error("Gagal mengambil total kotak amal tahunan");
   }
 
-  return data?.reduce((total, item) => {
-    return total + 
-      (item.jan || 0) + 
-      (item.feb || 0) + 
-      (item.mar || 0) + 
-      (item.apr || 0) + 
-      (item.mei || 0) + 
-      (item.jun || 0) + 
-      (item.jul || 0) + 
-      (item.aug || 0) + 
-      (item.sep || 0) + 
-      (item.okt || 0) + 
-      (item.nov || 0) + 
-      (item.des || 0);
-  }, 0) || 0;
+  return (
+    data?.reduce((total, item) => {
+      return (
+        total +
+        (item.jan || 0) +
+        (item.feb || 0) +
+        (item.mar || 0) +
+        (item.apr || 0) +
+        (item.mei || 0) +
+        (item.jun || 0) +
+        (item.jul || 0) +
+        (item.aug || 0) +
+        (item.sep || 0) +
+        (item.okt || 0) +
+        (item.nov || 0) +
+        (item.des || 0)
+      );
+    }, 0) || 0
+  );
 }
 
 export async function getTotalKotakAmal(tahun?: number): Promise<number> {
@@ -266,19 +297,23 @@ export async function getTotalKotakAmal(tahun?: number): Promise<number> {
     throw new Error("Failed to fetch kotak amal total");
   }
 
-  return data?.reduce((total, item) => {
-    return total + 
-      (item.jan || 0) + 
-      (item.feb || 0) + 
-      (item.mar || 0) + 
-      (item.apr || 0) + 
-      (item.mei || 0) + 
-      (item.jun || 0) + 
-      (item.jul || 0) + 
-      (item.aug || 0) + 
-      (item.sep || 0) + 
-      (item.okt || 0) + 
-      (item.nov || 0) + 
-      (item.des || 0);
-  }, 0) || 0;
+  return (
+    data?.reduce((total, item) => {
+      return (
+        total +
+        (item.jan || 0) +
+        (item.feb || 0) +
+        (item.mar || 0) +
+        (item.apr || 0) +
+        (item.mei || 0) +
+        (item.jun || 0) +
+        (item.jul || 0) +
+        (item.aug || 0) +
+        (item.sep || 0) +
+        (item.okt || 0) +
+        (item.nov || 0) +
+        (item.des || 0)
+      );
+    }, 0) || 0
+  );
 }

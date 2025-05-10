@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase"; 
+import { supabase } from "@/lib/supabase/supabase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -48,13 +48,13 @@ export default function RegisterForm() {
     });
 
     if (error) {
-      const errorMessage = error.message === "User already registered" 
+      const errorMessage = error.message === "User already registered"
         ? "Email sudah terdaftar"
         : error.message;
       toast.error("Registrasi Gagal", { description: errorMessage });
     } else {
-      toast.success("Registrasi Berhasil", { 
-        description: "Silakan cek email Anda untuk verifikasi" 
+      toast.success("Registrasi Berhasil", {
+        description: "Silakan cek email Anda untuk verifikasi"
       });
       router.push("/admin/profile/setup");
     }
@@ -89,9 +89,9 @@ export default function RegisterForm() {
             <div className="grid gap-6">
               <div className="flex flex-col gap-4">
                 {/* Tombol Daftar dengan Google */}
-                <Button 
-                  variant="outline" 
-                  type="button" 
+                <Button
+                  variant="outline"
+                  type="button"
                   onClick={registerWithGoogle}
                 >
                   Daftar dengan Google

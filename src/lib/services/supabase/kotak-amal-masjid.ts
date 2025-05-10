@@ -1,7 +1,9 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 import { KotakAmalMasjidData } from "@/components/admin/layout/finance/pemasukan/table-donation/schema";
 
-export async function getKotakAmalMasjidData(tahunFilter?: number): Promise<KotakAmalMasjidData[]> {
+export async function getKotakAmalMasjidData(
+  tahunFilter?: number
+): Promise<KotakAmalMasjidData[]> {
   let query = supabase
     .from("KotakAmalMasjid")
     .select("*")
@@ -27,13 +29,15 @@ export async function createKotakAmalMasjid(
   }
 ): Promise<KotakAmalMasjidData> {
   const now = new Date();
-  
+
   const { data, error } = await supabase
     .from("KotakAmalMasjid")
-    .insert([{ 
-      ...kotakAmalMasjid,
-      createdAt: now.toISOString()
-    }])
+    .insert([
+      {
+        ...kotakAmalMasjid,
+        createdAt: now.toISOString(),
+      },
+    ])
     .select()
     .single();
 
@@ -56,10 +60,12 @@ export async function getAvailableTahun(): Promise<number[]> {
     throw new Error("Gagal mengambil data tahun");
   }
 
-  return [...new Set(data.map(item => item.tahun))];
+  return [...new Set(data.map((item) => item.tahun))];
 }
 
-export async function getKotakAmalById(id: number): Promise<KotakAmalMasjidData | null> {
+export async function getKotakAmalById(
+  id: number
+): Promise<KotakAmalMasjidData | null> {
   const { data, error } = await supabase
     .from("KotakAmalMasjid")
     .select("*")
@@ -128,9 +134,12 @@ export async function deleteKotakAmal(id: number): Promise<boolean> {
   }
 }
 
-export async function getKotakAmalBulanan(tahun: number, bulan: number): Promise<number> {
+export async function getKotakAmalBulanan(
+  tahun: number,
+  bulan: number
+): Promise<number> {
   const start = `${tahun}-${bulan.toString().padStart(2, "0")}-01`;
-  const end = new Date(tahun, bulan, 1).toISOString().split("T")[0]; 
+  const end = new Date(tahun, bulan, 1).toISOString().split("T")[0];
 
   const { data, error } = await supabase
     .from("KotakAmalMasjid")

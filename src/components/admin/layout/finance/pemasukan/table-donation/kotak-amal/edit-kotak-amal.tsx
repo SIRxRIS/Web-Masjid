@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { KotakAmalData } from "../schema";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 
 import { formatNumber, unformatNumber } from "../../../pemasukan/table-donation/utils";
 
@@ -40,21 +40,21 @@ const monthNames: MonthName[] = [
 interface EditKotakAmalProps {
   isOpen: boolean;
   onClose: () => void;
-  kotakAmal: KotakAmalData | null;  
+  kotakAmal: KotakAmalData | null;
   onSave: (updatedKotakAmal: KotakAmalData) => void;
   onDelete: (id: number) => void;
 }
 
-export function EditKotakAmal({  
+export function EditKotakAmal({
   isOpen,
   onClose,
-  kotakAmal,  
+  kotakAmal,
   onSave,
 }: EditKotakAmalProps) {
   const [formData, setFormData] = React.useState<KotakAmalData | null>(null);
-  
+
   React.useEffect(() => {
-    if (kotakAmal) {  
+    if (kotakAmal) {
       setFormData({ ...kotakAmal });
     }
   }, [kotakAmal]);
@@ -78,7 +78,7 @@ export function EditKotakAmal({
     if (formData) {
       try {
         const { error } = await supabase
-          .from("KotakAmal")  
+          .from("KotakAmal")
           .update({
             nama: formData.nama,
             lokasi: formData.lokasi,
@@ -179,7 +179,7 @@ export function EditKotakAmal({
                   </Label>
                   <Input
                     id={field}
-                    type="text" 
+                    type="text"
                     value={formatNumber((formData[field as keyof KotakAmalData] as number).toString())}
                     onChange={(e) => handleInputChange(field, e.target.value)}
                     className="col-span-2"

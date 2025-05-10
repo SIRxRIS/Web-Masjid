@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 
 export type PengurusData = {
   id: number;
@@ -14,7 +14,7 @@ export type PengurusData = {
 async function uploadFotoPengurus(file: File): Promise<string> {
   const fileExt = file.name.split(".").pop();
   const fileName = `${Date.now()}.${fileExt}`;
-  const filePath = `pengurus/${fileName}`;  
+  const filePath = `pengurus/${fileName}`;
 
   const { error: uploadError } = await supabase.storage
     .from("images")
@@ -37,11 +37,9 @@ async function uploadFotoPengurus(file: File): Promise<string> {
 
 async function deleteOldFoto(fotoUrl: string) {
   if (!fotoUrl) return;
-  const path = fotoUrl.split("/public/")[1]; 
+  const path = fotoUrl.split("/public/")[1];
 
-  const { error } = await supabase.storage
-    .from("images")  
-    .remove([path]);
+  const { error } = await supabase.storage.from("images").remove([path]);
 
   if (error) {
     console.error("Error deleting old photo:", error);
@@ -50,14 +48,16 @@ async function deleteOldFoto(fotoUrl: string) {
 
 export async function updatePengurusWithOptionalFoto(
   id: number,
-  updates: Partial<Omit<PengurusData, "id" | "createdAt" | "updatedAt" | "fotoUrl">>,
+  updates: Partial<
+    Omit<PengurusData, "id" | "createdAt" | "updatedAt" | "fotoUrl">
+  >,
   file?: File
 ) {
   let fotoUrl: string | undefined;
 
   if (file) {
     const { data: oldData, error: oldDataError } = await supabase
-      .from("Pengurus")  
+      .from("Pengurus")
       .select("fotoUrl")
       .eq("id", id)
       .single();
@@ -91,7 +91,7 @@ export async function updatePengurusWithOptionalFoto(
 
 export async function getPengurusData(): Promise<PengurusData[]> {
   const { data, error } = await supabase
-    .from("Pengurus")  
+    .from("Pengurus")
     .select("*")
     .order("no", { ascending: true });
 
@@ -113,7 +113,7 @@ export async function createPengurusWithFoto(
   file: File | null
 ) {
   try {
-    let fotoUrl = "/images/profile.png"; 
+    let fotoUrl = "/images/profile.png";
 
     if (file) {
       fotoUrl = await uploadFotoPengurus(file);
@@ -122,7 +122,7 @@ export async function createPengurusWithFoto(
     const now = new Date().toISOString();
 
     const { data: inserted, error } = await supabase
-      .from("Pengurus")  
+      .from("Pengurus")
       .insert([
         {
           ...data,
@@ -135,7 +135,9 @@ export async function createPengurusWithFoto(
 
     if (error) {
       console.error("Error creating pengurus:", JSON.stringify(error, null, 2));
-      throw new Error("Failed to create pengurus: " + (error.message || "Unknown Error"));
+      throw new Error(
+        "Failed to create pengurus: " + (error.message || "Unknown Error")
+      );
     }
 
     if (!inserted || inserted.length === 0) {
@@ -145,17 +147,14 @@ export async function createPengurusWithFoto(
     return inserted[0];
   } catch (error) {
     console.error("Error in createPengurusWithFoto:", error);
-    throw error instanceof Error 
-      ? error 
+    throw error instanceof Error
+      ? error
       : new Error("An unexpected error occurred while creating pengurus");
   }
 }
 
 export async function deletePengurus(id: number) {
-  const { error } = await supabase
-    .from("Pengurus")  
-    .delete()
-    .eq("id", id);
+  const { error } = await supabase.from("Pengurus").delete().eq("id", id);
 
   if (error) {
     console.error("Error deleting pengurus:", error);

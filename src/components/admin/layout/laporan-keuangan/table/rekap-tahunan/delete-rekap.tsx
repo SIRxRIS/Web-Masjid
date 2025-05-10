@@ -11,7 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 import { RekapPemasukan, RekapPengeluaran } from "@/components/admin/layout/laporan-keuangan/schema";
 
 interface DeleteRekapDialogProps {
@@ -32,7 +32,7 @@ export function DeleteRekapDialog({
   const handleConfirm = async () => {
     try {
       const tableName = type === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran';
-      
+
       const { error } = await supabase
         .from(tableName)
         .delete()

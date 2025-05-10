@@ -21,8 +21,8 @@ import { useForm } from "react-hook-form";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { id } from "date-fns/locale"; 
-import { supabase } from "@/lib/supabase";
+import { id } from "date-fns/locale";
+import { supabase } from "@/lib/supabase/supabase";
 import Swal from "sweetalert2";
 import { formatNumber, unformatNumber } from "../../../pemasukan/table-donation/utils";
 
@@ -67,7 +67,7 @@ export function FormDonasiKhusus({ onSuccess }: FormDonasiKhususProps) {
         no: nextNo,
         nama: data.nama,
         tanggal: format(data.tanggal, 'yyyy-MM-dd'),
-        tahun: data.tanggal.getFullYear(), 
+        tahun: data.tanggal.getFullYear(),
         jumlah: data.jumlah,
         keterangan: data.keterangan,
       };

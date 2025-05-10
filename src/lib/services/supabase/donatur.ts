@@ -1,7 +1,9 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 import { DonaturData } from "@/components/admin/layout/finance/pemasukan/table-donation/schema";
 
-export async function getDonaturData(tahunFilter?: number): Promise<DonaturData[]> {
+export async function getDonaturData(
+  tahunFilter?: number
+): Promise<DonaturData[]> {
   let query = supabase
     .from("Donatur")
     .select("*")
@@ -32,7 +34,7 @@ export async function getAvailableTahun(): Promise<number[]> {
     throw new Error("Gagal mengambil data tahun");
   }
 
-  return [...new Set(data.map(item => item.tahun))];
+  return [...new Set(data.map((item) => item.tahun))];
 }
 
 export async function updateDonaturOrder(donaturData: DonaturData[]) {
@@ -87,17 +89,19 @@ export async function createDonatur(
   }
 
   const nextNo = lastItem ? (lastItem.no || 0) + 1 : 1;
-  
+
   const now = new Date();
-  
+
   const { data, error } = await supabase
     .from("Donatur")
-    .insert([{ 
-      ...donatur,
-      no: nextNo,
-      createdAt: now.toISOString(),
-      updatedAt: now.toISOString()
-    }])
+    .insert([
+      {
+        ...donatur,
+        no: nextNo,
+        createdAt: now.toISOString(),
+        updatedAt: now.toISOString(),
+      },
+    ])
     .select()
     .single();
 
@@ -132,7 +136,7 @@ export async function updateDonatur(
       .from("Donatur")
       .update({
         ...donatur,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       })
       .eq("id", id)
       .select()
@@ -142,29 +146,46 @@ export async function updateDonatur(
 
     // 3. Hapus semua entri pemasukan yang terkait dengan donatur ini
     // untuk menghindari duplikasi data
-    if (donatur.jan !== undefined || donatur.feb !== undefined || 
-        donatur.mar !== undefined || donatur.apr !== undefined ||
-        donatur.mei !== undefined || donatur.jun !== undefined ||
-        donatur.jul !== undefined || donatur.aug !== undefined ||
-        donatur.sep !== undefined || donatur.okt !== undefined ||
-        donatur.nov !== undefined || donatur.des !== undefined) {
-      
+    if (
+      donatur.jan !== undefined ||
+      donatur.feb !== undefined ||
+      donatur.mar !== undefined ||
+      donatur.apr !== undefined ||
+      donatur.mei !== undefined ||
+      donatur.jun !== undefined ||
+      donatur.jul !== undefined ||
+      donatur.aug !== undefined ||
+      donatur.sep !== undefined ||
+      donatur.okt !== undefined ||
+      donatur.nov !== undefined ||
+      donatur.des !== undefined
+    ) {
       // Hapus entri pemasukan yang terkait dengan donatur ini
       const { error: deletePemasukanError } = await supabase
         .from("Pemasukan")
         .delete()
         .eq("donaturId", id)
         .eq("sumber", "DONATUR");
-      
+
       if (deletePemasukanError) throw deletePemasukanError;
-      
+
       // Persiapkan data untuk insert ulang pemasukan
       const bulanMap = {
-        jan: 0, feb: 1, mar: 2, apr: 3, mei: 4, jun: 5,
-        jul: 6, aug: 7, sep: 8, okt: 9, nov: 10, des: 11,
+        jan: 0,
+        feb: 1,
+        mar: 2,
+        apr: 3,
+        mei: 4,
+        jun: 5,
+        jul: 6,
+        aug: 7,
+        sep: 8,
+        okt: 9,
+        nov: 10,
+        des: 11,
       };
-      
-      const donaturSekarang = {...oldDonatur, ...donatur};
+
+      const donaturSekarang = { ...oldDonatur, ...donatur };
       const pemasukanRows = Object.entries(bulanMap)
         .filter(([bulan]) => donaturSekarang[bulan] > 0)
         .map(([bulan, index]) => ({
@@ -173,17 +194,19 @@ export async function updateDonatur(
           jumlah: donaturSekarang[bulan],
           tahun: donaturSekarang.tahun,
           donaturId: id,
-          keterangan: `Donatur bulan ${bulan.toUpperCase()} - ${donaturSekarang.nama}`,
+          keterangan: `Donatur bulan ${bulan.toUpperCase()} - ${
+            donaturSekarang.nama
+          }`,
           kotakAmalId: null,
           kotakMasjidId: null,
-          donasiKhususId: null
+          donasiKhususId: null,
         }));
-      
+
       if (pemasukanRows.length) {
         const { error: insertError } = await supabase
           .from("Pemasukan")
           .insert(pemasukanRows);
-        
+
         if (insertError) throw insertError;
       }
     }
@@ -202,9 +225,9 @@ export async function deleteDonatur(id: number): Promise<boolean> {
       .from("Pemasukan")
       .delete()
       .eq("donaturId", id);
-      
+
     if (deletePemasukanError) throw deletePemasukanError;
-    
+
     const { data: donaturToDelete, error: getError } = await supabase
       .from("Donatur")
       .select("tahun")
@@ -246,7 +269,9 @@ export async function deleteDonatur(id: number): Promise<boolean> {
   }
 }
 
-export async function getDonaturBulanan(tahun: number): Promise<Record<string, number>> {
+export async function getDonaturBulanan(
+  tahun: number
+): Promise<Record<string, number>> {
   const { data, error } = await supabase
     .from("Donatur")
     .select("jan, feb, mar, apr, mei, jun, jul, aug, sep, okt, nov, des")
@@ -258,11 +283,21 @@ export async function getDonaturBulanan(tahun: number): Promise<Record<string, n
   }
 
   const result: Record<string, number> = {
-    jan: 0, feb: 0, mar: 0, apr: 0, mei: 0, jun: 0,
-    jul: 0, aug: 0, sep: 0, okt: 0, nov: 0, des: 0
+    jan: 0,
+    feb: 0,
+    mar: 0,
+    apr: 0,
+    mei: 0,
+    jun: 0,
+    jul: 0,
+    aug: 0,
+    sep: 0,
+    okt: 0,
+    nov: 0,
+    des: 0,
   };
 
-  data?.forEach(item => {
+  data?.forEach((item) => {
     for (const [month, value] of Object.entries(item)) {
       if (month in result) {
         result[month] += (value as number) || 0;
@@ -285,9 +320,22 @@ export async function getDonaturTahunan(tahun: number): Promise<number> {
   }
 
   let total = 0;
-  data?.forEach(item => {
-    const months = ['jan', 'feb', 'mar', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'];
-    months.forEach(month => {
+  data?.forEach((item) => {
+    const months = [
+      "jan",
+      "feb",
+      "mar",
+      "apr",
+      "mei",
+      "jun",
+      "jul",
+      "aug",
+      "sep",
+      "okt",
+      "nov",
+      "des",
+    ];
+    months.forEach((month) => {
       total += (item[month as keyof typeof item] as number) || 0;
     });
   });

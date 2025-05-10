@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 import { type Pemasukan } from "@prisma/client";
 
 // Definisi enum SumberPemasukan
@@ -7,12 +7,14 @@ export const SUMBER_PEMASUKAN = [
   "KOTAK_AMAL_LUAR",
   "KOTAK_AMAL_MASJID",
   "DONASI_KHUSUS",
-  "LAINNYA"
+  "LAINNYA",
 ] as const;
 
-export type SumberPemasukan = typeof SUMBER_PEMASUKAN[number];
+export type SumberPemasukan = (typeof SUMBER_PEMASUKAN)[number];
 
-export async function getPemasukanData(tahunFilter?: number): Promise<Pemasukan[]> {
+export async function getPemasukanData(
+  tahunFilter?: number
+): Promise<Pemasukan[]> {
   let query = supabase
     .from("Pemasukan")
     .select("*")
@@ -43,7 +45,7 @@ export async function getAvailableTahun(): Promise<number[]> {
     throw new Error("Gagal mengambil data tahun");
   }
 
-  return [...new Set(data.map(item => item.tahun))];
+  return [...new Set(data.map((item) => item.tahun))];
 }
 
 export async function getPemasukanById(id: number): Promise<Pemasukan | null> {
@@ -104,10 +106,7 @@ export async function updatePemasukan(
 
 export async function deletePemasukan(id: number): Promise<boolean> {
   try {
-    const { error } = await supabase
-      .from("Pemasukan")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("Pemasukan").delete().eq("id", id);
 
     if (error) throw error;
 
@@ -118,13 +117,16 @@ export async function deletePemasukan(id: number): Promise<boolean> {
   }
 }
 
-export async function getPemasukanBulanan(tahun: number, bulan: number): Promise<number> {
+export async function getPemasukanBulanan(
+  tahun: number,
+  bulan: number
+): Promise<number> {
   // Gunakan metode yang benar untuk menentukan tanggal awal dan akhir bulan
   const start = new Date(tahun, bulan - 1, 1);
   const end = new Date(tahun, bulan, 0); // Hari terakhir bulan
-  
-  const startStr = start.toISOString().split('T')[0];
-  const endStr = end.toISOString().split('T')[0];
+
+  const startStr = start.toISOString().split("T")[0];
+  const endStr = end.toISOString().split("T")[0];
 
   const { data, error } = await supabase
     .from("Pemasukan")
@@ -155,7 +157,10 @@ export async function getPemasukanTahunan(tahun: number): Promise<number> {
   return data?.reduce((total, item) => total + item.jumlah, 0) || 0;
 }
 
-export async function getPemasukanBySumber(tahun: number, sumber: string): Promise<number> {
+export async function getPemasukanBySumber(
+  tahun: number,
+  sumber: string
+): Promise<number> {
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("jumlah")
@@ -170,7 +175,9 @@ export async function getPemasukanBySumber(tahun: number, sumber: string): Promi
   return data?.reduce((total, item) => total + item.jumlah, 0) || 0;
 }
 
-export async function getPemasukanByDonatur(donaturId: number): Promise<Pemasukan[]> {
+export async function getPemasukanByDonatur(
+  donaturId: number
+): Promise<Pemasukan[]> {
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("*")
@@ -185,13 +192,17 @@ export async function getPemasukanByDonatur(donaturId: number): Promise<Pemasuka
   return data || [];
 }
 
-export async function getPemasukanByDonaturWithDetail(donaturId: number): Promise<any[]> {
+export async function getPemasukanByDonaturWithDetail(
+  donaturId: number
+): Promise<any[]> {
   const { data, error } = await supabase
     .from("Pemasukan")
-    .select(`
+    .select(
+      `
       *,
       donatur:Donatur(id, nama, alamat)
-    `)
+    `
+    )
     .eq("donaturId", donaturId)
     .order("tanggal", { ascending: false });
 
@@ -203,7 +214,9 @@ export async function getPemasukanByDonaturWithDetail(donaturId: number): Promis
   return data || [];
 }
 
-export async function getPemasukanByDonasiKhusus(donasiKhususId: number): Promise<Pemasukan[]> {
+export async function getPemasukanByDonasiKhusus(
+  donasiKhususId: number
+): Promise<Pemasukan[]> {
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("*")
@@ -211,14 +224,19 @@ export async function getPemasukanByDonasiKhusus(donasiKhususId: number): Promis
     .order("tanggal", { ascending: false });
 
   if (error) {
-    console.error("Error mengambil pemasukan berdasarkan donasi khusus:", error);
+    console.error(
+      "Error mengambil pemasukan berdasarkan donasi khusus:",
+      error
+    );
     throw new Error("Gagal mengambil pemasukan berdasarkan donasi khusus");
   }
 
   return data || [];
 }
 
-export async function getPemasukanByKotakAmal(kotakAmalId: number): Promise<Pemasukan[]> {
+export async function getPemasukanByKotakAmal(
+  kotakAmalId: number
+): Promise<Pemasukan[]> {
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("*")
@@ -233,7 +251,9 @@ export async function getPemasukanByKotakAmal(kotakAmalId: number): Promise<Pema
   return data || [];
 }
 
-export async function getPemasukanByKotakMasjid(kotakMasjidId: number): Promise<Pemasukan[]> {
+export async function getPemasukanByKotakMasjid(
+  kotakMasjidId: number
+): Promise<Pemasukan[]> {
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("*")
@@ -253,28 +273,28 @@ export async function getPemasukanByKotakMasjid(kotakMasjidId: number): Promise<
  * dan mengisikan ulang berdasarkan data terbaru
  */
 export async function refreshPemasukanForEntity(
-  entityType: 'donatur' | 'kotakAmal' | 'kotakMasjid' | 'donasiKhusus', 
+  entityType: "donatur" | "kotakAmal" | "kotakMasjid" | "donasiKhusus",
   entityId: number
 ): Promise<boolean> {
   try {
     // Mapping field ID sesuai entity type
     const fieldMapping = {
-      'donatur': 'donaturId',
-      'kotakAmal': 'kotakAmalId',
-      'kotakMasjid': 'kotakMasjidId',
-      'donasiKhusus': 'donasiKhususId'
+      donatur: "donaturId",
+      kotakAmal: "kotakAmalId",
+      kotakMasjid: "kotakMasjidId",
+      donasiKhusus: "donasiKhususId",
     };
-    
+
     const idField = fieldMapping[entityType];
-    
+
     // Hapus pemasukan yang terkait dengan entity
     const { error: deleteError } = await supabase
       .from("Pemasukan")
       .delete()
       .eq(idField, entityId);
-    
+
     if (deleteError) throw deleteError;
-    
+
     return true;
   } catch (error) {
     console.error(`Error saat refresh pemasukan untuk ${entityType}:`, error);
@@ -288,17 +308,17 @@ export async function syncAllPemasukan(): Promise<void> {
     const { error: deleteError } = await supabase
       .from("Pemasukan")
       .delete()
-      .neq("id", 0);  // Menghapus semua data
+      .neq("id", 0); // Menghapus semua data
 
     if (deleteError) throw new Error("Gagal menghapus data pemasukan lama");
-    
+
     // 1. Sync Donasi Khusus
     const { data: donasiList, error: donasiError } = await supabase
       .from("DonasiKhusus")
       .select("*");
-    
+
     if (donasiError) throw new Error("Gagal mengambil data donasi khusus");
-    
+
     if (donasiList?.length) {
       const donasiRows = donasiList.map((d) => ({
         tanggal: d.tanggal,
@@ -309,9 +329,9 @@ export async function syncAllPemasukan(): Promise<void> {
         donasiKhususId: d.id,
         kotakAmalId: null,
         kotakMasjidId: null,
-        donaturId: null
+        donaturId: null,
       }));
-      
+
       await supabase.from("Pemasukan").insert(donasiRows);
     }
 
@@ -319,9 +339,10 @@ export async function syncAllPemasukan(): Promise<void> {
     const { data: kotakMasjidList, error: kotakMasjidError } = await supabase
       .from("KotakAmalMasjid")
       .select("*");
-    
-    if (kotakMasjidError) throw new Error("Gagal mengambil data kotak amal masjid");
-    
+
+    if (kotakMasjidError)
+      throw new Error("Gagal mengambil data kotak amal masjid");
+
     if (kotakMasjidList?.length) {
       const kotakMasjidRows = kotakMasjidList.map((k) => ({
         tanggal: k.tanggal,
@@ -332,9 +353,9 @@ export async function syncAllPemasukan(): Promise<void> {
         keterangan: "",
         kotakAmalId: null,
         donasiKhususId: null,
-        donaturId: null
+        donaturId: null,
       }));
-      
+
       await supabase.from("Pemasukan").insert(kotakMasjidRows);
     }
 
@@ -342,16 +363,26 @@ export async function syncAllPemasukan(): Promise<void> {
     const { data: kotakList, error: kotakError } = await supabase
       .from("KotakAmal")
       .select("*");
-    
+
     if (kotakError) throw new Error("Gagal mengambil data kotak amal");
-    
+
     if (kotakList?.length) {
       const bulanMap = {
-        jan: 0, feb: 1, mar: 2, apr: 3, mei: 4, jun: 5,
-        jul: 6, aug: 7, sep: 8, okt: 9, nov: 10, des: 11,
+        jan: 0,
+        feb: 1,
+        mar: 2,
+        apr: 3,
+        mei: 4,
+        jun: 5,
+        jul: 6,
+        aug: 7,
+        sep: 8,
+        okt: 9,
+        nov: 10,
+        des: 11,
       };
-      
-      const kotakRows = kotakList.flatMap((k) => 
+
+      const kotakRows = kotakList.flatMap((k) =>
         Object.entries(bulanMap)
           .filter(([bulan]) => k[bulan] > 0)
           .map(([bulan, index]) => ({
@@ -363,10 +394,10 @@ export async function syncAllPemasukan(): Promise<void> {
             keterangan: `Pemasukan bulan ${bulan.toUpperCase()}`,
             kotakMasjidId: null,
             donasiKhususId: null,
-            donaturId: null
+            donaturId: null,
           }))
       );
-      
+
       if (kotakRows.length) {
         await supabase.from("Pemasukan").insert(kotakRows);
       }
@@ -376,15 +407,25 @@ export async function syncAllPemasukan(): Promise<void> {
     const { data: donaturList, error: donaturError } = await supabase
       .from("Donatur")
       .select("*");
-    
+
     if (donaturError) throw new Error("Gagal mengambil data donatur");
-    
+
     if (donaturList?.length) {
       const bulanMap = {
-        jan: 0, feb: 1, mar: 2, apr: 3, mei: 4, jun: 5,
-        jul: 6, aug: 7, sep: 8, okt: 9, nov: 10, des: 11,
+        jan: 0,
+        feb: 1,
+        mar: 2,
+        apr: 3,
+        mei: 4,
+        jun: 5,
+        jul: 6,
+        aug: 7,
+        sep: 8,
+        okt: 9,
+        nov: 10,
+        des: 11,
       };
-      
+
       const donaturRows = donaturList.flatMap((d) =>
         Object.entries(bulanMap)
           .filter(([bulan]) => d[bulan] > 0)
@@ -397,10 +438,10 @@ export async function syncAllPemasukan(): Promise<void> {
             keterangan: `Donatur bulan ${bulan.toUpperCase()} - ${d.nama}`,
             kotakAmalId: null,
             kotakMasjidId: null,
-            donasiKhususId: null
+            donasiKhususId: null,
           }))
       );
-      
+
       if (donaturRows.length) {
         await supabase.from("Pemasukan").insert(donaturRows);
       }

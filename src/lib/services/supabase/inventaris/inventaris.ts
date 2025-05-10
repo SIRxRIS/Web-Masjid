@@ -1,23 +1,30 @@
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 
 export type Inventaris = {
   id: number;
-  no: number; 
+  no: number;
   namaBarang: string;
   fotoUrl?: string;
-  kategori: "PERLENGKAPAN" | "ELEKTRONIK" | "KEBERSIHAN" | "DOKUMEN" | "LAINNYA";
+  kategori:
+    | "PERLENGKAPAN"
+    | "ELEKTRONIK"
+    | "KEBERSIHAN"
+    | "DOKUMEN"
+    | "LAINNYA";
   jumlah: number;
   satuan: "UNIT" | "BUAH" | "LEMBAR" | "SET" | "LAINNYA";
   lokasi: string;
   kondisi: "BAIK" | "CUKUP" | "RUSAK";
   tanggalMasuk: Date;
-  tahun: number; 
+  tahun: number;
   keterangan?: string;
   createdAt: Date;
   updatedAt: Date;
 };
 
-export async function getInventarisData(tahunFilter?: number): Promise<Inventaris[]> {
+export async function getInventarisData(
+  tahunFilter?: number
+): Promise<Inventaris[]> {
   let query = supabase
     .from("Inventaris")
     .select("*")
@@ -34,11 +41,11 @@ export async function getInventarisData(tahunFilter?: number): Promise<Inventari
     throw new Error("Gagal mengambil data inventaris");
   }
 
-  return (data || []).map(item => ({
+  return (data || []).map((item) => ({
     ...item,
     tanggalMasuk: new Date(item.tanggalMasuk),
     createdAt: new Date(item.createdAt),
-    updatedAt: new Date(item.updatedAt)
+    updatedAt: new Date(item.updatedAt),
   }));
 }
 
@@ -53,10 +60,12 @@ export async function getAvailableTahun(): Promise<number[]> {
     throw new Error("Gagal mengambil data tahun");
   }
 
-  return [...new Set(data.map(item => item.tahun))];
+  return [...new Set(data.map((item) => item.tahun))];
 }
 
-export async function getInventarisById(id: number): Promise<Inventaris | null> {
+export async function getInventarisById(
+  id: number
+): Promise<Inventaris | null> {
   const { data, error } = await supabase
     .from("Inventaris")
     .select("*")
@@ -73,7 +82,7 @@ export async function getInventarisById(id: number): Promise<Inventaris | null> 
       ...data,
       tanggalMasuk: new Date(data.tanggalMasuk),
       createdAt: new Date(data.createdAt),
-      updatedAt: new Date(data.updatedAt)
+      updatedAt: new Date(data.updatedAt),
     };
   }
 
@@ -129,12 +138,14 @@ export async function createInventaris(
 
   const { data, error } = await supabase
     .from("Inventaris")
-    .insert([{ 
-      ...inventaris, 
-      fotoUrl,
-      tahun,
-      no: nextNo 
-    }])
+    .insert([
+      {
+        ...inventaris,
+        fotoUrl,
+        tahun,
+        no: nextNo,
+      },
+    ])
     .select()
     .single();
 
@@ -147,7 +158,7 @@ export async function createInventaris(
     ...data,
     tanggalMasuk: new Date(data.tanggalMasuk),
     createdAt: new Date(data.createdAt),
-    updatedAt: new Date(data.updatedAt)
+    updatedAt: new Date(data.updatedAt),
   };
 }
 
@@ -156,12 +167,12 @@ async function deleteOldFotoInventaris(fotoUrl: string) {
 
   try {
     const path = fotoUrl.split("/public/")[1] || fotoUrl.split("images/")[1];
-    
+
     if (!path) {
       console.error("Format URL foto tidak valid:", fotoUrl);
       return;
     }
-    
+
     const { error } = await supabase.storage.from("images").remove([path]);
 
     if (error) {
@@ -174,7 +185,9 @@ async function deleteOldFotoInventaris(fotoUrl: string) {
 
 export async function updateInventaris(
   id: number,
-  inventaris: Partial<Omit<Inventaris, "id" | "tahun" | "createdAt" | "updatedAt">>,
+  inventaris: Partial<
+    Omit<Inventaris, "id" | "tahun" | "createdAt" | "updatedAt">
+  >,
   file?: File
 ): Promise<Inventaris> {
   let fotoUrl = inventaris.fotoUrl;
@@ -220,7 +233,7 @@ export async function updateInventaris(
     ...data,
     tanggalMasuk: new Date(data.tanggalMasuk),
     createdAt: new Date(data.createdAt),
-    updatedAt: new Date(data.updatedAt)
+    updatedAt: new Date(data.updatedAt),
   };
 }
 

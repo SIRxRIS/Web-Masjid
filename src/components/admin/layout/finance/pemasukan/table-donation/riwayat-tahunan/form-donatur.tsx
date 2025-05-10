@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { DialogFooter } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 import Swal from "sweetalert2";
 import { formatNumber, unformatNumber } from "../../../pemasukan/table-donation/utils";
 
@@ -20,7 +20,7 @@ interface DonaturFormValues {
   alamat: string;
   jumlah: number;
   bulan: string;
-  tahun: number;  
+  tahun: number;
 }
 
 const bulanOptions = [

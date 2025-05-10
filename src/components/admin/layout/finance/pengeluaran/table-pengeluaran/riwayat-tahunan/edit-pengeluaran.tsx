@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 import { PengeluaranData, PengeluaranTahunanData } from "../schema";
 import { formatNumber, unformatNumber } from "../../../pemasukan/table-donation/utils";
 
@@ -128,9 +128,9 @@ export function EditPengeluaran({
   const handleInputChange = (field: string, value: string) => {
     if (!formData) return;
 
-    const processedValue = field === 'nama' || field === 'keterangan' 
-      ? value 
-      : field === 'jumlah' 
+    const processedValue = field === 'nama' || field === 'keterangan'
+      ? value
+      : field === 'jumlah'
         ? unformatNumber(value)
         : value;
 

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 
 interface DeleteDonaturDialogProps {
   isOpen: boolean;
@@ -118,7 +118,7 @@ export function DeleteKotakAmalDialog({
   const handleConfirm = async () => {
     try {
       const { error } = await supabase
-        .from("KotakAmal")  
+        .from("KotakAmal")
         .delete()
         .eq("id", kotakAmalId);
 

@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 import { type IntegratedData } from "@/lib/services/supabase/data-integration";
 import { formatNumber, unformatNumber } from "../../../pemasukan/table-donation/utils";
 
@@ -62,11 +62,11 @@ export function EditDonatur({
 
   const handleInputChange = (field: string, value: string) => {
     if (!formData) return;
-  
-    const processedValue = field === 'nama' || field === 'alamat' 
-      ? value 
+
+    const processedValue = field === 'nama' || field === 'alamat'
+      ? value
       : unformatNumber(value);
-  
+
     setFormData({
       ...formData,
       [field]: processedValue,
@@ -76,20 +76,20 @@ export function EditDonatur({
       })
     });
   };
-  
+
   const calculateTotal = (data: IntegratedData) => {
-    return data.jan + data.feb + data.mar + data.apr + 
-           data.mei + data.jun + data.jul + data.aug + 
-           data.sep + data.okt + data.nov + data.des + 
-           data.infaq;
+    return data.jan + data.feb + data.mar + data.apr +
+      data.mei + data.jun + data.jul + data.aug +
+      data.sep + data.okt + data.nov + data.des +
+      data.infaq;
   };
 
   const handleSave = async () => {
     if (formData) {
       try {
         const { error } = await supabase
-          .from(formData.sourceType === 'donatur' ? "Donatur" : 
-                formData.sourceType === 'kotakAmal' ? "KotakAmal" : "DonasiKhusus")
+          .from(formData.sourceType === 'donatur' ? "Donatur" :
+            formData.sourceType === 'kotakAmal' ? "KotakAmal" : "DonasiKhusus")
           .update({
             nama: formData.nama,
             alamat: formData.alamat,
@@ -150,9 +150,9 @@ export function EditDonatur({
       <DialogContent className="sm:max-w-[600px] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
-            Edit {formData?.sourceType === 'donatur' ? 'Data Donatur' : 
-                  formData?.sourceType === 'kotakAmal' ? 'Kotak Amal' : 
-                  'Donasi Khusus'} {year}
+            Edit {formData?.sourceType === 'donatur' ? 'Data Donatur' :
+              formData?.sourceType === 'kotakAmal' ? 'Kotak Amal' :
+                'Donasi Khusus'} {year}
           </DialogTitle>
         </DialogHeader>
 

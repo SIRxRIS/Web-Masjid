@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 import { deleteKotakAmal } from "@/lib/services/supabase/kotak-amal-masjid";
 
 interface DeleteKotakAmalMasjidDialogProps {
@@ -33,7 +33,7 @@ export function DeleteKotakAmalMasjidDialog({
   const handleConfirm = async () => {
     try {
       await deleteKotakAmal(kotakAmalId);
-      
+
       await onConfirm(kotakAmalId);
       Swal.fire({
         title: "Terhapus!",

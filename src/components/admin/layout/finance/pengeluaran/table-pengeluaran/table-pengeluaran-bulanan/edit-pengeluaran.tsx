@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase/supabase";
 import { PengeluaranData } from "../schema";
 import { formatNumber, unformatNumber } from "../utils";
 import { Calendar } from "@/components/ui/calendar";
@@ -32,8 +32,8 @@ interface EditPengeluaranProps {
   onClose: () => void;
   data: PengeluaranData | null;
   onSave: (updatedData: PengeluaranData) => void;
-  onDelete: (id: number) => void; 
-  year: string; 
+  onDelete: (id: number) => void;
+  year: string;
 }
 
 export function EditPengeluaran({
@@ -41,8 +41,8 @@ export function EditPengeluaran({
   onClose,
   data,
   onSave,
-  onDelete, 
-  year, 
+  onDelete,
+  year,
 }: EditPengeluaranProps) {
   const [formData, setFormData] = React.useState<PengeluaranData | null>(null);
 
@@ -50,8 +50,8 @@ export function EditPengeluaran({
     if (data) {
       setFormData({
         ...data,
-        tanggal: data.tanggal instanceof Date ? 
-          data.tanggal : 
+        tanggal: data.tanggal instanceof Date ?
+          data.tanggal :
           new Date(data.tanggal)
       });
     }
@@ -62,7 +62,7 @@ export function EditPengeluaran({
   const handleInputChange = (field: string, value: string | number | Date) => {
     setFormData((prev) => {
       if (!prev) return null;
-  
+
       if (field === "nama" || field === "keterangan") {
         return { ...prev, [field]: value as string };
       } else if (field === "tanggal") {
@@ -87,8 +87,8 @@ export function EditPengeluaran({
           .from("Pengeluaran")
           .update({
             nama: formData.nama,
-            tanggal: formData.tanggal instanceof Date ? 
-              format(formData.tanggal, 'yyyy-MM-dd') : 
+            tanggal: formData.tanggal instanceof Date ?
+              format(formData.tanggal, 'yyyy-MM-dd') :
               formData.tanggal,
             jumlah: formData.jumlah,
             keterangan: formData.keterangan,
