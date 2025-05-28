@@ -1,6 +1,5 @@
 // src/lib/middleware/api-auth.ts
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
 export type AuthValidationOptions = {
@@ -14,7 +13,7 @@ export async function validateApiAuth(
   req: NextRequest,
   options: AuthValidationOptions = { requireAuth: true }
 ) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createServerSupabaseClient();
   const { data: { session } } = await supabase.auth.getSession();
 
   // Default response untuk unauthenticated

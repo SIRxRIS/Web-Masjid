@@ -1,9 +1,7 @@
 // src/actions/profile.ts
 'use server';
 
-import { createServerClient } from '@supabase/ssr';
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { createServerSupabaseClient } from '../lib/supabase/server';
 
 type ProfileData = {
   nama: string;
@@ -14,7 +12,7 @@ type ProfileData = {
 };
 
 export async function setupProfile(data: ProfileData) {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = await createServerSupabaseClient();
   
   // Cek session
   const { data: { session } } = await supabase.auth.getSession();
@@ -53,7 +51,7 @@ export async function setupProfile(data: ProfileData) {
 }
 
 export async function updateProfile(id: string, data: Partial<ProfileData>) {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = await createServerSupabaseClient();
   
   // Cek session
   const { data: { session } } = await supabase.auth.getSession();
@@ -104,7 +102,7 @@ export async function updateProfile(id: string, data: Partial<ProfileData>) {
 }
 
 export async function uploadProfilePhoto(id: string, file: File) {
-  const supabase = createServerActionClient({ cookies });
+  const supabase = await createServerSupabaseClient();
   
   // Cek session
   const { data: { session } } = await supabase.auth.getSession();

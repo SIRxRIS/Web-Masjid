@@ -1,11 +1,10 @@
 // src/app/api/auth/reset-password/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 // POST: Kirim email reset password
 export async function POST(req: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createServerSupabaseClient();
   
   try {
     const body = await req.json();
@@ -46,7 +45,7 @@ export async function POST(req: NextRequest) {
 
 // PUT: Update password dengan token yang valid
 export async function PUT(req: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createServerSupabaseClient();
   
   try {
     const body = await req.json();

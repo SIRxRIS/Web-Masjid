@@ -29,9 +29,28 @@ export async function middleware(req: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
+  // Jika tidak ada session, redirect ke login
   if (!session) {
-    // Redirect ke halaman login jika tidak ada session
     return NextResponse.redirect(new URL("/admin/login", req.url));
+  }
+
+  // Cek apakah token hampir kedaluwarsa (kurang dari 1 jam)
+  const expiresAt = session.expires_at;
+  const now = Math.floor(Date.now() / 1000);
+  const oneHour = 60 * 60;
+  
+  // Jika token hampir kedaluwarsa, refresh token
+  if (expiresAt && expiresAt - now < oneHour) {
+    try {
+      const { data, error } = await supabase.auth.refreshSession();
+      if (error) {
+        console.error("Error refreshing session:", error);
+        return NextResponse.redirect(new URL("/admin/login", req.url));
+      }
+    } catch (error) {
+      console.error("Error in session refresh:", error);
+      return NextResponse.redirect(new URL("/admin/login", req.url));
+    }
   }
 
   // Dapatkan path dari URL
@@ -56,6 +75,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/admin/profile/setup", req.url));
   }
 
+  // Cek kelengkapan profil
+  const isProfileComplete = checkProfileCompleteness(profile);
+  
+  // Jika profil belum lengkap dan bukan sedang mengakses halaman profil, redirect ke halaman profil
+  if (!isProfileComplete && !pathname.includes("/admin/main/profile")) {
+    return NextResponse.redirect(new URL("/admin/main/profile", req.url));
+  }
+
   // Cek apakah user memiliki akses ke halaman ini
   if (!canAccessPage(mainPath, profile.role)) {
     // Redirect ke dashboard jika tidak punya akses
@@ -63,6 +90,26 @@ export async function middleware(req: NextRequest) {
   }
 
   return res;
+}
+
+// Fungsi untuk memeriksa kelengkapan profil
+function checkProfileCompleteness(profile: any): boolean {
+  // Periksa field-field yang wajib diisi
+  const requiredFields = ['nama', 'jabatan', 'role'];
+  const recommendedFields = ['phone', 'alamat', 'fotoUrl'];
+  
+  // Cek apakah semua field wajib terisi
+  const hasRequiredFields = requiredFields.every(field => 
+    profile[field] !== null && profile[field] !== undefined && profile[field] !== ''
+  );
+  
+  // Cek apakah minimal satu field rekomendasi terisi
+  const hasRecommendedField = recommendedFields.some(field => 
+    profile[field] !== null && profile[field] !== undefined && profile[field] !== ''
+  );
+  
+  // Profil dianggap lengkap jika semua field wajib terisi dan minimal satu field rekomendasi terisi
+  return hasRequiredFields && hasRecommendedField;
 }
 
 // Helper untuk memeriksa akses berdasarkan role dan halaman

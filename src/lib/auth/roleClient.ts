@@ -1,16 +1,40 @@
-// lib/auth/roleHelper.ts
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
+// lib/auth/roleClient.ts
+"use client";
 
-// Definisi tipe untuk role dan permission
-export type Role = 'ADMIN' | 'FINANCE' | 'CONTENT' | 'VIEWER' | 'MANAGEMENT' | 'INVENTORY';
-export type Permission = 'read' | 'write' | 'delete' | 'approve';
-export type Resource = 'keuangan' | 'pengurus' | 'konten' | 'inventaris' | 'dashboard' | 'admin';
+import { createBrowserClient } from '@supabase/ssr';
+import { Role, Resource, Permission, permissionMatrix } from './roleTypes';
 
-const supabase = createClientComponentClient();
+// Cache untuk optimasi database query
+const roleCache = new Map<string, Role>();
+const CACHE_EXPIRY = 5 * 60 * 1000; // 5 menit
+const cacheTimestamps = new Map<string, number>();
 
-// Dapatkan role user dari database
+// Fungsi untuk menginvalidasi cache
+export function invalidateUserRoleCache(userId: string) {
+  roleCache.delete(userId);
+  cacheTimestamps.delete(userId);
+}
+
+// Fungsi ini membuat Supabase client untuk komponen client-side
+function createSupabaseClient() {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
+
+// Dapatkan role user dari database dengan caching
 export async function getUserRole(userId: string): Promise<Role | null> {
   try {
+    const now = Date.now();
+    const timestamp = cacheTimestamps.get(userId) || 0;
+    
+    // Gunakan cache jika masih valid
+    if (roleCache.has(userId) && now - timestamp < CACHE_EXPIRY) {
+      return roleCache.get(userId) || null;
+    }
+    
+    const supabase = createSupabaseClient();
     const { data, error } = await supabase
       .from('Profile')
       .select('role')
@@ -22,6 +46,12 @@ export async function getUserRole(userId: string): Promise<Role | null> {
       return null;
     }
 
+    // Simpan ke cache
+    if (data.role) {
+      roleCache.set(userId, data.role as Role);
+      cacheTimestamps.set(userId, now);
+    }
+    
     return data.role as Role;
   } catch (error) {
     console.error("Error in getUserRole:", error);
@@ -32,6 +62,7 @@ export async function getUserRole(userId: string): Promise<Role | null> {
 // Dapatkan profile user dari database
 export async function getUserProfile(userId: string) {
   try {
+    const supabase = createSupabaseClient();
     const { data, error } = await supabase
       .from('Profile')
       .select('*')
@@ -97,58 +128,6 @@ export async function hasPermission(
   if (!userRole) return false;
   if (userRole === 'ADMIN') return true; // Admin selalu punya akses penuh
   
-  // Definisi permission matrix
-  const permissionMatrix: Record<Role, Record<Resource, Permission[]>> = {
-    ADMIN: {
-      keuangan: ['read', 'write', 'delete', 'approve'],
-      pengurus: ['read', 'write', 'delete', 'approve'],
-      konten: ['read', 'write', 'delete', 'approve'],
-      inventaris: ['read', 'write', 'delete', 'approve'],
-      dashboard: ['read', 'write', 'delete', 'approve'],
-      admin: ['read', 'write', 'delete', 'approve']
-    },
-    FINANCE: {
-      keuangan: ['read', 'write', 'approve'],
-      pengurus: ['read'],
-      konten: ['read'],
-      inventaris: ['read'],
-      dashboard: ['read'],
-      admin: []
-    },
-    CONTENT: {
-      keuangan: ['read'],
-      pengurus: ['read'],
-      konten: ['read', 'write', 'delete'],
-      inventaris: ['read'],
-      dashboard: ['read'],
-      admin: []
-    },
-    MANAGEMENT: {
-      keuangan: ['read'],
-      pengurus: ['read', 'write'],
-      konten: ['read'],
-      inventaris: ['read', 'write'],
-      dashboard: ['read'],
-      admin: []
-    },
-    INVENTORY: {
-      keuangan: ['read'],
-      pengurus: ['read'],
-      konten: ['read'],
-      inventaris: ['read', 'write', 'delete'],
-      dashboard: ['read'],
-      admin: []
-    },
-    VIEWER: {
-      keuangan: ['read'],
-      pengurus: ['read'],
-      konten: ['read'],
-      inventaris: ['read'],
-      dashboard: ['read'],
-      admin: []
-    }
-  };
-
   return permissionMatrix[userRole][resource].includes(permission);
 }
 

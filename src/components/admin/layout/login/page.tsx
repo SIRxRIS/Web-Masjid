@@ -52,7 +52,7 @@ export default function LoginForm() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/admin/profile/setup`,
+        redirectTo: `${window.location.origin}/admin/main/profile`,
       },
     });
 
