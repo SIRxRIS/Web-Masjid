@@ -1,5 +1,6 @@
 // src/app/api/profile/update/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+<<<<<<< HEAD
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
@@ -24,6 +25,14 @@ export async function PUT(req: NextRequest) {
     }
   );
 
+=======
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+
+export async function PUT(req: NextRequest) {
+  // Validasi auth dengan Supabase
+  const supabase = await createServerSupabaseClient();
+  
+>>>>>>> 2ef0df6dd62590907e97af7216c454c620d7834b
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {

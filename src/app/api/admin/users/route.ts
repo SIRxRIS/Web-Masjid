@@ -1,11 +1,10 @@
 // src/app/api/admin/users/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 
 // GET: Dapatkan semua pengguna (hanya untuk admin)
 export async function GET(req: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createServerSupabaseClient();
   
   // Validasi session
   const { data: { session } } = await supabase.auth.getSession();
@@ -76,7 +75,7 @@ export async function GET(req: NextRequest) {
 
 // POST: Update role pengguna oleh admin
 export async function PUT(req: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createServerSupabaseClient();
   
   // Validasi session
   const { data: { session } } = await supabase.auth.getSession();

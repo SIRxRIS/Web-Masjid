@@ -9,18 +9,20 @@ datasource db {
 }
 
 model Profile {
-  id      String  @id @default(uuid())
-  userId  String  @unique
-  nama    String
-  jabatan Jabatan
-  role    Role
-  fotoUrl String?
-  phone   Int?
-  alamat  String?
+  id                  String  @id @default(uuid())
+  userId              String  @unique
+  nama                String
+  jabatan             Jabatan
+  role                Role
+  fotoUrl             String?
+  phone               String?
+  alamat              String?
+  is_profile_complete Boolean @default(false)
 
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @default(now()) @updatedAt
   UserPermission UserPermission[]
+  UserActivity   UserActivity[]
 }
 
 enum Jabatan {
@@ -43,7 +45,8 @@ enum Role {
 
 model UserActivity {
   id        String   @id @default(uuid())
-  userId    String
+  profileId String
+  profile   Profile  @relation(fields: [profileId], references: [id])
   action    String // LOGIN, LOGOUT, UPDATE_PROFILE, dll
   details   Json? // Detail tambahan
   ipAddress String?
@@ -52,15 +55,31 @@ model UserActivity {
 }
 
 model UserPermission {
-  id         String   @id @default(uuid())
+  id         String     @id @default(uuid())
   profileId  String
-  profile    Profile  @relation(fields: [profileId], references: [id])
-  resource   String // keuangan, pengurus, dll
-  permission String // read, write, delete, approve
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  profile    Profile    @relation(fields: [profileId], references: [id])
+  resource   Resource // Menggunakan enum Resource
+  permission Permission // Menggunakan enum Permission
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
 
   @@unique([profileId, resource, permission])
+}
+
+enum Resource {
+  KEUANGAN
+  MANAJEMEN
+  KONTEN
+  INVENTARIS
+  DASHBOARD
+  ADMIN
+}
+
+enum Permission {
+  READ
+  WRITE
+  DELETE
+  APPROVE
 }
 
 model Donatur {

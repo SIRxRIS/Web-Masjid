@@ -1,11 +1,10 @@
 // src/app/api/auth/check-access/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
-import { cookies } from 'next/headers';
-import { canAccessPage } from '@/lib/auth/roleHelper';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { canAccessPageServer } from '@/lib/auth/roleServer';
 
 export async function GET(req: NextRequest) {
-  const supabase = createRouteHandlerClient({ cookies });
+  const supabase = await createServerSupabaseClient();
   
   // Validasi session
   const { data: { session } } = await supabase.auth.getSession();
@@ -30,7 +29,7 @@ export async function GET(req: NextRequest) {
   
   try {
     // Cek apakah user memiliki akses
-    const hasAccess = await canAccessPage(page, session.user.id);
+    const hasAccess = await canAccessPageServer(page, session.user.id);
     
     return NextResponse.json({ hasAccess });
   } catch (error) {
