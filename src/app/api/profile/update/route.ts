@@ -1,17 +1,35 @@
 // src/app/api/profile/update/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs';
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
 export async function PUT(req: NextRequest) {
-  // Validasi auth dengan Supabase
-  const supabase = createRouteHandlerClient({ cookies });
+  const cookieStore = await cookies();
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value || null;
+        },
+        set(name: string, value: string, options?: { maxAge?: number }) {
+          cookieStore.set(name, value, options);
+        },
+        remove(name: string) {
+          cookieStore.set(name, '', { maxAge: 0 });
+        },
+      },
+    }
+  );
+
   const { data: { session } } = await supabase.auth.getSession();
-  
+
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
-  
+
   try {
     const body = await req.json();
     const { id, nama, jabatan, fotoUrl, phone, alamat } = body;
