@@ -1,9 +1,11 @@
-import { supabase } from "@/lib/supabase/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { DonaturData } from "@/components/admin/layout/finance/pemasukan/table-donation/schema";
 
 export async function getDonaturData(
   tahunFilter?: number
 ): Promise<DonaturData[]> {
+  const supabase = await createServerSupabaseClient();
+
   let query = supabase
     .from("Donatur")
     .select("*")
@@ -24,6 +26,8 @@ export async function getDonaturData(
 }
 
 export async function getAvailableTahun(): Promise<number[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Donatur")
     .select("tahun")
@@ -38,6 +42,8 @@ export async function getAvailableTahun(): Promise<number[]> {
 }
 
 export async function updateDonaturOrder(donaturData: DonaturData[]) {
+  const supabase = await createServerSupabaseClient();
+
   const updates = donaturData.map((donatur, index) => ({
     id: donatur.id,
     no: index + 1,
@@ -56,6 +62,8 @@ export async function updateDonaturOrder(donaturData: DonaturData[]) {
 }
 
 export async function getDonaturById(id: number): Promise<DonaturData | null> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Donatur")
     .select("*")
@@ -75,6 +83,8 @@ export async function createDonatur(
     tahun: number;
   }
 ): Promise<DonaturData> {
+  const supabase = await createServerSupabaseClient();
+
   const { data: lastItem, error: lastItemError } = await supabase
     .from("Donatur")
     .select("no")
@@ -121,6 +131,8 @@ export async function updateDonatur(
   id: number,
   donatur: Partial<Omit<DonaturData, "id" | "createdAt" | "updatedAt">>
 ): Promise<DonaturData> {
+  const supabase = await createServerSupabaseClient();
+
   try {
     // 1. Dapatkan data donatur sebelum diupdate
     const { data: oldDonatur, error: getError } = await supabase
@@ -219,6 +231,8 @@ export async function updateDonatur(
 }
 
 export async function deleteDonatur(id: number): Promise<boolean> {
+  const supabase = await createServerSupabaseClient();
+
   try {
     // Hapus terlebih dahulu semua pemasukan terkait donatur
     const { error: deletePemasukanError } = await supabase
@@ -272,6 +286,8 @@ export async function deleteDonatur(id: number): Promise<boolean> {
 export async function getDonaturBulanan(
   tahun: number
 ): Promise<Record<string, number>> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Donatur")
     .select("jan, feb, mar, apr, mei, jun, jul, aug, sep, okt, nov, des")
@@ -309,6 +325,8 @@ export async function getDonaturBulanan(
 }
 
 export async function getDonaturTahunan(tahun: number): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Donatur")
     .select("jan, feb, mar, apr, mei, jun, jul, aug, sep, okt, nov, des")
@@ -344,6 +362,8 @@ export async function getDonaturTahunan(tahun: number): Promise<number> {
 }
 
 export async function getTotalInfaq(tahun: number): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Donatur")
     .select("infaq")

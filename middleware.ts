@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
+  let res = NextResponse.next();
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,16 +15,18 @@ export async function middleware(req: NextRequest) {
           return req.cookies.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
-          res.cookies.set({ name, value, ...options });
+          req.cookies.set(name, value);
+          res.cookies.set(name, value, options);
         },
         remove(name: string, options: CookieOptions) {
-          res.cookies.set({ name, value: "", ...options });
+          req.cookies.set(name, "");
+          res.cookies.set(name, "", options);
         },
       },
     }
   );
 
-  // Cek session dari Supabase Auth
+  // Refresh session untuk memastikan token terbaru
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -38,7 +40,7 @@ export async function middleware(req: NextRequest) {
   const expiresAt = session.expires_at;
   const now = Math.floor(Date.now() / 1000);
   const oneHour = 60 * 60;
-  
+
   // Jika token hampir kedaluwarsa, refresh token
   if (expiresAt && expiresAt - now < oneHour) {
     try {
@@ -46,6 +48,9 @@ export async function middleware(req: NextRequest) {
       if (error) {
         console.error("Error refreshing session:", error);
         return NextResponse.redirect(new URL("/admin/login", req.url));
+      }
+      if (data.session) {
+        res = NextResponse.next();
       }
     } catch (error) {
       console.error("Error in session refresh:", error);
@@ -63,9 +68,9 @@ export async function middleware(req: NextRequest) {
     return res;
   }
 
-  // Dapatkan profile user dari Supabase
+  // PERBAIKAN: Gunakan nama tabel yang benar
   const { data: profile, error } = await supabase
-    .from("Profile")
+    .from("profile") // UBAH DARI "Profile" ke "profile"
     .select("*")
     .eq("userId", session.user.id)
     .single();
@@ -77,7 +82,7 @@ export async function middleware(req: NextRequest) {
 
   // Cek kelengkapan profil
   const isProfileComplete = checkProfileCompleteness(profile);
-  
+
   // Jika profil belum lengkap dan bukan sedang mengakses halaman profil, redirect ke halaman profil
   if (!isProfileComplete && !pathname.includes("/admin/main/profile")) {
     return NextResponse.redirect(new URL("/admin/main/profile", req.url));
@@ -94,27 +99,29 @@ export async function middleware(req: NextRequest) {
 
 // Fungsi untuk memeriksa kelengkapan profil
 function checkProfileCompleteness(profile: any): boolean {
-  // Periksa field-field yang wajib diisi
-  const requiredFields = ['nama', 'jabatan', 'role'];
-  const recommendedFields = ['phone', 'alamat', 'fotoUrl'];
-  
-  // Cek apakah semua field wajib terisi
-  const hasRequiredFields = requiredFields.every(field => 
-    profile[field] !== null && profile[field] !== undefined && profile[field] !== ''
+  const requiredFields = ["nama", "jabatan", "role"];
+  const recommendedFields = ["phone", "alamat", "fotoUrl"];
+
+  const hasRequiredFields = requiredFields.every(
+    (field) =>
+      profile[field] !== null &&
+      profile[field] !== undefined &&
+      profile[field] !== ""
   );
-  
-  // Cek apakah minimal satu field rekomendasi terisi
-  const hasRecommendedField = recommendedFields.some(field => 
-    profile[field] !== null && profile[field] !== undefined && profile[field] !== ''
+
+  const hasRecommendedField = recommendedFields.some(
+    (field) =>
+      profile[field] !== null &&
+      profile[field] !== undefined &&
+      profile[field] !== ""
   );
-  
-  // Profil dianggap lengkap jika semua field wajib terisi dan minimal satu field rekomendasi terisi
+
   return hasRequiredFields && hasRecommendedField;
 }
 
 // Helper untuk memeriksa akses berdasarkan role dan halaman
 function canAccessPage(page: string, role: string): boolean {
-  if (role === "ADMIN") return true; // Admin punya akses ke semua halaman
+  if (role === "SUPER_ADMIN") return true; // PERBAIKAN: Gunakan SUPER_ADMIN, bukan ADMIN
 
   switch (page) {
     case "dashboard":
@@ -135,16 +142,5 @@ function canAccessPage(page: string, role: string): boolean {
 
 // Konfigurasi matcher untuk rute yang perlu diproteksi
 export const config = {
-  matcher: [
-    "/admin/main/dashboard/:path*",
-    "/admin/main/finance/pemasukan/:path*",
-    "/admin/main/finance/pengeluaran/:path*",
-    "/admin/main/management/daftar-pengurus/:path*",
-    "/admin/main/management/tambah-pengurus/:path*",
-    "/admin/main/content/:path*",
-    "/admin/main/inventaris/:path*",
-    "/admin/main/laporan-keuangan/:path*",
-    "/admin/main/panduan/:path*",
-    "/admin/main/profile/:path*",
-  ],
+  matcher: ["/admin/main/:path*"],
 };

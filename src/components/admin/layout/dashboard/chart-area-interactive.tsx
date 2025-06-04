@@ -26,8 +26,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { getDonasiBulanan } from "@/lib/services/supabase/dashboard/actions"; 
-import { ValueType, NameType } from "recharts/types/component/DefaultTooltipContent";
+import { getDonasiBulananAction } from "@/lib/services/supabase/dashboard/actions";
+import {
+  ValueType,
+  NameType,
+} from "recharts/types/component/DefaultTooltipContent";
 
 export const description = "Grafik area interaktif donasi";
 
@@ -62,44 +65,52 @@ export function ChartAreaInteractive() {
   const fetchDonasiData = React.useCallback(async () => {
     try {
       setIsLoading(true);
-      
+
       // Ambil tahun saat ini untuk data donasi
       const currentDate = new Date();
       const currentYear = currentDate.getFullYear();
-      
+
       // Buat array untuk menyimpan data 12 bulan terakhir
       const donasiData: DonasiData[] = [];
-      
+
       // Loop untuk 12 bulan terakhir
       for (let i = 0; i < 12; i++) {
         // Hitung bulan yang sesuai (mundur dari bulan sekarang)
         const targetDate = new Date(currentDate);
         targetDate.setMonth(targetDate.getMonth() - i);
-        
+
         const targetYear = targetDate.getFullYear();
         const targetMonth = targetDate.getMonth() + 1; // getMonth() returns 0-11
-        
+
         // Format tanggal untuk chart
-        const formattedDate = `${targetYear}-${String(targetMonth).padStart(2, '0')}-01`;
-        
+        const formattedDate = `${targetYear}-${String(targetMonth).padStart(
+          2,
+          "0"
+        )}-01`;
+
         // Ambil data donasi untuk bulan tersebut
-        const donasiDesktop = await getDonasiBulanan(targetYear, targetMonth);
-        
+        const donasiDesktop = await getDonasiBulananAction(
+          targetYear,
+          targetMonth
+        );
+
         // Asumsikan 40% donasi dari mobile dan 60% dari desktop (atau sesuaikan berdasarkan kebutuhan)
         const donasiMobile = Math.round(donasiDesktop * 0.4);
         const donasiDesktopOnly = Math.round(donasiDesktop * 0.6);
-        
+
         // Tambahkan data ke array
         donasiData.push({
           date: formattedDate,
           desktop: donasiDesktopOnly,
-          mobile: donasiMobile
+          mobile: donasiMobile,
         });
       }
-      
+
       // Urutkan data berdasarkan tanggal (terlama ke terbaru)
-      donasiData.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-      
+      donasiData.sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      );
+
       setChartData(donasiData);
       setIsLoading(false);
     } catch (error) {
@@ -220,7 +231,7 @@ export function ChartAreaInteractive() {
                 axisLine={false}
                 tickMargin={8}
                 minTickGap={32}
-                tickFormatter={(value) => {
+                tickFormatter={(value: string) => {
                   const date = new Date(value);
                   return date.toLocaleDateString("id-ID", {
                     month: "short",
@@ -230,7 +241,13 @@ export function ChartAreaInteractive() {
               />
               <ChartTooltip
                 cursor={false}
-                defaultIndex={isMobile ? -1 : filteredData.length > 10 ? 10 : filteredData.length - 1}
+                defaultIndex={
+                  isMobile
+                    ? -1
+                    : filteredData.length > 10
+                    ? 10
+                    : filteredData.length - 1
+                }
                 content={
                   <ChartTooltipContent
                     labelFormatter={(value: string) => {
@@ -240,7 +257,7 @@ export function ChartAreaInteractive() {
                       });
                     }}
                     formatter={(value: ValueType, name: NameType) => {
-                      if (typeof value === 'number') {
+                      if (typeof value === "number") {
                         return new Intl.NumberFormat("id-ID", {
                           style: "currency",
                           currency: "IDR",

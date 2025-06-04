@@ -8,8 +8,25 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model EmailWhitelist {
+  id          String   @id @default(uuid()) @db.Uuid
+  nama        String
+  email       String   @unique
+  isActive    Boolean  @default(true)
+  jabatan     Jabatan
+  role        Role
+  addedBy     String?  @db.Uuid
+  addedByUser Profile? @relation("ProfileToEmailWhitelist", fields: [addedBy], references: [id])
+  addedAt     DateTime @default(now())
+  updatedAt   DateTime @default(now())
+
+  @@index([email])
+  @@index([isActive])
+  @@map("email_whitelist")
+}
+
 model Profile {
-  id                  String  @id @default(uuid())
+  id                  String  @id @default(uuid()) @db.Uuid
   userId              String  @unique
   nama                String
   jabatan             Jabatan
@@ -19,33 +36,44 @@ model Profile {
   alamat              String?
   is_profile_complete Boolean @default(false)
 
+  addedWhitelist EmailWhitelist[] @relation("ProfileToEmailWhitelist")
+
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @default(now()) @updatedAt
-  UserPermission UserPermission[]
-  UserActivity   UserActivity[]
+  activities UserActivity[]
+  permissions UserPermission[]
+  
+  @@map("profile")
 }
 
 enum Jabatan {
-  PENASEHAT
-  KETUA
-  SEKRETARIS
-  BENDAHARA
-  KOORDINATOR
-  PENGURUS
+  DEVELOPER   @map("DEVELOPER")
+  MAINTENANCE @map("MAINTENANCE")
+  PENASEHAT   @map("PENASEHAT")
+  KETUA       @map("KETUA")
+  SEKRETARIS  @map("SEKRETARIS")
+  BENDAHARA   @map("BENDAHARA")
+  KOORDINATOR @map("KOORDINATOR")
+  PENGURUS    @map("PENGURUS")
+
+  @@map("Jabatan")
 }
 
 enum Role {
-  ADMIN
-  FINANCE
-  CONTENT
-  VIEWER
-  MANAGEMENT
-  INVENTORY
+  SUPER_ADMIN @map("SUPER_ADMIN")
+  ADMIN       @map("ADMIN")
+  FINANCE     @map("FINANCE")
+  CONTENT     @map("CONTENT")
+  VIEWER      @map("VIEWER")
+  MANAGEMENT  @map("MANAGEMENT")
+  INVENTORY   @map("INVENTORY")
+
+  @@map("Role")
 }
 
 model UserActivity {
   id        String   @id @default(uuid())
-  profileId String
+  profileId String @db.Uuid
   profile   Profile  @relation(fields: [profileId], references: [id])
   action    String // LOGIN, LOGOUT, UPDATE_PROFILE, dll
   details   Json? // Detail tambahan
@@ -56,7 +84,7 @@ model UserActivity {
 
 model UserPermission {
   id         String     @id @default(uuid())
-  profileId  String
+  profileId  String @db.Uuid
   profile    Profile    @relation(fields: [profileId], references: [id])
   resource   Resource // Menggunakan enum Resource
   permission Permission // Menggunakan enum Permission

@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase/supabase";
+// src/lib/services/supabase/konten.ts
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export type GambarKontenData = {
   id: number;
@@ -54,6 +55,8 @@ function generateFileName(prefix = "konten") {
 }
 
 async function uploadGambarKonten(file: File): Promise<string> {
+  const supabase = await createServerSupabaseClient();
+
   const fileExt = file.name.split(".").pop();
   const filePath = generateFileName("konten") + `.${fileExt}`;
 
@@ -78,6 +81,8 @@ async function uploadGambarKonten(file: File): Promise<string> {
 
 async function deleteOldGambar(gambarUrl: string) {
   if (!gambarUrl) return;
+
+  const supabase = await createServerSupabaseClient();
   const path = gambarUrl.split("/images/")[1];
   if (!path) return;
 
@@ -93,6 +98,7 @@ export async function createKontenWithFoto(
   file: File | null
 ) {
   try {
+    const supabase = await createServerSupabaseClient();
     let fotoUrl = "/images/profile.jpg";
 
     if (file) {
@@ -140,6 +146,7 @@ export async function updateKontenWithOptionalFoto(
   >,
   file?: File
 ) {
+  const supabase = await createServerSupabaseClient();
   let fotoUrl: string | undefined;
 
   if (file) {
@@ -178,6 +185,8 @@ export async function updateKontenWithOptionalFoto(
 }
 
 export async function getKontenData(): Promise<KontenData[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("konten")
     .select("*")
@@ -192,6 +201,8 @@ export async function getKontenData(): Promise<KontenData[]> {
 }
 
 export async function getKontenById(id: number): Promise<KontenData> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("konten")
     .select("*")
@@ -207,6 +218,8 @@ export async function getKontenById(id: number): Promise<KontenData> {
 }
 
 export async function getKontenBySlug(slug: string): Promise<KontenData> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("konten")
     .select("*")
@@ -222,6 +235,8 @@ export async function getKontenBySlug(slug: string): Promise<KontenData> {
 }
 
 export async function deleteKonten(id: number) {
+  const supabase = await createServerSupabaseClient();
+
   // Ambil data foto utama dan gambar konten untuk dihapus dari storage
   const { data: kontenData, error: kontenError } = await supabase
     .from("konten")
@@ -259,6 +274,7 @@ export async function uploadMultipleFotosKonten(
   kontenId: number,
   files: File[]
 ) {
+  const supabase = await createServerSupabaseClient();
   const uploadedImages = [];
 
   for (const file of files) {
@@ -319,6 +335,8 @@ export async function updateGambarKonten(
   id: number,
   updates: Partial<Omit<GambarKontenData, "id" | "createdAt" | "updatedAt">>
 ) {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("gambar_konten")
     .update({
@@ -337,6 +355,8 @@ export async function updateGambarKonten(
 }
 
 export async function deleteGambarKonten(id: number) {
+  const supabase = await createServerSupabaseClient();
+
   const { data: gambarData, error: fetchError } = await supabase
     .from("gambar_konten")
     .select("url")
@@ -360,6 +380,8 @@ export async function deleteGambarKonten(id: number) {
 export async function getGambarKontenByKontenId(
   kontenId: number
 ): Promise<GambarKontenData[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("gambar_konten")
     .select("*")
@@ -377,6 +399,7 @@ export async function getGambarKontenByKontenId(
 export async function createTagKonten(
   tag: Omit<TagKontenData, "id" | "createdAt" | "updatedAt">
 ) {
+  const supabase = await createServerSupabaseClient();
   const now = new Date().toISOString();
 
   const { data, error } = await supabase
@@ -399,6 +422,8 @@ export async function createTagKonten(
 }
 
 export async function getTagKonten(): Promise<TagKontenData[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("tag_konten")
     .select("*")
@@ -416,6 +441,8 @@ export async function updateTagKonten(
   id: number,
   updates: Partial<Omit<TagKontenData, "id" | "createdAt" | "updatedAt">>
 ) {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("tag_konten")
     .update({
@@ -434,6 +461,8 @@ export async function updateTagKonten(
 }
 
 export async function deleteTagKonten(id: number) {
+  const supabase = await createServerSupabaseClient();
+
   const { error } = await supabase.from("tag_konten").delete().eq("id", id);
 
   if (error) {
@@ -445,6 +474,7 @@ export async function deleteTagKonten(id: number) {
 }
 
 export async function addTagsToKonten(kontenId: number, tagIds: number[]) {
+  const supabase = await createServerSupabaseClient();
   const now = new Date().toISOString();
   const relations = tagIds.map((tagId) => ({
     kontenId,
@@ -467,6 +497,8 @@ export async function addTagsToKonten(kontenId: number, tagIds: number[]) {
 }
 
 export async function removeTagFromKonten(kontenId: number, tagId: number) {
+  const supabase = await createServerSupabaseClient();
+
   const { error } = await supabase
     .from("konten_tag_konten")
     .delete()
@@ -484,6 +516,8 @@ export async function removeTagFromKonten(kontenId: number, tagId: number) {
 export async function getTagsByKontenId(
   kontenId: number
 ): Promise<TagKontenData[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("konten_tag_konten")
     .select("tagId")
@@ -517,6 +551,8 @@ export async function getTagsByKontenId(
 export async function getKontenByKategori(
   kategoriId: number
 ): Promise<KontenData[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("konten")
     .select("*")
@@ -532,6 +568,8 @@ export async function getKontenByKategori(
 }
 
 export async function searchKonten(query: string): Promise<KontenData[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("konten")
     .select("*")
@@ -547,6 +585,8 @@ export async function searchKonten(query: string): Promise<KontenData[]> {
 }
 
 export async function incrementViewCount(id: number) {
+  const supabase = await createServerSupabaseClient();
+
   const { error } = await supabase.rpc("increment_view_count", {
     konten_id: id,
   });
@@ -561,6 +601,8 @@ export async function incrementViewCount(id: number) {
 
 export async function getTotalKontenPublished(): Promise<number> {
   try {
+    const supabase = await createServerSupabaseClient();
+
     const { count, error } = await supabase
       .from("konten")
       .select("*", { count: "exact", head: true })

@@ -1,46 +1,48 @@
 // src/app/api/profile/setup/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from "next/server";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export async function POST(req: NextRequest) {
   // Validasi auth dengan Supabase
   const supabase = await createServerSupabaseClient();
-  const { data: { session } } = await supabase.auth.getSession();
-  
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
   if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  
+
   try {
     // Parse body request
     const body = await req.json();
     const { nama, jabatan, role, fotoUrl, phone, alamat } = body;
-    
+
     // Validasi data yang diperlukan
     if (!nama || !jabatan || !role) {
       return NextResponse.json(
-        { error: 'Data tidak lengkap. Nama, jabatan, dan role diperlukan' },
+        { error: "Data tidak lengkap. Nama, jabatan, dan role diperlukan" },
         { status: 400 }
       );
     }
-    
+
     // Cek apakah profil sudah ada
     const { data: existingProfile } = await supabase
-      .from('Profile')
-      .select('id')
-      .eq('userId', session.user.id)
+      .from("Profile")
+      .select("id")
+      .eq("userId", session.user.id)
       .single();
-      
+
     if (existingProfile) {
       return NextResponse.json(
-        { error: 'Profil sudah dibuat sebelumnya' },
+        { error: "Profil sudah dibuat sebelumnya" },
         { status: 400 }
       );
     }
-    
+
     // Buat profil baru
     const { data: profile, error } = await supabase
-      .from('Profile')
+      .from("Profile")
       .insert({
         userId: session.user.id,
         nama,
@@ -52,20 +54,20 @@ export async function POST(req: NextRequest) {
       })
       .select()
       .single();
-      
+
     if (error) {
-      console.error('Error creating profile:', error);
+      console.error("Error creating profile:", error);
       return NextResponse.json(
-        { error: 'Gagal membuat profil' },
+        { error: "Gagal membuat profil" },
         { status: 500 }
       );
     }
-    
+
     return NextResponse.json(profile);
   } catch (error) {
-    console.error('Server error:', error);
+    console.error("Server error:", error);
     return NextResponse.json(
-      { error: 'Terjadi kesalahan server' },
+      { error: "Terjadi kesalahan server" },
       { status: 500 }
     );
   }

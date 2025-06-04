@@ -1,9 +1,12 @@
-import { supabase } from "@/lib/supabase/supabase";
+// src/lib/services/supabase/pengeluaran/pengeluaran.ts
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { type Pengeluaran } from "@prisma/client";
 
 export async function getPengeluaranData(
   tahunFilter?: number
 ): Promise<Pengeluaran[]> {
+  const supabase = await createServerSupabaseClient();
+
   let query = supabase
     .from("Pengeluaran")
     .select("*")
@@ -24,6 +27,8 @@ export async function getPengeluaranData(
 }
 
 export async function getAvailableTahun(): Promise<number[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pengeluaran")
     .select("tahun")
@@ -40,6 +45,8 @@ export async function getAvailableTahun(): Promise<number[]> {
 export async function getPengeluaranById(
   id: number
 ): Promise<Pengeluaran | null> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pengeluaran")
     .select("*")
@@ -59,6 +66,8 @@ export async function createPengeluaran(
     tahun: number;
   }
 ): Promise<Pengeluaran> {
+  const supabase = await createServerSupabaseClient();
+
   // Logika nomor urut
   const { data: lastItem, error: lastItemError } = await supabase
     .from("Pengeluaran")
@@ -102,6 +111,8 @@ export async function updatePengeluaran(
   id: number,
   pengeluaran: Partial<Omit<Pengeluaran, "id" | "createdAt" | "updatedAt">>
 ): Promise<Pengeluaran> {
+  const supabase = await createServerSupabaseClient();
+
   // Tambahkan tanggal updatedAt sesuai dengan schema
   const now = new Date();
 
@@ -127,6 +138,8 @@ export async function getPengeluaranBulanan(
   tahun: number,
   bulan: number
 ): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   // Gunakan metode yang benar untuk menentukan tanggal awal dan akhir bulan
   const start = new Date(tahun, bulan - 1, 1);
   const end = new Date(tahun, bulan, 0); // Hari terakhir bulan
@@ -149,6 +162,8 @@ export async function getPengeluaranBulanan(
 }
 
 export async function deletePengeluaran(id: number): Promise<boolean> {
+  const supabase = await createServerSupabaseClient();
+
   try {
     const { data: pengeluaranToDelete, error: getError } = await supabase
       .from("Pengeluaran")
@@ -192,6 +207,8 @@ export async function deletePengeluaran(id: number): Promise<boolean> {
 }
 
 export async function getPengeluaranTahunan(tahun: number): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pengeluaran")
     .select("jumlah")

@@ -1,9 +1,12 @@
-import { supabase } from "@/lib/supabase/supabase";
+// src/lib/services/supabase/kotak-amal.ts
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { KotakAmalData } from "@/components/admin/layout/finance/pemasukan/table-donation/schema";
 
 export async function getKotakAmalData(
   tahunFilter?: number
 ): Promise<KotakAmalData[]> {
+  const supabase = await createServerSupabaseClient();
+
   let query = supabase
     .from("KotakAmal")
     .select("*")
@@ -40,6 +43,8 @@ export async function updateKotakAmalBulanan(
     | "des",
   jumlah: number
 ): Promise<KotakAmalData> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("KotakAmal")
     .update({ [bulan]: jumlah })
@@ -56,6 +61,8 @@ export async function updateKotakAmalBulanan(
 }
 
 export async function getAvailableTahun(): Promise<number[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("KotakAmal")
     .select("tahun")
@@ -70,6 +77,8 @@ export async function getAvailableTahun(): Promise<number[]> {
 }
 
 export async function updateKotakAmalOrder(kotakAmalData: KotakAmalData[]) {
+  const supabase = await createServerSupabaseClient();
+
   const updates = kotakAmalData.map((item, index) => ({
     id: item.id,
     no: index + 1,
@@ -90,6 +99,8 @@ export async function updateKotakAmalOrder(kotakAmalData: KotakAmalData[]) {
 export async function getKotakAmalById(
   id: number
 ): Promise<KotakAmalData | null> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("KotakAmal")
     .select("*")
@@ -109,6 +120,8 @@ export async function createKotakAmal(
     tahun: number;
   }
 ): Promise<KotakAmalData> {
+  const supabase = await createServerSupabaseClient();
+
   const { data: lastItem, error: lastItemError } = await supabase
     .from("KotakAmal")
     .select("no")
@@ -147,6 +160,8 @@ export async function updateKotakAmal(
   id: number,
   kotakAmal: Partial<Omit<KotakAmalData, "id" | "createdAt">>
 ): Promise<KotakAmalData> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("KotakAmal")
     .update(kotakAmal)
@@ -164,6 +179,8 @@ export async function updateKotakAmal(
 
 export async function deleteKotakAmal(id: number): Promise<boolean> {
   try {
+    const supabase = await createServerSupabaseClient();
+
     const { data: kotakAmalToDelete, error: getError } = await supabase
       .from("KotakAmal")
       .select("tahun")
@@ -209,6 +226,8 @@ export async function getKotakAmalBulanan(
   tahun: number,
   bulan: string
 ): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   const bulanMapping: { [key: string]: string } = {
     jan: "jan",
     feb: "feb",
@@ -250,6 +269,8 @@ export async function getKotakAmalBulanan(
 }
 
 export async function getKotakAmalTahunan(tahun: number): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("KotakAmal")
     .select("jan, feb, mar, apr, mei, jun, jul, aug, sep, okt, nov, des")
@@ -282,6 +303,8 @@ export async function getKotakAmalTahunan(tahun: number): Promise<number> {
 }
 
 export async function getTotalKotakAmal(tahun?: number): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   let query = supabase
     .from("KotakAmal")
     .select("jan, feb, mar, apr, mei, jun, jul, aug, sep, okt, nov, des");

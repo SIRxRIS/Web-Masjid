@@ -1,9 +1,12 @@
-import { supabase } from "@/lib/supabase/supabase";
+// src/lib/services/supabase/donasi-khusus.ts
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { DonasiKhususData } from "@/components/admin/layout/finance/pemasukan/table-donation/schema";
 
 export async function getDonasiKhusus(
   tahunFilter?: number
 ): Promise<DonasiKhususData[]> {
+  const supabase = await createServerSupabaseClient();
+
   let query = supabase
     .from("DonasiKhusus")
     .select("*")
@@ -24,6 +27,8 @@ export async function getDonasiKhusus(
 }
 
 export async function getAvailableTahun(): Promise<number[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("DonasiKhusus")
     .select("tahun")
@@ -40,6 +45,8 @@ export async function getAvailableTahun(): Promise<number[]> {
 export async function getDonasiKhususById(
   id: number
 ): Promise<DonasiKhususData | null> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("DonasiKhusus")
     .select("*")
@@ -57,6 +64,8 @@ export async function getDonasiKhususById(
 export async function getDonasiKhususData(
   tahunFilter?: number
 ): Promise<DonasiKhususData[]> {
+  const supabase = await createServerSupabaseClient();
+
   let query = supabase
     .from("DonasiKhusus")
     .select("*")
@@ -81,6 +90,8 @@ export async function createDonasiKhusus(
     tahun: number;
   }
 ): Promise<DonasiKhususData> {
+  const supabase = await createServerSupabaseClient();
+
   const { data: lastItem, error: lastItemError } = await supabase
     .from("DonasiKhusus")
     .select("no")
@@ -122,6 +133,8 @@ export async function updateDonasiKhusus(
   id: number,
   donasiKhususData: Partial<Omit<DonasiKhususData, "id" | "createdAt">>
 ): Promise<DonasiKhususData> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("DonasiKhusus")
     .update(donasiKhususData)
@@ -138,6 +151,8 @@ export async function updateDonasiKhusus(
 }
 
 export async function deleteDonasiKhusus(id: number): Promise<boolean> {
+  const supabase = await createServerSupabaseClient();
+
   try {
     const { data: donasiToDelete, error: getError } = await supabase
       .from("DonasiKhusus")
@@ -184,6 +199,8 @@ export async function updateDonasiKhususOrder(
   dataList: DonasiKhususData[],
   tahun: number
 ) {
+  const supabase = await createServerSupabaseClient();
+
   const updates = dataList
     .filter((item) => item.tahun === tahun)
     .map((item, index) => ({
@@ -207,6 +224,8 @@ export async function getDonasiKhususBulanan(
   tahun: number,
   bulan: number
 ): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   const start = `${tahun}-${bulan.toString().padStart(2, "0")}-01`;
   const end = new Date(tahun, bulan, 1).toISOString().split("T")[0];
 
@@ -225,6 +244,8 @@ export async function getDonasiKhususBulanan(
 }
 
 export async function getDonasiKhususTahunan(tahun: number): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("DonasiKhusus")
     .select("jumlah")

@@ -1,14 +1,16 @@
+// src/lib/supabase/dashboard/actions.ts
 "use server";
 
-import { supabase } from "@/lib/supabase/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 // Fungsi untuk mendapatkan total donasi bulanan - diimpor dari kode yang sudah ada
-export async function getDonasiBulanan(
+export async function getDonasiBulananAction(
   tahun: number,
   bulan: number
 ): Promise<number> {
   try {
-    const namaBulan = getBulanName(bulan);
+    const supabase = await createServerSupabaseClient();
+    const namaBulan = getBulanNameAction(bulan);
 
     const { data, error } = await supabase
       .from("Donatur")
@@ -28,7 +30,7 @@ export async function getDonasiBulanan(
 }
 
 // Fungsi helper untuk mendapatkan nama bulan dalam format database
-function getBulanName(bulan: number): string {
+function getBulanNameAction(bulan: number): string {
   const bulanMap: Record<number, string> = {
     1: "jan",
     2: "feb",
@@ -48,13 +50,13 @@ function getBulanName(bulan: number): string {
 }
 
 // Mengekspos fungsi dashboard lainnya yang mungkin diperlukan
-export async function getDashboardData(tahun: number, bulan: number) {
+export async function getDashboardDataLegacy(tahun: number, bulan: number) {
   try {
     // Mendapatkan total donasi bulan ini
-    const donasiBulanan = await getDonasiBulanan(tahun, bulan);
+    const donasiBulanan = await getDonasiBulananAction(tahun, bulan);
 
     // Mendapatkan persentase pertumbuhan donasi dibanding bulan sebelumnya
-    const pertumbuhanDonasi = await getPertumbuhanDonasi(tahun, bulan);
+    const pertumbuhanDonasi = await getPertumbuhanDonasiLegacy(tahun, bulan);
 
     // Tambahkan data lain yang diperlukan dari dashboard.ts sesuai kebutuhan
 
@@ -70,8 +72,8 @@ export async function getDashboardData(tahun: number, bulan: number) {
   }
 }
 
-// Fungsi untuk mendapatkan persentase pertumbuhan donasi
-async function getPertumbuhanDonasi(
+// Fungsi untuk mendapatkan persentase pertumbuhan donasi (legacy)
+async function getPertumbuhanDonasiLegacy(
   tahun: number,
   bulanIni: number
 ): Promise<number> {
@@ -85,8 +87,8 @@ async function getPertumbuhanDonasi(
       tahunSebelumnya = tahun - 1;
     }
 
-    const donasiBulanIni = await getDonasiBulanan(tahun, bulanIni);
-    const donasiBulanSebelumnya = await getDonasiBulanan(
+    const donasiBulanIni = await getDonasiBulananAction(tahun, bulanIni);
+    const donasiBulanSebelumnya = await getDonasiBulananAction(
       tahunSebelumnya,
       bulanSebelumnya
     );

@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase/supabase";
+// src/lib/services/supabase/rekap-tahunan.ts
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getPemasukanBulanan } from "./pemasukan/pemasukan";
 import { getPengeluaranBulanan } from "./pengeluaran/pengeluaran";
 
@@ -87,6 +88,8 @@ const bulanToProperty: Record<number, BulanKey> = {
 export async function getRekapPemasukanTahunan(
   tahun: number
 ): Promise<RekapPemasukan[]> {
+  const supabase = await createServerSupabaseClient();
+
   try {
     const { data: sumberArray, error: sumberError } = await supabase
       .from("Pemasukan")
@@ -207,6 +210,8 @@ export async function getRekapPemasukanTahunan(
 export async function getRekapPengeluaranTahunan(
   tahun: number
 ): Promise<RekapPengeluaran[]> {
+  const supabase = await createServerSupabaseClient();
+
   try {
     const { data: namaArray, error: namaError } = await supabase
       .from("Pengeluaran")
@@ -316,6 +321,8 @@ export async function getSaldoBulanan(
 }
 
 export async function getSaldoTahunan(tahun: number): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   try {
     const { data: pemasukanData, error: pemasukanError } = await supabase
       .from("Pemasukan")

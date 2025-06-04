@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase/supabase";
+// src/lib/services/supabase/pemasukan/pemasukan.ts
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { type Pemasukan } from "@prisma/client";
 
 // Definisi enum SumberPemasukan
@@ -15,6 +16,8 @@ export type SumberPemasukan = (typeof SUMBER_PEMASUKAN)[number];
 export async function getPemasukanData(
   tahunFilter?: number
 ): Promise<Pemasukan[]> {
+  const supabase = await createServerSupabaseClient();
+
   let query = supabase
     .from("Pemasukan")
     .select("*")
@@ -35,6 +38,8 @@ export async function getPemasukanData(
 }
 
 export async function getAvailableTahun(): Promise<number[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("tahun")
@@ -49,6 +54,8 @@ export async function getAvailableTahun(): Promise<number[]> {
 }
 
 export async function getPemasukanById(id: number): Promise<Pemasukan | null> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("*")
@@ -66,6 +73,8 @@ export async function getPemasukanById(id: number): Promise<Pemasukan | null> {
 export async function createPemasukan(
   pemasukan: Omit<Pemasukan, "id" | "createdAt" | "updatedAt">
 ): Promise<Pemasukan> {
+  const supabase = await createServerSupabaseClient();
+
   // Validasi sumber pemasukan
   if (!SUMBER_PEMASUKAN.includes(pemasukan.sumber as any)) {
     throw new Error("Sumber pemasukan tidak valid");
@@ -89,6 +98,8 @@ export async function updatePemasukan(
   id: number,
   pemasukan: Partial<Omit<Pemasukan, "id" | "createdAt" | "updatedAt">>
 ): Promise<Pemasukan> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pemasukan")
     .update(pemasukan)
@@ -105,6 +116,8 @@ export async function updatePemasukan(
 }
 
 export async function deletePemasukan(id: number): Promise<boolean> {
+  const supabase = await createServerSupabaseClient();
+
   try {
     const { error } = await supabase.from("Pemasukan").delete().eq("id", id);
 
@@ -121,6 +134,8 @@ export async function getPemasukanBulanan(
   tahun: number,
   bulan: number
 ): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   // Gunakan metode yang benar untuk menentukan tanggal awal dan akhir bulan
   const start = new Date(tahun, bulan - 1, 1);
   const end = new Date(tahun, bulan, 0); // Hari terakhir bulan
@@ -143,6 +158,8 @@ export async function getPemasukanBulanan(
 }
 
 export async function getPemasukanTahunan(tahun: number): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("jumlah")
@@ -161,6 +178,8 @@ export async function getPemasukanBySumber(
   tahun: number,
   sumber: string
 ): Promise<number> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("jumlah")
@@ -178,6 +197,8 @@ export async function getPemasukanBySumber(
 export async function getPemasukanByDonatur(
   donaturId: number
 ): Promise<Pemasukan[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("*")
@@ -195,6 +216,8 @@ export async function getPemasukanByDonatur(
 export async function getPemasukanByDonaturWithDetail(
   donaturId: number
 ): Promise<any[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pemasukan")
     .select(
@@ -217,6 +240,8 @@ export async function getPemasukanByDonaturWithDetail(
 export async function getPemasukanByDonasiKhusus(
   donasiKhususId: number
 ): Promise<Pemasukan[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("*")
@@ -237,6 +262,8 @@ export async function getPemasukanByDonasiKhusus(
 export async function getPemasukanByKotakAmal(
   kotakAmalId: number
 ): Promise<Pemasukan[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("*")
@@ -254,6 +281,8 @@ export async function getPemasukanByKotakAmal(
 export async function getPemasukanByKotakMasjid(
   kotakMasjidId: number
 ): Promise<Pemasukan[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pemasukan")
     .select("*")
@@ -276,6 +305,8 @@ export async function refreshPemasukanForEntity(
   entityType: "donatur" | "kotakAmal" | "kotakMasjid" | "donasiKhusus",
   entityId: number
 ): Promise<boolean> {
+  const supabase = await createServerSupabaseClient();
+
   try {
     // Mapping field ID sesuai entity type
     const fieldMapping = {
@@ -303,6 +334,8 @@ export async function refreshPemasukanForEntity(
 }
 
 export async function syncAllPemasukan(): Promise<void> {
+  const supabase = await createServerSupabaseClient();
+
   try {
     // Hapus semua data pemasukan terlebih dahulu untuk menghindari duplikasi
     const { error: deleteError } = await supabase

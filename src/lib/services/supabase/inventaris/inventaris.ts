@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase/supabase";
+// src/lib/services/supabase/inventaris/inventaris.ts
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export type Inventaris = {
   id: number;
@@ -25,6 +26,8 @@ export type Inventaris = {
 export async function getInventarisData(
   tahunFilter?: number
 ): Promise<Inventaris[]> {
+  const supabase = await createServerSupabaseClient();
+
   let query = supabase
     .from("Inventaris")
     .select("*")
@@ -50,6 +53,8 @@ export async function getInventarisData(
 }
 
 export async function getAvailableTahun(): Promise<number[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Inventaris")
     .select("tahun")
@@ -66,6 +71,8 @@ export async function getAvailableTahun(): Promise<number[]> {
 export async function getInventarisById(
   id: number
 ): Promise<Inventaris | null> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Inventaris")
     .select("*")
@@ -90,6 +97,8 @@ export async function getInventarisById(
 }
 
 export async function uploadFotoInventaris(file: File): Promise<string> {
+  const supabase = await createServerSupabaseClient();
+
   const fileExt = file.name.split(".").pop();
   const fileName = `${Date.now()}.${fileExt}`;
   const filePath = `inventaris/${fileName}`;
@@ -114,6 +123,8 @@ export async function createInventaris(
   inventaris: Omit<Inventaris, "id" | "tahun" | "createdAt" | "updatedAt">,
   file?: File
 ): Promise<Inventaris> {
+  const supabase = await createServerSupabaseClient();
+
   let fotoUrl = inventaris.fotoUrl;
   if (file) {
     fotoUrl = await uploadFotoInventaris(file);
@@ -163,6 +174,8 @@ export async function createInventaris(
 }
 
 async function deleteOldFotoInventaris(fotoUrl: string) {
+  const supabase = await createServerSupabaseClient();
+
   if (!fotoUrl) return;
 
   try {
@@ -190,6 +203,8 @@ export async function updateInventaris(
   >,
   file?: File
 ): Promise<Inventaris> {
+  const supabase = await createServerSupabaseClient();
+
   let fotoUrl = inventaris.fotoUrl;
   let dataToUpdate: any = { ...inventaris };
 
@@ -238,6 +253,8 @@ export async function updateInventaris(
 }
 
 export async function deleteInventaris(id: number): Promise<void> {
+  const supabase = await createServerSupabaseClient();
+
   try {
     const { data: inventarisToDelete, error: getError } = await supabase
       .from("Inventaris")

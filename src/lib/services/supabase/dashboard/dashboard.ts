@@ -1,6 +1,7 @@
+// src/lib/supabase/dashboard/dashboard.ts
 import { getPemasukanTahunan } from "../pemasukan/pemasukan";
 import { getPengeluaranTahunan } from "../pengeluaran/pengeluaran";
-import { supabase } from "@/lib/supabase/supabase";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { getTotalKotakAmal } from "../kotak-amal";
 import { getKotakAmalTahunan as getKotakAmalMasjidTahunan } from "../kotak-amal-masjid";
 import { getTotalKontenPublished } from "../konten";
@@ -75,6 +76,8 @@ export async function getDashboardData(tahun: number, bulan: number) {
 // Fungsi untuk mendapatkan jumlah total donatur aktif pada tahun tertentu
 async function getTotalDonatur(tahun: number): Promise<number> {
   try {
+    const supabase = await createServerSupabaseClient();
+
     const { count, error } = await supabase
       .from("Donatur")
       .select("*", { count: "exact", head: true })
@@ -98,6 +101,8 @@ async function getPertumbuhanDonatur(
   bulanIni: number
 ): Promise<number> {
   try {
+    const supabase = await createServerSupabaseClient();
+
     // Menentukan bulan sebelumnya dan tahun sebelumnya
     let bulanSebelumnya = bulanIni - 1;
     let tahunSebelumnya = tahun;
@@ -152,6 +157,7 @@ async function getPertumbuhanDonatur(
 // Fungsi untuk mendapatkan total donasi bulanan
 async function getDonasiBulanan(tahun: number, bulan: number): Promise<number> {
   try {
+    const supabase = await createServerSupabaseClient();
     const namaBulan = getBulanName(bulan);
 
     const { data, error } = await supabase

@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase/supabase";
+// src/lib/services/supabase/pengurus.ts
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export type PengurusData = {
   id: number;
@@ -12,6 +13,8 @@ export type PengurusData = {
 };
 
 async function uploadFotoPengurus(file: File): Promise<string> {
+  const supabase = await createServerSupabaseClient();
+
   const fileExt = file.name.split(".").pop();
   const fileName = `${Date.now()}.${fileExt}`;
   const filePath = `pengurus/${fileName}`;
@@ -36,6 +39,8 @@ async function uploadFotoPengurus(file: File): Promise<string> {
 }
 
 async function deleteOldFoto(fotoUrl: string) {
+  const supabase = await createServerSupabaseClient();
+
   if (!fotoUrl) return;
   const path = fotoUrl.split("/public/")[1];
 
@@ -53,6 +58,7 @@ export async function updatePengurusWithOptionalFoto(
   >,
   file?: File
 ) {
+  const supabase = await createServerSupabaseClient();
   let fotoUrl: string | undefined;
 
   if (file) {
@@ -90,6 +96,8 @@ export async function updatePengurusWithOptionalFoto(
 }
 
 export async function getPengurusData(): Promise<PengurusData[]> {
+  const supabase = await createServerSupabaseClient();
+
   const { data, error } = await supabase
     .from("Pengurus")
     .select("*")
@@ -112,6 +120,8 @@ export async function createPengurusWithFoto(
   },
   file: File | null
 ) {
+  const supabase = await createServerSupabaseClient();
+
   try {
     let fotoUrl = "/images/profile.png";
 
@@ -154,6 +164,8 @@ export async function createPengurusWithFoto(
 }
 
 export async function deletePengurus(id: number) {
+  const supabase = await createServerSupabaseClient();
+
   const { error } = await supabase.from("Pengurus").delete().eq("id", id);
 
   if (error) {
