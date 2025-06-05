@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 interface DeleteDonaturDialogProps {
   isOpen: boolean;
@@ -33,6 +33,7 @@ export function DeleteDonaturDialog({
 }: DeleteDonaturDialogProps) {
   const handleConfirm = async () => {
     try {
+      const supabase = createClient();
       const { error } = await supabase
         .from("Donatur")
         .delete()
@@ -99,7 +100,6 @@ export function DeleteDonaturDialog({
   );
 }
 
-
 interface DeleteKotakAmalDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -117,6 +117,7 @@ export function DeleteKotakAmalDialog({
 }: DeleteKotakAmalDialogProps) {
   const handleConfirm = async () => {
     try {
+      const supabase = createClient();
       const { error } = await supabase
         .from("KotakAmal")
         .delete()
@@ -166,7 +167,8 @@ export function DeleteKotakAmalDialog({
           <AlertDialogTitle>Hapus Data Kotak Amal</AlertDialogTitle>
           <AlertDialogDescription>
             Apakah Anda yakin ingin menghapus data kotak amal{" "}
-            <strong>{kotakAmalName}</strong>? Tindakan ini tidak dapat dibatalkan.
+            <strong>{kotakAmalName}</strong>? Tindakan ini tidak dapat
+            dibatalkan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

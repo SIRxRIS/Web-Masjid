@@ -12,8 +12,8 @@ import {
   IconArticle,
   IconReportAnalytics,
   IconChevronRight,
-  IconUserPlus,  
-  IconUsersGroup, 
+  IconUserPlus,
+  IconUsersGroup,
 } from "@tabler/icons-react";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { NavDocuments } from "@/components/admin/layout/nav-documents";
@@ -83,12 +83,12 @@ const data = {
         {
           title: "Daftar Pengurus",
           url: "/admin/main/management/daftar-pengurus",
-          icon: IconUsersGroup as React.ComponentType<any>, 
+          icon: IconUsersGroup as React.ComponentType<any>,
         },
         {
           title: "Tambah Pengurus",
           url: "/admin/main/management/tambah-pengurus",
-          icon: IconUserPlus as React.ComponentType<any>, 
+          icon: IconUserPlus as React.ComponentType<any>,
         },
       ],
     },
@@ -115,13 +115,13 @@ const data = {
       icon: IconFileDescription,
     },
   ],
-  navSecondary: [
+  /* navSecondary: [
     {
       title: "Pengaturan",
       url: "#",
       icon: IconSettings,
     },
-  ],
+  ],*/
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -153,7 +153,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
         <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

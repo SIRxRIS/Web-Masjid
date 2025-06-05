@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { PengeluaranData } from "../schema";
 import { formatNumber, unformatNumber } from "../utils";
 import { Calendar } from "@/components/ui/calendar";
@@ -50,9 +50,8 @@ export function EditPengeluaran({
     if (data) {
       setFormData({
         ...data,
-        tanggal: data.tanggal instanceof Date ?
-          data.tanggal :
-          new Date(data.tanggal)
+        tanggal:
+          data.tanggal instanceof Date ? data.tanggal : new Date(data.tanggal),
       });
     }
   }, [data]);
@@ -68,7 +67,8 @@ export function EditPengeluaran({
       } else if (field === "tanggal") {
         return { ...prev, [field]: value as Date };
       } else {
-        const numValue = typeof value === "string" ? unformatNumber(value) : value;
+        const numValue =
+          typeof value === "string" ? unformatNumber(value) : value;
         return { ...prev, [field]: numValue };
       }
     });
@@ -83,13 +83,15 @@ export function EditPengeluaran({
   const handleSave = async () => {
     if (formData) {
       try {
+        const supabase = createClient();
         const { error } = await supabase
           .from("Pengeluaran")
           .update({
             nama: formData.nama,
-            tanggal: formData.tanggal instanceof Date ?
-              format(formData.tanggal, 'yyyy-MM-dd') :
-              formData.tanggal,
+            tanggal:
+              formData.tanggal instanceof Date
+                ? format(formData.tanggal, "yyyy-MM-dd")
+                : formData.tanggal,
             jumlah: formData.jumlah,
             keterangan: formData.keterangan,
           })
@@ -168,7 +170,9 @@ export function EditPengeluaran({
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {formData.tanggal ? (
-                      format(new Date(formData.tanggal), "dd MMMM yyyy", { locale: id })
+                      format(new Date(formData.tanggal), "dd MMMM yyyy", {
+                        locale: id,
+                      })
                     ) : (
                       <span>Pilih tanggal</span>
                     )}

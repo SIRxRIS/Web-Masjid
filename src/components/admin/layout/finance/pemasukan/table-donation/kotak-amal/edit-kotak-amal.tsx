@@ -13,9 +13,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { KotakAmalData } from "../schema";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase/supabase";
+import { createClient } from "@/lib/supabase/client";
 
-import { formatNumber, unformatNumber } from "../../../pemasukan/table-donation/utils";
+import {
+  formatNumber,
+  unformatNumber,
+} from "../../../pemasukan/table-donation/utils";
 
 interface MonthName {
   field: string;
@@ -77,6 +80,7 @@ export function EditKotakAmal({
   const handleSave = async () => {
     if (formData) {
       try {
+        const supabase = createClient();
         const { error } = await supabase
           .from("KotakAmal")
           .update({
@@ -180,7 +184,11 @@ export function EditKotakAmal({
                   <Input
                     id={field}
                     type="text"
-                    value={formatNumber((formData[field as keyof KotakAmalData] as number).toString())}
+                    value={formatNumber(
+                      (
+                        formData[field as keyof KotakAmalData] as number
+                      ).toString()
+                    )}
                     onChange={(e) => handleInputChange(field, e.target.value)}
                     className="col-span-2"
                   />

@@ -1,3 +1,4 @@
+// src/components/admin/layout/finance/pemasukan/table-donation/table-toolbar.tsx
 "use client";
 
 import * as React from "react";
@@ -19,7 +20,7 @@ interface TableToolbarProps {
   placeholder?: string;
   year: string;
   setYear: (value: string) => void;
-  fetchYears: () => Promise<number[]>; // Fungsi untuk mengambil data tahun
+  fetchYears: () => Promise<number[]>;
 }
 
 export function TableToolbar({
@@ -28,7 +29,7 @@ export function TableToolbar({
   placeholder = "Cari nama atau alamat...",
   year,
   setYear,
-  fetchYears, // Terima fungsi langsung tanpa harus menentukan tipe service
+  fetchYears,
 }: TableToolbarProps) {
   const [availableYears, setAvailableYears] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -38,12 +39,12 @@ export function TableToolbar({
       try {
         setIsLoading(true);
         const yearsData = await fetchYears();
-        
+
         if (Array.isArray(yearsData) && yearsData.length > 0) {
           const sortedYears = [...yearsData].sort((a, b) => b - a);
-          const yearsString = sortedYears.map(year => year.toString());
+          const yearsString = sortedYears.map((year) => year.toString());
           setAvailableYears(yearsString);
-          
+
           if (!year || !yearsString.includes(year)) {
             setYear(yearsString[0]);
           }
@@ -51,7 +52,9 @@ export function TableToolbar({
           const currentYear = new Date().getFullYear().toString();
           setAvailableYears([currentYear]);
           setYear(currentYear);
-          console.warn("Tidak ada data tahun yang tersedia, menggunakan tahun saat ini");
+          console.warn(
+            "Tidak ada data tahun yang tersedia, menggunakan tahun saat ini"
+          );
         }
       } catch (error) {
         console.error("Error mengambil tahun:", error);
@@ -86,8 +89,8 @@ export function TableToolbar({
           <Label htmlFor="tahun" className="text-sm whitespace-nowrap">
             Tahun:
           </Label>
-          <Select 
-            value={year} 
+          <Select
+            value={year}
             onValueChange={setYear}
             disabled={isLoading || availableYears.length === 0}
           >

@@ -35,7 +35,7 @@ import {
 } from "@/components/ui/table";
 import { DraggableRow } from "../draggable-row";
 import { type KotakAmalMasjidData } from "../schema";
-import { columns } from "./columns";
+import { columns } from "./columns"; // Ubah impor dari ./columns, bukan dari ../riwayat-tahunan/columns
 import { EditKotakAmalMasjid } from "./edit-kotak-amal-masjid";
 import { DetailKotakAmalMasjid } from "./detail-kotak-amal-masjid";
 import { DeleteKotakAmalMasjidDialog } from "./delete-kotak-amal-masjid";

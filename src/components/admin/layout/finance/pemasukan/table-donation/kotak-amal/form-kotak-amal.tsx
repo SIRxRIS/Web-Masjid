@@ -11,9 +11,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { DialogFooter } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
-import { supabase } from "@/lib/supabase/supabase";
+import { createClient } from "@/lib/supabase/client";
 import Swal from "sweetalert2";
-import { formatNumber, unformatNumber } from "../../../pemasukan/table-donation/utils";
+import {
+  formatNumber,
+  unformatNumber,
+} from "../../../pemasukan/table-donation/utils";
 
 interface KotakAmalFormValues {
   nama: string;
@@ -58,6 +61,7 @@ export function FormKotakAmal({ onSuccess }: FormKotakAmalProps) {
   const onSubmit = async (data: KotakAmalFormValues) => {
     setIsSubmitting(true);
     try {
+      const supabase = createClient();
       const { data: lastKotakAmal, error: countError } = await supabase
         .from("KotakAmal")
         .select("no")
@@ -85,7 +89,7 @@ export function FormKotakAmal({ onSuccess }: FormKotakAmalProps) {
         timer: 2000,
         timerProgressBar: true,
         showConfirmButton: false,
-        iconColor: '#10B981',
+        iconColor: "#10B981",
       });
 
       form.reset();
@@ -193,7 +197,9 @@ export function FormKotakAmal({ onSuccess }: FormKotakAmalProps) {
                   <Input
                     type="text"
                     placeholder="0"
-                    value={field.value ? formatNumber(field.value.toString()) : ''}
+                    value={
+                      field.value ? formatNumber(field.value.toString()) : ""
+                    }
                     onChange={(e) => {
                       const value = unformatNumber(e.target.value);
                       field.onChange(value);

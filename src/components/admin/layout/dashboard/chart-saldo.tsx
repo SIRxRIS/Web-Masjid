@@ -1,7 +1,7 @@
 // src/components/admin/layout/dashboard/chart-saldo.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, LabelList, XAxis } from "recharts";
 
@@ -19,7 +19,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { getDonasiBulananAction } from "@/lib/services/supabase/dashboard/actions";
 
 // Konfigurasi chart
 const chartConfig = {
@@ -29,89 +28,17 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartSaldo() {
-  const [chartData, setChartData] = useState<
-    Array<{ month: string; saldo: number }>
-  >([]);
-  const [pertumbuhanPersentase, setPertumbuhanPersentase] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+interface ChartSaldoProps {
+  initialChartData: Array<{ month: string; saldo: number }>;
+  initialPertumbuhan: number;
+}
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const tahunSekarang = new Date().getFullYear();
-        const dataBulan = [];
-
-        // Nama bulan dalam bahasa Indonesia
-        const namaBulan = [
-          "Januari",
-          "Februari",
-          "Maret",
-          "April",
-          "Mei",
-          "Juni",
-          "Juli",
-          "Agustus",
-          "September",
-          "Oktober",
-          "November",
-          "Desember",
-        ];
-
-        // Mengambil data donasi untuk setiap bulan
-        for (let i = 1; i <= 12; i++) {
-          const totalDonasi = await getDonasiBulananAction(tahunSekarang, i);
-          dataBulan.push({
-            month: namaBulan[i - 1],
-            saldo: totalDonasi,
-          });
-        }
-
-        setChartData(dataBulan);
-
-        // Menghitung persentase pertumbuhan bulan ini
-        const bulanIni = new Date().getMonth() + 1; // Bulan saat ini (1-12)
-
-        if (bulanIni > 1) {
-          const donasiSekarang = dataBulan[bulanIni - 1].saldo;
-          const donasiSebelumnya = dataBulan[bulanIni - 2].saldo;
-
-          const pertumbuhan =
-            donasiSebelumnya === 0
-              ? 100
-              : parseFloat(
-                  (
-                    ((donasiSekarang - donasiSebelumnya) / donasiSebelumnya) *
-                    100
-                  ).toFixed(1)
-                );
-
-          setPertumbuhanPersentase(pertumbuhan);
-        }
-      } catch (error) {
-        console.error("Error mengambil data donasi:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Grafik Saldo</CardTitle>
-          <CardDescription>Memuat data...</CardDescription>
-        </CardHeader>
-        <CardContent className="flex items-center justify-center h-[300px]">
-          <div>Sedang memuat data donasi...</div>
-        </CardContent>
-      </Card>
-    );
-  }
+export function ChartSaldo({
+  initialChartData,
+  initialPertumbuhan,
+}: ChartSaldoProps) {
+  const [chartData] = useState(initialChartData);
+  const [pertumbuhanPersentase] = useState(initialPertumbuhan);
 
   return (
     <Card>
@@ -150,7 +77,7 @@ export function ChartSaldo() {
             <Bar dataKey="saldo" fill="var(--color-chart-1)" radius={8}>
               <LabelList
                 position="top"
-                offset={15} // Menambah jarak offset label
+                offset={15}
                 className="fill-foreground"
                 fontSize={12}
                 formatter={(value: number) =>

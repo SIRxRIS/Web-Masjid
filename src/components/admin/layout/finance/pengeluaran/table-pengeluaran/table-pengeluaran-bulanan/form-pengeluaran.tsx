@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { DialogFooter } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
-import { supabase } from "@/lib/supabase/supabase";
+import { createClient } from "@/lib/supabase/client";
 import Swal from "sweetalert2";
 import { formatNumber, unformatNumber } from "../utils";
 import { Textarea } from "@/components/ui/textarea";
@@ -67,6 +67,7 @@ export function FormDonaturRutin({ onSuccess }: FormDonaturRutinProps) {
   const onSubmit = async (data: DonaturFormValues) => {
     setIsSubmitting(true);
     try {
+      const supabase = createClient();
       const { data: lastDonatur, error: countError } = await supabase
         .from("Donatur")
         .select("no")
@@ -92,7 +93,7 @@ export function FormDonaturRutin({ onSuccess }: FormDonaturRutinProps) {
         timer: 2000,
         timerProgressBar: true,
         showConfirmButton: false,
-        iconColor: '#10B981',
+        iconColor: "#10B981",
       });
 
       form.reset();
@@ -202,7 +203,6 @@ export function FormDonaturRutin({ onSuccess }: FormDonaturRutinProps) {
   );
 }
 
-
 interface PengeluaranFormValues {
   nama: string;
   tanggal: Date;
@@ -229,6 +229,7 @@ export function FormPengeluaran({ onSuccess }: FormPengeluaranProps) {
   const onSubmit = async (data: PengeluaranFormValues) => {
     setIsSubmitting(true);
     try {
+      const supabase = createClient();
       const tahun = data.tanggal.getFullYear();
       const { data: lastPengeluaran, error: countError } = await supabase
         .from("Pengeluaran")
@@ -237,17 +238,21 @@ export function FormPengeluaran({ onSuccess }: FormPengeluaranProps) {
         .limit(1);
 
       const nextNo =
-        lastPengeluaran && lastPengeluaran.length > 0 ? lastPengeluaran[0].no + 1 : 1;
+        lastPengeluaran && lastPengeluaran.length > 0
+          ? lastPengeluaran[0].no + 1
+          : 1;
       const pengeluaranData = {
         no: nextNo,
         nama: data.nama,
-        tanggal: format(data.tanggal, 'yyyy-MM-dd'),
+        tanggal: format(data.tanggal, "yyyy-MM-dd"),
         tahun: tahun,
         jumlah: data.jumlah,
         keterangan: data.keterangan,
       };
 
-      const { error } = await supabase.from("Pengeluaran").insert(pengeluaranData);
+      const { error } = await supabase
+        .from("Pengeluaran")
+        .insert(pengeluaranData);
 
       if (error) throw error;
 
@@ -258,7 +263,7 @@ export function FormPengeluaran({ onSuccess }: FormPengeluaranProps) {
         timer: 2000,
         timerProgressBar: true,
         showConfirmButton: false,
-        iconColor: '#10B981',
+        iconColor: "#10B981",
       });
 
       form.reset();

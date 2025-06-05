@@ -1,7 +1,5 @@
-// src/lib/supabase/dashboard/dashboard.ts
-import { getPemasukanTahunan } from "../pemasukan/pemasukan";
-import { getPengeluaranTahunan } from "../pengeluaran/pengeluaran";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+// src/lib/services/supabase/dashboard/dashboard-client.ts
+import { createClient } from "@/lib/supabase/client";
 import { getTotalKotakAmal } from "../kotak-amal";
 import { getKotakAmalMasjidTahunan } from "../kotak-amal-masjid";
 import { getTotalKontenPublished } from "../konten";
@@ -17,35 +15,145 @@ export const SUMBER_PEMASUKAN = [
 
 export type SumberPemasukan = (typeof SUMBER_PEMASUKAN)[number];
 
-export async function getDashboardData(tahun: number, bulan: number) {
+// Fungsi untuk mendapatkan pemasukan tahunan (client-side)
+async function getPemasukanTahunanClient(tahun: number): Promise<number> {
   try {
-    const totalPemasukan = await getPemasukanTahunan(tahun);
-    const totalPengeluaran = await getPengeluaranTahunan(tahun);
+    const supabase = createClient();
 
-    const jumlahDonatur = await getTotalDonatur(tahun);
+    const { data, error } = await supabase
+      .from("Pemasukan")
+      .select("jumlah")
+      .eq("tahun", tahun);
+
+    if (error) {
+      console.error("Error mengambil pemasukan tahunan:", error);
+      throw new Error("Gagal mengambil pemasukan tahunan");
+    }
+
+    return data.reduce((total, item) => total + (item.jumlah || 0), 0);
+  } catch (error) {
+    console.error("Error menghitung pemasukan tahunan:", error);
+    throw new Error("Gagal menghitung pemasukan tahunan");
+  }
+}
+
+// Fungsi untuk mendapatkan pengeluaran tahunan (client-side)
+async function getPengeluaranTahunanClient(tahun: number): Promise<number> {
+  try {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+      .from("Pengeluaran")
+      .select("jumlah")
+      .eq("tahun", tahun);
+
+    if (error) {
+      console.error("Error mengambil pengeluaran tahunan:", error);
+      throw new Error("Gagal mengambil pengeluaran tahunan");
+    }
+
+    return data.reduce((total, item) => total + (item.jumlah || 0), 0);
+  } catch (error) {
+    console.error("Error menghitung pengeluaran tahunan:", error);
+    throw new Error("Gagal menghitung pengeluaran tahunan");
+  }
+}
+
+// Fungsi untuk mendapatkan total kotak amal (client-side)
+async function getTotalKotakAmalClient(tahun: number): Promise<number> {
+  try {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+      .from("KotakAmal")
+      .select("jumlah")
+      .eq("tahun", tahun);
+
+    if (error) {
+      console.error("Error mengambil kotak amal:", error);
+      throw new Error("Gagal mengambil kotak amal");
+    }
+
+    return data.reduce((total, item) => total + (item.jumlah || 0), 0);
+  } catch (error) {
+    console.error("Error menghitung total kotak amal:", error);
+    return 0;
+  }
+}
+
+// Fungsi untuk mendapatkan kotak amal masjid tahunan (client-side)
+async function getKotakAmalMasjidTahunanClient(tahun: number): Promise<number> {
+  try {
+    const supabase = createClient();
+
+    const { data, error } = await supabase
+      .from("KotakAmalMasjid")
+      .select("jumlah")
+      .eq("tahun", tahun);
+
+    if (error) {
+      console.error("Error mengambil kotak amal masjid:", error);
+      throw new Error("Gagal mengambil kotak amal masjid");
+    }
+
+    return data.reduce((total, item) => total + (item.jumlah || 0), 0);
+  } catch (error) {
+    console.error("Error menghitung kotak amal masjid:", error);
+    return 0;
+  }
+}
+
+// Fungsi untuk mendapatkan total konten published (client-side)
+async function getTotalKontenPublishedClient(): Promise<number> {
+  try {
+    const supabase = createClient();
+
+    const { count, error } = await supabase
+      .from("Konten")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "published");
+
+    if (error) {
+      console.error("Error mengambil total konten:", error);
+      throw new Error("Gagal mengambil total konten");
+    }
+
+    return count || 0;
+  } catch (error) {
+    console.error("Error menghitung total konten:", error);
+    return 0;
+  }
+}
+
+export async function getDashboardDataClient(tahun: number, bulan: number) {
+  try {
+    const totalPemasukan = await getPemasukanTahunanClient(tahun);
+    const totalPengeluaran = await getPengeluaranTahunanClient(tahun);
+
+    const jumlahDonatur = await getTotalDonaturClient(tahun);
 
     // Mendapatkan persentase pertumbuhan donatur dibanding bulan sebelumnya
-    const pertumbuhanDonatur = await getPertumbuhanDonatur(tahun, bulan);
+    const pertumbuhanDonatur = await getPertumbuhanDonaturClient(tahun, bulan);
 
     // Mendapatkan total donasi bulan ini
-    const donasiBulanan = await getDonasiBulanan(tahun, bulan);
+    const donasiBulanan = await getDonasiBulananClient(tahun, bulan);
 
     // Mendapatkan persentase pertumbuhan donasi dibanding bulan sebelumnya
-    const pertumbuhanDonasi = await getPertumbuhanDonasi(tahun, bulan);
+    const pertumbuhanDonasi = await getPertumbuhanDonasiClient(tahun, bulan);
 
     // Mendapatkan total kotak amal dan kotak amal masjid
-    const totalKotakAmal = await getTotalKotakAmal(tahun);
-    const totalKotakAmalMasjid = await getKotakAmalMasjidTahunan(tahun);
+    const totalKotakAmal = await getTotalKotakAmalClient(tahun);
+    const totalKotakAmalMasjid = await getKotakAmalMasjidTahunanClient(tahun);
     const totalGabunganKotakAmal = totalKotakAmal + totalKotakAmalMasjid;
 
     // Mendapatkan total konten yang dipublish
-    const totalKontenPublished = await getTotalKontenPublished();
+    const totalKontenPublished = await getTotalKontenPublishedClient();
 
     const saldo = totalPemasukan - totalPengeluaran;
 
     // Mendapatkan pertumbuhan dana tahunan dan bulanan
-    const pertumbuhanDanaTahunan = await getPertumbuhanDanaTahunan(tahun);
-    const pertumbuhanDanaBulanan = await getPertumbuhanDanaBulanan(
+    const pertumbuhanDanaTahunan = await getPertumbuhanDanaTahunanClient(tahun);
+    const pertumbuhanDanaBulanan = await getPertumbuhanDanaBulananClient(
       tahun,
       bulan
     );
@@ -64,8 +172,8 @@ export async function getDashboardData(tahun: number, bulan: number) {
       totalKotakAmalMasjid,
       totalGabunganKotakAmal,
       totalKontenPublished,
-      pertumbuhanDanaTahunan, // Menambahkan pertumbuhan dana tahunan (15.5%)
-      pertumbuhanDanaBulanan, // Menambahkan pertumbuhan dana bulanan (2.3%)
+      pertumbuhanDanaTahunan,
+      pertumbuhanDanaBulanan,
     };
   } catch (error) {
     console.error("Error mengambil data dashboard:", error);
@@ -74,9 +182,9 @@ export async function getDashboardData(tahun: number, bulan: number) {
 }
 
 // Fungsi untuk mendapatkan jumlah total donatur aktif pada tahun tertentu
-async function getTotalDonatur(tahun: number): Promise<number> {
+async function getTotalDonaturClient(tahun: number): Promise<number> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createClient();
 
     const { count, error } = await supabase
       .from("Donatur")
@@ -96,12 +204,12 @@ async function getTotalDonatur(tahun: number): Promise<number> {
 }
 
 // Fungsi untuk mendapatkan persentase pertumbuhan donatur
-async function getPertumbuhanDonatur(
+async function getPertumbuhanDonaturClient(
   tahun: number,
   bulanIni: number
 ): Promise<number> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createClient();
 
     // Menentukan bulan sebelumnya dan tahun sebelumnya
     let bulanSebelumnya = bulanIni - 1;
@@ -155,9 +263,12 @@ async function getPertumbuhanDonatur(
 }
 
 // Fungsi untuk mendapatkan total donasi bulanan
-async function getDonasiBulanan(tahun: number, bulan: number): Promise<number> {
+async function getDonasiBulananClient(
+  tahun: number,
+  bulan: number
+): Promise<number> {
   try {
-    const supabase = await createServerSupabaseClient();
+    const supabase = createClient();
     const namaBulan = getBulanName(bulan);
 
     const { data, error } = await supabase
@@ -178,7 +289,7 @@ async function getDonasiBulanan(tahun: number, bulan: number): Promise<number> {
 }
 
 // Fungsi untuk mendapatkan persentase pertumbuhan donasi
-async function getPertumbuhanDonasi(
+async function getPertumbuhanDonasiClient(
   tahun: number,
   bulanIni: number
 ): Promise<number> {
@@ -192,8 +303,8 @@ async function getPertumbuhanDonasi(
       tahunSebelumnya = tahun - 1;
     }
 
-    const donasiBulanIni = await getDonasiBulanan(tahun, bulanIni);
-    const donasiBulanSebelumnya = await getDonasiBulanan(
+    const donasiBulanIni = await getDonasiBulananClient(tahun, bulanIni);
+    const donasiBulanSebelumnya = await getDonasiBulananClient(
       tahunSebelumnya,
       bulanSebelumnya
     );
@@ -234,11 +345,11 @@ function getBulanName(bulan: number): string {
 }
 
 // Fungsi untuk menghitung pertumbuhan dana tahunan
-async function getPertumbuhanDanaTahunan(tahun: number): Promise<number> {
+async function getPertumbuhanDanaTahunanClient(tahun: number): Promise<number> {
   try {
     // Ambil total pemasukan tahun ini dan tahun lalu
-    const pemasukanTahunIni = await getPemasukanTahunan(tahun);
-    const pemasukanTahunLalu = await getPemasukanTahunan(tahun - 1);
+    const pemasukanTahunIni = await getPemasukanTahunanClient(tahun);
+    const pemasukanTahunLalu = await getPemasukanTahunanClient(tahun - 1);
 
     // Jika tahun lalu tidak ada data, return 100% (pertumbuhan penuh)
     if (pemasukanTahunLalu === 0) return 100;
@@ -257,7 +368,7 @@ async function getPertumbuhanDanaTahunan(tahun: number): Promise<number> {
 }
 
 // Fungsi untuk menghitung pertumbuhan dana bulanan
-async function getPertumbuhanDanaBulanan(
+async function getPertumbuhanDanaBulananClient(
   tahun: number,
   bulanIni: number
 ): Promise<number> {
@@ -271,8 +382,8 @@ async function getPertumbuhanDanaBulanan(
       tahunSebelumnya = tahun - 1;
     }
 
-    const pemasukanBulanIni = await getDonasiBulanan(tahun, bulanIni);
-    const pemasukanBulanLalu = await getDonasiBulanan(
+    const pemasukanBulanIni = await getDonasiBulananClient(tahun, bulanIni);
+    const pemasukanBulanLalu = await getDonasiBulananClient(
       tahunSebelumnya,
       bulanSebelumnya
     );

@@ -22,9 +22,12 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { id } from "date-fns/locale";
-import { supabase } from "@/lib/supabase/supabase";
+import { createClient } from "@/lib/supabase/client";
 import Swal from "sweetalert2";
-import { formatNumber, unformatNumber } from "../../../pemasukan/table-donation/utils";
+import {
+  formatNumber,
+  unformatNumber,
+} from "../../../pemasukan/table-donation/utils";
 
 interface DonasiKhususFormValues {
   nama: string;
@@ -52,6 +55,7 @@ export function FormDonasiKhusus({ onSuccess }: FormDonasiKhususProps) {
   const onSubmit = async (data: DonasiKhususFormValues) => {
     setIsSubmitting(true);
     try {
+      const supabase = createClient();
       const { data: lastDonasiKhusus, error: countError } = await supabase
         .from("DonasiKhusus")
         .select("no")
@@ -66,7 +70,7 @@ export function FormDonasiKhusus({ onSuccess }: FormDonasiKhususProps) {
       const donasiKhususData = {
         no: nextNo,
         nama: data.nama,
-        tanggal: format(data.tanggal, 'yyyy-MM-dd'),
+        tanggal: format(data.tanggal, "yyyy-MM-dd"),
         tahun: data.tanggal.getFullYear(),
         jumlah: data.jumlah,
         keterangan: data.keterangan,
@@ -85,7 +89,7 @@ export function FormDonasiKhusus({ onSuccess }: FormDonasiKhususProps) {
         timer: 2000,
         timerProgressBar: true,
         showConfirmButton: false,
-        iconColor: '#10B981',
+        iconColor: "#10B981",
       });
 
       form.reset();

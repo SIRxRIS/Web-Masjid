@@ -3,7 +3,7 @@ import { KotakAmalMasjidData } from "../schema";
 import { formatCurrency } from "../utils";
 import { TableActions } from "./table-actions";
 import { format, isValid } from "date-fns";
-import { id } from "date-fns/locale"; 
+import { id } from "date-fns/locale";
 
 interface ColumnOptions {
   onEdit?: (kotakAmal: KotakAmalMasjidData) => void;

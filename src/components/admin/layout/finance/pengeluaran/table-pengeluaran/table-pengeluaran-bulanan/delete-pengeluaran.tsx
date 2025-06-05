@@ -12,7 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 interface DeletePengeluaranDialogProps {
   isOpen: boolean;
@@ -31,6 +31,7 @@ export function DeletePengeluaranDialog({
 }: DeletePengeluaranDialogProps) {
   const handleConfirm = async () => {
     try {
+      const supabase = createClient();
       const { error } = await supabase
         .from("Pengeluaran")
         .delete()
@@ -80,7 +81,8 @@ export function DeletePengeluaranDialog({
           <AlertDialogTitle>Hapus Data Pengeluaran</AlertDialogTitle>
           <AlertDialogDescription>
             Apakah Anda yakin ingin menghapus data pengeluaran{" "}
-            <strong>{pengeluaranName}</strong>? Tindakan ini tidak dapat dibatalkan.
+            <strong>{pengeluaranName}</strong>? Tindakan ini tidak dapat
+            dibatalkan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

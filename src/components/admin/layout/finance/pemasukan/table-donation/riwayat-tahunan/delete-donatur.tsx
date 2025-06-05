@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 interface DeleteDonaturDialogProps {
   isOpen: boolean;
@@ -33,6 +33,7 @@ export function DeleteDonaturDialog({
 }: DeleteDonaturDialogProps) {
   const handleConfirm = async () => {
     try {
+      const supabase = createClient();
       const { error } = await supabase
         .from("Donatur")
         .delete()

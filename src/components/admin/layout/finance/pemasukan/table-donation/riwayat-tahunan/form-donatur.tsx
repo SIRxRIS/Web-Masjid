@@ -11,9 +11,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { DialogFooter } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
-import { supabase } from "@/lib/supabase/supabase";
+import { createClient } from "@/lib/supabase/client";
 import Swal from "sweetalert2";
-import { formatNumber, unformatNumber } from "../../../pemasukan/table-donation/utils";
+import {
+  formatNumber,
+  unformatNumber,
+} from "../../../pemasukan/table-donation/utils";
 
 interface DonaturFormValues {
   nama: string;
@@ -58,6 +61,7 @@ export function FormDonaturRutin({ onSuccess }: FormDonaturRutinProps) {
   const onSubmit = async (data: DonaturFormValues) => {
     setIsSubmitting(true);
     try {
+      const supabase = createClient();
       const { data: lastDonatur, error: countError } = await supabase
         .from("Donatur")
         .select("no")
@@ -85,7 +89,7 @@ export function FormDonaturRutin({ onSuccess }: FormDonaturRutinProps) {
         timer: 2000,
         timerProgressBar: true,
         showConfirmButton: false,
-        iconColor: '#10B981',
+        iconColor: "#10B981",
       });
 
       form.reset();

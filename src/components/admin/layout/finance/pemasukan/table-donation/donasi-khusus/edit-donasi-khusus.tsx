@@ -13,18 +13,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DonasiKhususData } from "../schema";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase/supabase";
+import { createClient } from "@/lib/supabase/client";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { id } from 'date-fns/locale';
+import { id } from "date-fns/locale";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { formatNumber, unformatNumber } from "../../../pemasukan/table-donation/utils";
+import {
+  formatNumber,
+  unformatNumber,
+} from "../../../pemasukan/table-donation/utils";
 
 interface EditDonasiKhususProps {
   isOpen: boolean;
@@ -49,9 +52,10 @@ export function EditDonasiKhusus({
     if (donasi) {
       setFormData({
         ...donasi,
-        tanggal: donasi.tanggal instanceof Date ?
-          donasi.tanggal :
-          new Date(donasi.tanggal)
+        tanggal:
+          donasi.tanggal instanceof Date
+            ? donasi.tanggal
+            : new Date(donasi.tanggal),
       });
     }
   }, [donasi]);
@@ -66,7 +70,8 @@ export function EditDonasiKhusus({
       } else if (field === "tanggal") {
         return { ...prev, [field]: value as Date };
       } else {
-        const numValue = typeof value === "string" ? unformatNumber(value) : value;
+        const numValue =
+          typeof value === "string" ? unformatNumber(value) : value;
         return { ...prev, [field]: numValue };
       }
     });
@@ -75,13 +80,15 @@ export function EditDonasiKhusus({
   const handleSave = async () => {
     if (formData) {
       try {
+        const supabase = createClient();
         const { error } = await supabase
           .from("DonasiKhusus")
           .update({
             nama: formData.nama,
-            tanggal: formData.tanggal instanceof Date ?
-              format(formData.tanggal, 'yyyy-MM-dd') :
-              formData.tanggal,
+            tanggal:
+              formData.tanggal instanceof Date
+                ? format(formData.tanggal, "yyyy-MM-dd")
+                : formData.tanggal,
             jumlah: formData.jumlah,
             keterangan: formData.keterangan,
           })
@@ -165,7 +172,9 @@ export function EditDonasiKhusus({
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {formData.tanggal ? (
-                      format(new Date(formData.tanggal), "dd MMMM yyyy", { locale: id })
+                      format(new Date(formData.tanggal), "dd MMMM yyyy", {
+                        locale: id,
+                      })
                     ) : (
                       <span>Pilih tanggal</span>
                     )}

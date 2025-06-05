@@ -11,14 +11,17 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { supabase } from "@/lib/supabase/supabase";
-import { RekapPemasukan, RekapPengeluaran } from "@/components/admin/layout/laporan-keuangan/schema";
+import { createClient } from "@/lib/supabase/client";
+import {
+  RekapPemasukan,
+  RekapPengeluaran,
+} from "@/components/admin/layout/laporan-keuangan/schema";
 
 interface DeleteRekapDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (id: number) => Promise<boolean>;
-  type: 'pemasukan' | 'pengeluaran';
+  type: "pemasukan" | "pengeluaran";
   id: number;
 }
 
@@ -31,12 +34,9 @@ export function DeleteRekapDialog({
 }: DeleteRekapDialogProps) {
   const handleConfirm = async () => {
     try {
-      const tableName = type === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran';
-
-      const { error } = await supabase
-        .from(tableName)
-        .delete()
-        .eq("id", id);
+      const tableName = type === "pemasukan" ? "Pemasukan" : "Pengeluaran";
+      const supabase = createClient();
+      const { error } = await supabase.from(tableName).delete().eq("id", id);
 
       if (error) {
         console.error(`Error menghapus ${type}:`, error);
@@ -55,9 +55,12 @@ export function DeleteRekapDialog({
     <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Hapus Data {type === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran'}</AlertDialogTitle>
+          <AlertDialogTitle>
+            Hapus Data {type === "pemasukan" ? "Pemasukan" : "Pengeluaran"}
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat dibatalkan.
+            Apakah Anda yakin ingin menghapus data ini? Tindakan ini tidak dapat
+            dibatalkan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -73,4 +76,3 @@ export function DeleteRekapDialog({
     </AlertDialog>
   );
 }
-

@@ -17,7 +17,7 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
-import { id } from 'date-fns/locale'; 
+import { id } from "date-fns/locale";
 import {
   Popover,
   PopoverContent,
@@ -43,15 +43,19 @@ export function EditKotakAmalMasjid({
   onDelete,
   year,
 }: EditKotakAmalMasjidProps) {
-  const [formData, setFormData] = React.useState<KotakAmalMasjidData | null>(null);
+  const [formData, setFormData] = React.useState<KotakAmalMasjidData | null>(
+    null
+  );
+  const [isSaving, setIsSaving] = React.useState(false);
 
   React.useEffect(() => {
     if (kotakAmal) {
       setFormData({
         ...kotakAmal,
-        tanggal: kotakAmal.tanggal instanceof Date ? 
-          kotakAmal.tanggal : 
-          new Date(kotakAmal.tanggal)
+        tanggal:
+          kotakAmal.tanggal instanceof Date
+            ? kotakAmal.tanggal
+            : new Date(kotakAmal.tanggal),
       });
     }
   }, [kotakAmal]);
@@ -61,11 +65,12 @@ export function EditKotakAmalMasjid({
   const handleInputChange = (field: string, value: string | number | Date) => {
     setFormData((prev) => {
       if (!prev) return null;
-  
+
       if (field === "tanggal") {
         return { ...prev, tanggal: value as Date };
       } else if (field === "jumlah") {
-        const numValue = typeof value === "string" ? unformatNumber(value) : Number(value);
+        const numValue =
+          typeof value === "string" ? unformatNumber(value) : Number(value);
         return { ...prev, jumlah: numValue };
       }
       return prev;
@@ -73,38 +78,60 @@ export function EditKotakAmalMasjid({
   };
 
   const handleSave = async () => {
-    if (formData) {
-      try {
-        const updatedData = await updateKotakAmal(formData.id, {
-          tanggal: formData.tanggal instanceof Date ? 
-            format(formData.tanggal, 'yyyy-MM-dd') : 
-            formData.tanggal,
-          jumlah: formData.jumlah,
-          tahun: parseInt(year)
-        });
+    if (!formData || isSaving) return;
 
-        onSave(updatedData);
-        Swal.fire({
-          title: "Berhasil!",
-          text: "Data kotak amal masjid berhasil diperbarui",
-          icon: "success",
-          timer: 2000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        });
-
-        onClose();
-      } catch (err) {
-        console.error("Error in handleSave:", err);
-        Swal.fire({
-          title: "Error!",
-          text: "Terjadi kesalahan saat memperbarui data",
-          icon: "error",
-          timer: 2000,
-          timerProgressBar: true,
-          showConfirmButton: false,
-        });
+    setIsSaving(true);
+    try {
+      // Validasi input
+      if (!formData.tanggal || formData.jumlah <= 0) {
+        throw new Error("Tanggal dan jumlah harus diisi dengan benar");
       }
+
+      const updateData = {
+        tanggal:
+          formData.tanggal instanceof Date
+            ? format(formData.tanggal, "yyyy-MM-dd")
+            : formData.tanggal,
+        jumlah: formData.jumlah,
+        tahun: parseInt(year),
+      };
+
+      const updatedData = await updateKotakAmal(formData.id, updateData);
+
+      // Update state dengan data yang sudah diupdate
+      onSave({
+        ...updatedData,
+        tanggal: new Date(updatedData.tanggal),
+      });
+
+      await Swal.fire({
+        title: "Berhasil!",
+        text: "Data kotak amal masjid berhasil diperbarui",
+        icon: "success",
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+
+      onClose();
+    } catch (err) {
+      console.error("Error in handleSave:", err);
+
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan saat memperbarui data";
+
+      await Swal.fire({
+        title: "Error!",
+        text: errorMessage,
+        icon: "error",
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -131,6 +158,7 @@ export function EditKotakAmalMasjid({
                   <Button
                     id="tanggal"
                     variant={"outline"}
+                    disabled={isSaving}
                     className={cn(
                       "w-full justify-start text-left font-normal",
                       !formData.tanggal && "text-muted-foreground"
@@ -138,7 +166,9 @@ export function EditKotakAmalMasjid({
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {formData.tanggal ? (
-                      format(new Date(formData.tanggal), "dd MMMM yyyy", { locale: id })
+                      format(new Date(formData.tanggal), "dd MMMM yyyy", {
+                        locale: id,
+                      })
                     ) : (
                       <span>Pilih tanggal</span>
                     )}
@@ -166,17 +196,21 @@ export function EditKotakAmalMasjid({
             <Input
               id="jumlah"
               type="text"
+              disabled={isSaving}
               value={formatNumber(formData.jumlah.toString())}
               onChange={(e) => handleInputChange("jumlah", e.target.value)}
               className="col-span-3"
+              placeholder="Masukkan jumlah"
             />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={isSaving}>
             Batal
           </Button>
-          <Button onClick={handleSave}>Simpan</Button>
+          <Button onClick={handleSave} disabled={isSaving}>
+            {isSaving ? "Menyimpan..." : "Simpan"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -12,7 +12,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import Swal from "sweetalert2";
-import { supabase } from "@/lib/supabase/supabase";
 import { deleteKotakAmal } from "@/lib/services/supabase/kotak-amal-masjid";
 
 interface DeleteKotakAmalMasjidDialogProps {
@@ -30,12 +29,21 @@ export function DeleteKotakAmalMasjidDialog({
   kotakAmalName,
   kotakAmalId,
 }: DeleteKotakAmalMasjidDialogProps) {
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
   const handleConfirm = async () => {
+    if (isDeleting) return; // Prevent double clicks
+
+    setIsDeleting(true);
     try {
+      // Hapus dari database terlebih dahulu
       await deleteKotakAmal(kotakAmalId);
 
+      // Kemudian update state parent component
       await onConfirm(kotakAmalId);
-      Swal.fire({
+
+      // Tampilkan notifikasi sukses
+      await Swal.fire({
         title: "Terhapus!",
         text: "Data kotak amal masjid berhasil dihapus",
         icon: "success",
@@ -47,14 +55,23 @@ export function DeleteKotakAmalMasjidDialog({
       onClose();
     } catch (err) {
       console.error("Error in handleConfirm:", err);
-      Swal.fire({
+
+      // Tampilkan error yang lebih spesifik
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Terjadi kesalahan saat menghapus data";
+
+      await Swal.fire({
         title: "Error!",
-        text: "Terjadi kesalahan saat menghapus data",
+        text: errorMessage,
         icon: "error",
-        timer: 2000,
+        timer: 3000,
         timerProgressBar: true,
         showConfirmButton: false,
       });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -65,16 +82,18 @@ export function DeleteKotakAmalMasjidDialog({
           <AlertDialogTitle>Hapus Data Kotak Amal Masjid</AlertDialogTitle>
           <AlertDialogDescription>
             Apakah Anda yakin ingin menghapus data kotak amal masjid tanggal{" "}
-            <strong>{kotakAmalName}</strong>? Tindakan ini tidak dapat dibatalkan.
+            <strong>{kotakAmalName}</strong>? Tindakan ini tidak dapat
+            dibatalkan.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Batal</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>Batal</AlertDialogCancel>
           <AlertDialogAction
             onClick={handleConfirm}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            disabled={isDeleting}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
           >
-            Hapus
+            {isDeleting ? "Menghapus..." : "Hapus"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
